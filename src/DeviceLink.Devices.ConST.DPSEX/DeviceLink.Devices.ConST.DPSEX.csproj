@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <RootNamespace>DeviceLink.Devices.ConST.DPSEX</RootNamespace>
+    <AssemblyName>DeviceLink.Devices.ConST.DPSEX</AssemblyName>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DeviceLink.Core\DeviceLink.Core.csproj" />
+  </ItemGroup>
+
+</Project>
