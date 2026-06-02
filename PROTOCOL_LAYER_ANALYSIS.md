@@ -118,6 +118,147 @@ public class BluetoothTransport : IPhysicalTransport
 }
 ```
 
+### Zigbee协议实现详情
+
+Zigbee协议已实现模块化架构，支持多种厂商的Zigbee模块：
+
+#### 架构设计
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ZigbeeTransport                              │
+│              (实现 IPhysicalTransport)                           │
+├─────────────────────────────────────────────────────────────────┤
+│                       IZigbeeModule                             │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │ XBeeModule  │ │ CC2530Module│ │  ZM32Module  │               │
+│  │   (Digi)    │ │    (TI)     │ │   (ZLG)     │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+├─────────────────────────────────────────────────────────────────┤
+│               SerialPortTransport (复用)                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 支持的模块
+
+| 模块 | 厂商 | AT指令格式 | 数据帧格式 | 特点 |
+|------|------|------------|------------|------|
+| **XBee** | Digi | `ATID1234` | API帧/透明模式 | 支持API模式和透明模式 |
+| **CC2530** | TI | `AT+PANID=1234` | 透明传输 | 始终处于AT命令模式 |
+| **ZM32** | ZLG | `AT+PANID=1234` | 完全透明传输 | 3线制串口全透明 |
+
+#### 核心接口
+
+```csharp
+/// <summary>
+/// Zigbee模块抽象接口
+/// </summary>
+public interface IZigbeeModule
+{
+    string Name { get; }
+    
+    // 配置相关
+    Task EnterCommandModeAsync(IPhysicalTransport transport, CancellationToken ct = default);
+    Task ExitCommandModeAsync(IPhysicalTransport transport, CancellationToken ct = default);
+    Task ConfigurePanIdAsync(IPhysicalTransport transport, ushort panId, CancellationToken ct = default);
+    Task ConfigureChannelAsync(IPhysicalTransport transport, byte channel, CancellationToken ct = default);
+    Task ConfigureDestinationAsync(IPhysicalTransport transport, ulong destAddress, CancellationToken ct = default);
+    
+    // 数据帧处理
+    byte[] BuildDataFrame(byte[] data, string? destination = null);
+    bool TryParseDataFrame(byte[] frame, out byte[] data, out string? source);
+}
+```
+
+#### 使用示例
+
+```csharp
+// 创建Zigbee传输层
+var options = new ZigbeeOptions
+{
+    ModuleType = ZigbeeModuleType.ZM32,
+    PortName = "COM5",
+    BaudRate = 9600,
+    PanId = 0x1234,
+    Channel = 0x0B
+};
+
+var transport = new ZigbeeTransport(options);
+await transport.ConnectAsync();
+
+// 使用现有框架组件
+var dataLink = new DirectDataLink(transport, new DelimiterFrameStrategy("\r\n"));
+var session = new DirectSession(dataLink);
+var codec = new ConSTCodec(1);
+var device = new DPSEX(session, codec);
+```
+
+#### 配置选项
+
+```csharp
+public class ZigbeeOptions : SerialPortOptions
+{
+    public ZigbeeModuleType ModuleType { get; set; } = ZigbeeModuleType.ZM32;
+    public ushort PanId { get; set; } = 0x1234;
+    public byte Channel { get; set; } = 0x0B; // Channel 11
+    public ulong DestinationAddress { get; set; } = 0;
+    public bool UseApiMode { get; set; } = false; // XBee专用
+    public int GuardTimeMs { get; set; } = 1000;
+    public int CommandTimeoutMs { get; set; } = 2000;
+    
+    // ZM32特有参数
+    public ushort ZM32_TargetNetworkAddress { get; set; } = 0x0000;
+    public byte ZM32_SendMode { get; set; } = 0x01; // 0x01=单播
+    public byte ZM32_DeviceType { get; set; } = 0x00; // 0=协调器, 1=路由器, 2=终端
+    public bool ZM32_EnableAutoNetwork { get; set; } = false;
+    public ushort ZM32_TargetGroupNumber { get; set; } = 0x0001;
+}
+```
+
+#### 无感设计（Transparent Design）
+
+Zigbee 传输层的核心设计原则是 **应用层无感**：上层设备（如 DPSEX、DPG）无需感知底层通讯介质的变化。只需在构造函数中替换传输层实例，即可实现串口直连与 Zigbee 无线通讯的无缝切换。
+
+```csharp
+// 方式一：串口直连
+var serialTransport = new SerialPortTransport(serialOptions);
+var device = new DPSEX(new DirectSession(new DirectDataLink(serialTransport, frameStrategy)), codec);
+
+// 方式二：Zigbee 无线（仅替换传输层，其余代码完全相同）
+var zigbeeTransport = new ZigbeeTransport(zigbeeOptions);
+var device = new DPSEX(new DirectSession(new DirectDataLink(zigbeeTransport, frameStrategy)), codec);
+```
+
+**架构流程**：
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│  应用层 (DPSEX)          发送: "READ:PRESSURE\0"                        │
+│       ↓                                                                │
+│  协议层 (ConSTCodec)     编码: "1:R:READ:PRESSURE:\0"                   │
+│       ↓                                                                │
+│  会话层 (DirectSession)  请求-响应管理, 超时重试                          │
+│       ↓                                                                │
+│  数据链路层 (Delimiter)  组帧: [STX] + data + [ETX]                     │
+│       ↓                                                                │
+│  物理传输层 (Zigbee)     自动配置ZM32 → 透明透传数据                      │
+│       ↓                                                                │
+│  串口 (SerialPort)       → ZM32协调器 → Zigbee无线 → ZM32终端 → 传感器   │
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+**自动配置流程**（`ConnectAsync` 时自动完成，用户无感）：
+
+1. 打开串口连接
+2. ZM32 进入命令模式（`+++`）
+3. 配置 PAN ID（`AT+PANID=xxxx`）
+4. 配置信道（`AT+CHANNEL=xx`）
+5. 配置目标网络地址（`DE DF EF D2 + addr`）
+6. 配置发送模式（`DE DF EF D9 + mode`）
+7. 配置自组网（`AB BC CD 27 + config + AA`）
+8. 退出命令模式（`AT+EXIT`）
+9. 进入透明传输模式
+
 #### B类：需要物理层+数据链路层扩展
 
 这些协议需要同时实现新的 `IPhysicalTransport` 和 `IFrameStrategy`，因为它们有特殊的帧格式。
