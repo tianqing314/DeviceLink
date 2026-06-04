@@ -1,0 +1,26 @@
+  DeviceLink.Protocol -> g:\DeviceLink\core\DeviceLink.Protocol\bin\Debug\netstandard2.0\DeviceLink.Protocol.dll
+  DeviceLink.Protocol -> g:\DeviceLink\core\DeviceLink.Protocol\bin\Debug\net6.0\DeviceLink.Protocol.dll
+  DeviceLink.Transport -> g:\DeviceLink\core\DeviceLink.Transport\bin\Debug\net6.0\DeviceLink.Transport.dll
+  DeviceLink.Transport -> g:\DeviceLink\core\DeviceLink.Transport\bin\Debug\netstandard2.0\DeviceLink.Transport.dll
+  DeviceLink.DataLink -> g:\DeviceLink\core\DeviceLink.DataLink\bin\Debug\netstandard2.0\DeviceLink.DataLink.dll
+  DeviceLink.Session -> g:\DeviceLink\core\DeviceLink.Session\bin\Debug\netstandard2.0\DeviceLink.Session.dll
+  DeviceLink.DataLink -> g:\DeviceLink\core\DeviceLink.DataLink\bin\Debug\net6.0\DeviceLink.DataLink.dll
+  DeviceLink.Pipeline -> g:\DeviceLink\core\DeviceLink.Pipeline\bin\Debug\netstandard2.0\DeviceLink.Pipeline.dll
+  DeviceLink.Session -> g:\DeviceLink\core\DeviceLink.Session\bin\Debug\net6.0\DeviceLink.Session.dll
+  DeviceLink.DeviceBase -> g:\DeviceLink\core\DeviceLink.DeviceBase\bin\Debug\netstandard2.0\DeviceLink.DeviceBase.dll
+  DeviceLink.Device.DPSEX -> g:\DeviceLink\devices\DeviceLink.Device.DPSEX\bin\Debug\netstandard2.0\DeviceLink.Device.DPSEX.dll
+  DeviceLink.Pipeline -> g:\DeviceLink\core\DeviceLink.Pipeline\bin\Debug\net6.0\DeviceLink.Pipeline.dll
+  DeviceLink.Device.ConST860 -> g:\DeviceLink\devices\DeviceLink.Device.ConST860\bin\Debug\netstandard2.0\DeviceLink.Device.ConST860.dll
+  DeviceLink.DeviceBase -> g:\DeviceLink\core\DeviceLink.DeviceBase\bin\Debug\net6.0\DeviceLink.DeviceBase.dll
+  DeviceLink.Device.DPSEX -> g:\DeviceLink\devices\DeviceLink.Device.DPSEX\bin\Debug\net6.0\DeviceLink.Device.DPSEX.dll
+  DeviceLink.Device.ConST860 -> g:\DeviceLink\devices\DeviceLink.Device.ConST860\bin\Debug\net6.0\DeviceLink.Device.ConST860.dll
+  DeviceLink.Tests -> g:\DeviceLink\tests\DeviceLink.Tests\bin\Debug\net6.0\DeviceLink.Tests.dll
+  DeviceLink.Tests.ConST860 -> g:\DeviceLink\tests\DeviceLink.Tests.ConST860\bin\Debug\net6.0\DeviceLink.Tests.ConST860.dll
+
+已成功生成。
+    0 个警告
+    0 个错误
+
+已用时间 00:00:02.73
+
+有可用的工作负载更新。有关详细信息，请运行 `dotnet workload list`。

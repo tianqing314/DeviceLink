@@ -221,10 +221,17 @@ namespace DeviceLink.DataLink
                     hasReceivedData = true;
                     idleTimer.Restart();
 
+                    _logger.LogDebug(
+                        "[{DataLink}] 累积接收 {Read} bytes, 总计 {Total} bytes",
+                        Name, read, accumulated.Count);
+
                     // 帧解析检查
                     var accArray = accumulated.ToArray();
                     if (_frameStrategy.TryParseFrame(accArray, out int frameLen, out byte[] frameData))
                     {
+                        _logger.LogDebug(
+                            "[{DataLink}] 帧检测成功, 帧长度 {FrameLen}",
+                            Name, frameLen);
                         return frameData;
                     }
                 }
@@ -255,14 +262,18 @@ namespace DeviceLink.DataLink
         private void LogSend(byte[] data)
         {
             _logger.LogDebug(
-                "[{DataLink}] → Send ({Bytes} bytes): {Hex}  {Text}",
+                "[{DataLink}] → 帧发送 ({Bytes} bytes)\n" +
+                "  HEX: {Hex}\n" +
+                "  TXT: {Text}",
                 Name, data.Length, BytesToHex(data), BytesToSafeText(data));
         }
 
         private void LogReceive(byte[] data)
         {
             _logger.LogDebug(
-                "[{DataLink}] ← Recv ({Bytes} bytes): {Hex}  {Text}",
+                "[{DataLink}] ← 帧接收 ({Bytes} bytes)\n" +
+                "  HEX: {Hex}\n" +
+                "  TXT: {Text}",
                 Name, data.Length, BytesToHex(data), BytesToSafeText(data));
         }
 

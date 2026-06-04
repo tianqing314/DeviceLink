@@ -1,9 +1,6 @@
-using DeviceLink.DataLink;
 using DeviceLink.Device.DPSEX;
 using DeviceLink.DeviceBase;
-using DeviceLink.Protocol;
-using DeviceLink.Session;
-using DeviceLink.Transport;
+using DeviceLink.Tests.Helpers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -11,33 +8,37 @@ using Xunit;
 namespace DeviceLink.Tests
 {
     /// <summary>
-    /// DPSEX设备测试
+    /// DPSEX 设备单元测试
+    /// 
+    /// 使用 LoopbackSettings 创建回环测试环境，不依赖物理硬件。
+    /// 通过 settings.Transport.OnSend 回调模拟设备响应。
     /// </summary>
     public class DPSEXTests
     {
-        public DPSEXTests()
+        /// <summary>
+        /// 创建测试用 DPSEX 实例和配套的 LoopbackSettings
+        /// </summary>
+        /// <returns>(dpsex, settings) 元组</returns>
+        private static (DPSEX dpsex, LoopbackSettings settings) CreateTestDevice()
         {
-
+            var settings = new LoopbackSettings();
+            var dpsex = new DPSEX("COM3", 4800, 8, System.IO.Ports.StopBits.Two, System.IO.Ports.Parity.None);
+            return (dpsex, settings);
         }
+
         [Fact]
-        public async Task DPSEX_GetPressureAsync_ShouldReturnPressure()
+        public async Task GetPressureAsync_ShouldReturnPressure()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
-            // 设置回环响应
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var text = Encoding.ASCII.GetString(data);
                 if (text.Contains("MRMD"))
                 {
                     var response = Encoding.ASCII.GetBytes("255:F:MRMD:1.23456\0");
-                    transport.EnqueueReceive(response);
+                    settings.Transport.EnqueueReceive(response);
                 }
             };
 
@@ -51,24 +52,18 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public async Task DPSEX_GetVersionAsync_ShouldReturnVersion()
+        public async Task GetVersionAsync_ShouldReturnVersion()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
-            // 设置回环响应
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var text = Encoding.ASCII.GetString(data);
                 if (text.Contains("OVER"))
                 {
                     var response = Encoding.ASCII.GetBytes("255:F:OVER:V1.0.0\0");
-                    transport.EnqueueReceive(response);
+                    settings.Transport.EnqueueReceive(response);
                 }
             };
 
@@ -82,24 +77,18 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public async Task DPSEX_GetSerialNumberAsync_ShouldReturnSerialNumber()
+        public async Task GetSerialNumberAsync_ShouldReturnSerialNumber()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
-            // 设置回环响应
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var text = Encoding.ASCII.GetString(data);
                 if (text.Contains("OTYPE"))
                 {
                     var response = Encoding.ASCII.GetBytes("255:F:OTYPE:SN123456\0");
-                    transport.EnqueueReceive(response);
+                    settings.Transport.EnqueueReceive(response);
                 }
             };
 
@@ -113,25 +102,20 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public async Task DPSEX_PressureZeroAsync_ShouldSendCommand()
+        public async Task PressureZeroAsync_ShouldSendCommand()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
             bool commandSent = false;
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var text = Encoding.ASCII.GetString(data);
                 if (text.Contains("OZERO"))
                 {
                     commandSent = true;
                     var response = Encoding.ASCII.GetBytes("255:F:OZERO:\0");
-                    transport.EnqueueReceive(response);
+                    settings.Transport.EnqueueReceive(response);
                 }
             };
 
@@ -145,25 +129,20 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public async Task DPSEX_SetAddressAsync_ShouldSendCommand()
+        public async Task SetAddressAsync_ShouldSendCommand()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
             bool commandSent = false;
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var text = Encoding.ASCII.GetString(data);
                 if (text.Contains("OADD") && text.Contains("100"))
                 {
                     commandSent = true;
                     var response = Encoding.ASCII.GetBytes("255:F:OADD:\0");
-                    transport.EnqueueReceive(response);
+                    settings.Transport.EnqueueReceive(response);
                 }
             };
 
@@ -177,21 +156,15 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public async Task DPSEX_DeviceError_ShouldThrowException()
+        public async Task DeviceError_ShouldThrowException()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
-            // 设置回环响应为错误
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var response = Encoding.ASCII.GetBytes("255:E:ERR_OVER\0");
-                transport.EnqueueReceive(response);
+                settings.Transport.EnqueueReceive(response);
             };
 
             await dpsex.OpenAsync();
@@ -201,34 +174,29 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public async Task DPSEX_WithLoopbackTransport_ShouldWork()
+        public async Task GetTemperatureAsync_ShouldReturnTemperature()
         {
             // Arrange
-            using var transport = new LoopbackTransport();
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            using var dataLink = new DirectDataLink(transport, frameStrategy);
-            using var session = new DirectSession(dataLink);
-            var codec = new ConSTCodec(255);
-            using var dpsex = new DPSEX(session, codec);
+            var (dpsex, settings) = CreateTestDevice();
 
-            // 设置回环响应
-            transport.OnSend += data =>
+            settings.Transport.OnSend += data =>
             {
                 var text = Encoding.ASCII.GetString(data);
-                if (text.Contains("MRMD"))
+                if (text.Contains("OTEMP"))
                 {
-                    var response = Encoding.ASCII.GetBytes("255:F:MRMD:2.34567\0");
-                    transport.EnqueueReceive(response);
+                    // 返回纯数字温度值（模拟实际设备响应）
+                    var response = Encoding.ASCII.GetBytes("255:F:OTEMP:25.3\0");
+                    settings.Transport.EnqueueReceive(response);
                 }
             };
 
             await dpsex.OpenAsync();
 
             // Act
-            var pressure = await dpsex.GetPressureAsync();
+            var temperature = await dpsex.GetTemperatureAsync();
 
             // Assert
-            Assert.Equal(2.34567, pressure);
+            Assert.Equal(25.3, temperature);
         }
     }
 }

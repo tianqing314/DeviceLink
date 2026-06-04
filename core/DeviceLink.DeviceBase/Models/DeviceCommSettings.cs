@@ -4,6 +4,7 @@ using System.Net;
 using DeviceLink.DataLink;
 using DeviceLink.Pipeline;
 using DeviceLink.Protocol;
+using DeviceLink.Session;
 using DeviceLink.Transport;
 
 namespace DeviceLink.DeviceBase
@@ -19,7 +20,7 @@ namespace DeviceLink.DeviceBase
         /// </summary>
         /// <param name="codec">协议编解码器</param>
         /// <returns>通信管道</returns>
-        internal abstract CommunicationPipeline CreatePipeline(IProtocolCodec codec);
+        protected internal abstract CommunicationPipeline CreatePipeline(IProtocolCodec codec);
     }
 
     /// <summary>
@@ -35,7 +36,7 @@ namespace DeviceLink.DeviceBase
         /// <summary>
         /// 波特率
         /// </summary>
-        public int BaudRate { get; set; } = 4800;
+        public int BaudRate { get; set; } = 9600;
 
         /// <summary>
         /// 数据位
@@ -45,7 +46,7 @@ namespace DeviceLink.DeviceBase
         /// <summary>
         /// 停止位
         /// </summary>
-        public StopBits StopBits { get; set; } = StopBits.Two;
+        public StopBits StopBits { get; set; } = StopBits.One;
 
         /// <summary>
         /// 校验位
@@ -56,6 +57,16 @@ namespace DeviceLink.DeviceBase
         /// 帧分隔符
         /// </summary>
         public byte[] Delimiter { get; set; } = new byte[] { 0 };
+
+        /// <summary>
+        /// 启用 DTR（数据终端就绪）信号
+        /// </summary>
+        public bool DtrEnable { get; set; }
+
+        /// <summary>
+        /// 启用 RTS（请求发送）信号
+        /// </summary>
+        public bool RtsEnable { get; set; }
 
         /// <summary>
         /// 初始化串口通信配置
@@ -91,9 +102,9 @@ namespace DeviceLink.DeviceBase
             return new SerialPortSettings
             {
                 PortName = portName,
-                BaudRate = 4800,
+                BaudRate = 9600,
                 DataBits = 8,
-                StopBits = StopBits.Two,
+                StopBits = StopBits.One,
                 Parity = Parity.None
             };
         }
@@ -103,10 +114,10 @@ namespace DeviceLink.DeviceBase
         /// </summary>
         /// <param name="codec">协议编解码器</param>
         /// <returns>通信管道</returns>
-        internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
+        protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
             return new CommunicationPipelineBuilder()
-                .UseTransport(new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity))
+                .UseTransport(new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity, DtrEnable, RtsEnable))
                 .UseDataLink(new DelimiterFrameStrategy(Delimiter))
                 .UseProtocol(codec)
                 .Build();
@@ -173,11 +184,122 @@ namespace DeviceLink.DeviceBase
         /// </summary>
         /// <param name="codec">协议编解码器</param>
         /// <returns>通信管道</returns>
-        internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
+        protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
             return new CommunicationPipelineBuilder()
                 .UseTransport(new TcpTransport(IpAddress.ToString(), Port, ConnectTimeoutMs))
                 .UseDataLink(new DelimiterFrameStrategy(Delimiter))
+                .UseProtocol(codec)
+                .Build();
+        }
+    }
+
+    /// <summary>
+    /// MQTT通信配置
+    /// </summary>
+    public class MqttSettings : DeviceCommSettings
+    {
+        /// <summary>
+        /// MQTT Broker 地址
+        /// </summary>
+        public string BrokerHost { get; set; } = "127.0.0.1";
+
+        /// <summary>
+        /// MQTT Broker 端口号
+        /// </summary>
+        public int BrokerPort { get; set; } = 1883;
+
+        /// <summary>
+        /// 客户端 ID
+        /// </summary>
+        public string ClientId { get; set; } = $"DeviceLink_{Guid.NewGuid():N}";
+
+        /// <summary>
+        /// 请求主题（设备接收命令的主题）
+        /// </summary>
+        public string RequestTopic { get; set; } = "devicelink/request";
+
+        /// <summary>
+        /// 响应主题（设备发送响应的主题）
+        /// </summary>
+        public string ResponseTopic { get; set; } = "devicelink/response";
+
+        /// <summary>
+        /// 请求超时时间（毫秒）
+        /// </summary>
+        public int RequestTimeoutMs { get; set; } = 5000;
+
+        /// <summary>
+        /// MQTT 用户名（可选）
+        /// </summary>
+        public string? Username { get; set; }
+
+        /// <summary>
+        /// MQTT 密码（可选）
+        /// </summary>
+        public string? Password { get; set; }
+
+        /// <summary>
+        /// 是否使用 TLS 加密
+        /// </summary>
+        public bool UseTls { get; set; }
+
+        /// <summary>
+        /// 是否清理会话
+        /// </summary>
+        public bool CleanSession { get; set; } = true;
+
+        /// <summary>
+        /// 心跳间隔（秒）
+        /// </summary>
+        public ushort KeepAliveSeconds { get; set; } = 60;
+
+        /// <summary>
+        /// 初始化MQTT通信配置
+        /// </summary>
+        public MqttSettings()
+        {
+        }
+
+        /// <summary>
+        /// 初始化MQTT通信配置
+        /// </summary>
+        /// <param name="brokerHost">MQTT Broker 地址</param>
+        /// <param name="brokerPort">MQTT Broker 端口号</param>
+        /// <param name="requestTopic">请求主题</param>
+        /// <param name="responseTopic">响应主题</param>
+        public MqttSettings(string brokerHost, int brokerPort, string requestTopic, string responseTopic)
+        {
+            BrokerHost = brokerHost ?? throw new ArgumentNullException(nameof(brokerHost));
+            BrokerPort = brokerPort;
+            RequestTopic = requestTopic ?? throw new ArgumentNullException(nameof(requestTopic));
+            ResponseTopic = responseTopic ?? throw new ArgumentNullException(nameof(responseTopic));
+        }
+
+        /// <summary>
+        /// 创建MQTT通信管道（完整 OSI 链路）
+        /// </summary>
+        /// <param name="codec">协议编解码器</param>
+        /// <returns>通信管道</returns>
+        protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
+        {
+            var session = new MqttSession(new MqttSessionOptions
+            {
+                BrokerHost = BrokerHost,
+                BrokerPort = BrokerPort,
+                ClientId = ClientId,
+                RequestTopic = RequestTopic,
+                ResponseTopic = ResponseTopic,
+                RequestTimeoutMs = RequestTimeoutMs,
+                Username = Username,
+                Password = Password,
+                UseTls = UseTls,
+                CleanSession = CleanSession,
+                KeepAliveSeconds = KeepAliveSeconds
+            });
+
+            return new CommunicationPipelineBuilder()
+                .UseSession(session)
                 .UseProtocol(codec)
                 .Build();
         }

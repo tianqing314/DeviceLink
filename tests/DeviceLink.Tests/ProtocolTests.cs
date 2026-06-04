@@ -162,6 +162,64 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
+        public void ScpiCodec_CRLF_Encode_ShouldAppendCRLF()
+        {
+            // Arrange
+            var codec = new ScpiCodec("\r\n");
+            var command = Command.Read("*IDN");
+
+            // Act
+            var encoded = codec.Encode(command);
+
+            // Assert
+            var text = Encoding.ASCII.GetString(encoded);
+            Assert.Equal("*IDN?\r\n", text);
+        }
+
+        [Fact]
+        public void ScpiCodec_CRLF_DecodeText_ShouldStripCRLF()
+        {
+            // Arrange
+            var codec = new ScpiCodec("\r\n");
+            var data = Encoding.ASCII.GetBytes("Manufacturer,Model,SN,FW\r\n");
+
+            // Act
+            var text = codec.DecodeText(data);
+
+            // Assert
+            Assert.Equal("Manufacturer,Model,SN,FW", text);
+        }
+
+        [Fact]
+        public void ScpiCodec_CRLF_IsErrorResponse_ShouldDetectError()
+        {
+            // Arrange
+            var codec = new ScpiCodec("\r\n");
+            var data = Encoding.ASCII.GetBytes("-100,\"Command error\"\r\n");
+
+            // Act
+            bool isError = codec.IsErrorResponse(data, out var errorMessage);
+
+            // Assert
+            Assert.True(isError);
+            Assert.Equal("Command error", errorMessage);
+        }
+
+        [Fact]
+        public void ScpiCodec_CRLF_ExtractNumeric_ShouldWork()
+        {
+            // Arrange
+            var codec = new ScpiCodec("\r\n");
+            var data = Encoding.ASCII.GetBytes("1.2345\r\n");
+
+            // Act
+            var value = codec.ExtractNumeric(data);
+
+            // Assert
+            Assert.Equal(1.2345, value);
+        }
+
+        [Fact]
         public void ModbusRtuCodec_Encode_ReadCommand_ShouldEncodeCorrectly()
         {
             // Arrange

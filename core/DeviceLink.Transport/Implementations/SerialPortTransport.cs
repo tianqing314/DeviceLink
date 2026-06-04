@@ -34,9 +34,12 @@ namespace DeviceLink.Transport
         /// <param name="dataBits">数据位</param>
         /// <param name="stopBits">停止位</param>
         /// <param name="parity">校验位</param>
+        /// <param name="dtrEnable">启用 DTR 信号</param>
+        /// <param name="rtsEnable">启用 RTS 信号</param>
         /// <param name="logger">日志记录器</param>
         public SerialPortTransport(string portName, int baudRate = 9600,
             int dataBits = 8, StopBits stopBits = StopBits.One, Parity parity = Parity.None,
+            bool dtrEnable = false, bool rtsEnable = false,
             ILogger<SerialPortTransport>? logger = null)
             : this(new SerialPortOptions
             {
@@ -44,7 +47,9 @@ namespace DeviceLink.Transport
                 BaudRate = baudRate,
                 DataBits = dataBits,
                 StopBits = stopBits,
-                Parity = parity
+                Parity = parity,
+                DtrEnable = dtrEnable,
+                RtsEnable = rtsEnable
             }, logger)
         { }
 
@@ -71,7 +76,9 @@ namespace DeviceLink.Transport
                     ReadTimeout = SerialPort.InfiniteTimeout,
                     WriteTimeout = SerialPort.InfiniteTimeout,
                     ReadBufferSize = _options.ReadBufferSize > 0 ? _options.ReadBufferSize : 4096,
-                    WriteBufferSize = _options.WriteBufferSize > 0 ? _options.WriteBufferSize : 2048
+                    WriteBufferSize = _options.WriteBufferSize > 0 ? _options.WriteBufferSize : 2048,
+                    DtrEnable = _options.DtrEnable,
+                    RtsEnable = _options.RtsEnable
                 };
 
                 _serialPort.Open();

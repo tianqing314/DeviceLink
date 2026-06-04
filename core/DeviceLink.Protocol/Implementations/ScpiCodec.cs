@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 
 namespace DeviceLink.Protocol
@@ -17,17 +16,19 @@ namespace DeviceLink.Protocol
     /// </summary>
     public class ScpiCodec : IProtocolCodec
     {
-        private readonly char _terminator;
+        private readonly string _terminator;
+        private readonly byte[] _terminatorBytes;
         private readonly Encoding _encoding;
 
         /// <summary>
         /// 创建 SCPI 协议编解码器
         /// </summary>
-        /// <param name="terminator">命令结束符（默认 '\n'）</param>
-        public ScpiCodec(char terminator = '\n')
+        /// <param name="terminator">命令结束符（默认 "\n"）。支持多字符结束符如 "\r\n"</param>
+        public ScpiCodec(string terminator = "\n")
         {
-            _terminator = terminator;
+            _terminator = terminator ?? "\n";
             _encoding = Encoding.ASCII;
+            _terminatorBytes = _encoding.GetBytes(_terminator);
         }
 
         /// <inheritdoc/>
@@ -85,10 +86,22 @@ namespace DeviceLink.Protocol
             if (raw == null || raw.Length == 0)
                 return string.Empty;
 
-            // 去掉结束符
+            // 去掉结束符（支持多字符终止符如 \r\n）
             int len = raw.Length;
-            while (len > 0 && raw[len - 1] == (byte)_terminator)
-                len--;
+            if (len >= _terminatorBytes.Length)
+            {
+                bool endsWithTerminator = true;
+                for (int i = 0; i < _terminatorBytes.Length; i++)
+                {
+                    if (raw[len - _terminatorBytes.Length + i] != _terminatorBytes[i])
+                    {
+                        endsWithTerminator = false;
+                        break;
+                    }
+                }
+                if (endsWithTerminator)
+                    len -= _terminatorBytes.Length;
+            }
 
             return _encoding.GetString(raw, 0, len);
         }
@@ -104,7 +117,7 @@ namespace DeviceLink.Protocol
             // 例如：-200,"Execution error"
             if (text.StartsWith("-"))
             {
-                var parts = text.Split(new[] {','}, 2);
+                var parts = text.Split(new[] { ',' }, 2);
                 if (parts.Length >= 2)
                 {
                     errorMessage = parts[1].Trim('"');
@@ -153,6 +166,45 @@ namespace DeviceLink.Protocol
         {
             var text = DecodeText(raw).ToUpper();
             return text == "1" || text == "ON" || text == "TRUE";
+        }
+
+        /// <summary>
+        /// 按分隔符分割响应，提取指定位置的字段
+        /// </summary>
+        /// <param name="raw">原始响应数据</param>
+        /// <param name="separator">分隔符（如 ','、':'、' '）</param>
+        /// <param name="index">字段索引（从0开始）</param>
+        /// <returns>字段值，如果索引越界返回空字符串</returns>
+        public string ExtractField(byte[] raw, char separator, int index)
+        {
+            var text = DecodeText(raw);
+            var parts = text.Split(separator);
+            return index >= 0 && index < parts.Length ? parts[index].Trim() : string.Empty;
+        }
+
+        /// <summary>
+        /// 按分隔符分割响应，提取指定位置的字段
+        /// </summary>
+        /// <param name="raw">原始响应数据</param>
+        /// <returns>字段值，如果索引越界返回空字符串</returns>
+        public string ExtractField(byte[] raw)
+        {
+            return DecodeText(raw);
+        }
+
+        /// <summary>
+        /// 按分隔符分割响应，返回所有字段
+        /// </summary>
+        /// <param name="raw">原始响应数据</param>
+        /// <param name="separator">分隔符（如 ','、':'、' '）</param>
+        /// <returns>字段数组</returns>
+        public string[] ExtractFields(byte[] raw, char separator)
+        {
+            var text = DecodeText(raw);
+            var parts = text.Split(separator);
+            for (int i = 0; i < parts.Length; i++)
+                parts[i] = parts[i].Trim();
+            return parts;
         }
     }
 }

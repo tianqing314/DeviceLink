@@ -1,0 +1,23 @@
+  DeviceLink.Transport -> G:\DeviceLink\core\DeviceLink.Transport\bin\Debug\net6.0\DeviceLink.Transport.dll
+  DeviceLink.DataLink -> G:\DeviceLink\core\DeviceLink.DataLink\bin\Debug\net6.0\DeviceLink.DataLink.dll
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,48): warning CS0618: “MqttClientOptionsBuilderTlsParameters”已过时:“Use methods from MqttClientOptionsBuilder instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=net6.0]
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,21): warning CS0618: “MqttClientOptionsBuilder.WithTls(MqttClientOptionsBuilderTlsParameters)”已过时:“Use WithTlsOptions(... configure) instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=net6.0]
+  DeviceLink.Session -> G:\DeviceLink\core\DeviceLink.Session\bin\Debug\net6.0\DeviceLink.Session.dll
+  DeviceLink.Transport -> G:\DeviceLink\core\DeviceLink.Transport\bin\Debug\netstandard2.0\DeviceLink.Transport.dll
+  DeviceLink.DataLink -> G:\DeviceLink\core\DeviceLink.DataLink\bin\Debug\netstandard2.0\DeviceLink.DataLink.dll
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,48): warning CS0618: “MqttClientOptionsBuilderTlsParameters”已过时:“Use methods from MqttClientOptionsBuilder instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=netstandard2.0]
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,21): warning CS0618: “MqttClientOptionsBuilder.WithTls(MqttClientOptionsBuilderTlsParameters)”已过时:“Use WithTlsOptions(... configure) instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=netstandard2.0]
+  DeviceLink.Session -> g:\DeviceLink\core\DeviceLink.Session\bin\Debug\netstandard2.0\DeviceLink.Session.dll
+
+已成功生成。
+
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,48): warning CS0618: “MqttClientOptionsBuilderTlsParameters”已过时:“Use methods from MqttClientOptionsBuilder instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=net6.0]
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,21): warning CS0618: “MqttClientOptionsBuilder.WithTls(MqttClientOptionsBuilderTlsParameters)”已过时:“Use WithTlsOptions(... configure) instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=net6.0]
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,48): warning CS0618: “MqttClientOptionsBuilderTlsParameters”已过时:“Use methods from MqttClientOptionsBuilder instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=netstandard2.0]
+g:\DeviceLink\core\DeviceLink.Session\Implementations\MqttSession.cs(103,21): warning CS0618: “MqttClientOptionsBuilder.WithTls(MqttClientOptionsBuilderTlsParameters)”已过时:“Use WithTlsOptions(... configure) instead.” [g:\DeviceLink\core\DeviceLink.Session\DeviceLink.Session.csproj::TargetFramework=netstandard2.0]
+    4 个警告
+    0 个错误
+
+已用时间 00:00:01.49
+
+有可用的工作负载更新。有关详细信息，请运行 `dotnet workload list`。

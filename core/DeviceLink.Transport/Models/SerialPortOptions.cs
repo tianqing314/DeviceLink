@@ -41,5 +41,15 @@ namespace DeviceLink.Transport
         /// 写入缓冲区大小
         /// </summary>
         public int WriteBufferSize { get; set; } = 2048;
+
+        /// <summary>
+        /// 启用 DTR（数据终端就绪）信号
+        /// </summary>
+        public bool DtrEnable { get; set; }
+
+        /// <summary>
+        /// 启用 RTS（请求发送）信号
+        /// </summary>
+        public bool RtsEnable { get; set; }
     }
 }

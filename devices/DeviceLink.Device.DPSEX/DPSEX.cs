@@ -36,17 +36,6 @@ namespace DeviceLink.Device.DPSEX
         #region 构造函数
 
         /// <summary>
-        /// 创建一个 DPSEX 设备实例（注入会话和编解码器，适用于测试、MQTT 等场景）。
-        /// </summary>
-        /// <param name="session">会话层</param>
-        /// <param name="codec">协议编解码器</param>
-        public DPSEX(ISession session, ConSTCodec codec)
-            : base(session, codec)
-        {
-            _codec = codec;
-        }
-
-        /// <summary>
         /// 构造函数（串口通讯方式使用）
         /// </summary>
         /// <param name="serialPortName">串口号（如 COM3）</param>
@@ -92,6 +81,29 @@ namespace DeviceLink.Device.DPSEX
         /// <param name="address">ConST 设备地址（默认 255）</param>
         public DPSEX(DeviceCommSettings settings, byte address = 255)
             : base(settings, new ConSTCodec(address))
+        {
+            _codec = (ConSTCodec)Codec;
+        }
+
+        /// <summary>
+        /// 构造函数（MQTT 通讯方式使用）
+        /// </summary>
+        /// <param name="brokerHost">MQTT Broker 地址</param>
+        /// <param name="brokerPort">MQTT Broker 端口号</param>
+        /// <param name="requestTopic">请求主题（设备接收命令的主题）</param>
+        /// <param name="responseTopic">响应主题（设备发送响应的主题）</param>
+        /// <param name="address">ConST 设备地址（默认 255）</param>
+        /// <param name="requestTimeoutMs">请求超时时间（毫秒，默认 5000）</param>
+        public DPSEX(string brokerHost, int brokerPort, string requestTopic, string responseTopic,
+            byte address = 255, int requestTimeoutMs = 5000)
+            : base(new MqttSession(new MqttSessionOptions
+            {
+                BrokerHost = brokerHost,
+                BrokerPort = brokerPort,
+                RequestTopic = requestTopic,
+                ResponseTopic = responseTopic,
+                RequestTimeoutMs = requestTimeoutMs
+            }), new ConSTCodec(address))
         {
             _codec = (ConSTCodec)Codec;
         }

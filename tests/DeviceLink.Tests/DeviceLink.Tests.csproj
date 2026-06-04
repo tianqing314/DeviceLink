@@ -21,6 +21,8 @@
     <ProjectReference Include="..\..\core\DeviceLink.Session\DeviceLink.Session.csproj" />
     <ProjectReference Include="..\..\core\DeviceLink.Protocol\DeviceLink.Protocol.csproj" />
     <ProjectReference Include="..\..\core\DeviceLink.Pipeline\DeviceLink.Pipeline.csproj" />
+    <ProjectReference Include="..\..\core\DeviceLink.DeviceBase\DeviceLink.DeviceBase.csproj" />
+    <ProjectReference Include="..\..\devices\DeviceLink.Device.ConST326EX\DeviceLink.Device.ConST326EX.csproj" />
     <ProjectReference Include="..\..\devices\DeviceLink.Device.DPSEX\DeviceLink.Device.DPSEX.csproj" />
   </ItemGroup>
 

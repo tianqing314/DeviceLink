@@ -29,7 +29,7 @@ namespace DeviceLink.Tests.ConST860
             var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
             var dataLink = new DirectDataLink(transport, frameStrategy);
             var session = new DirectSession(dataLink);
-            var codec = new ScpiCodec('\n');
+            var codec = new ScpiCodec("\n");
             return new ConST860Device(session, codec);
         }
 

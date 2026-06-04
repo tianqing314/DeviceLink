@@ -3,13 +3,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Protocol;
 
 namespace DeviceLink.Session
 {
     /// <summary>
-    /// MQTT 会话 —— 基于MQTT协议的会话实现。
-    /// 适用于通过MQTT Broker进行设备通信的场景。
-    /// 注意：此实现需要具体的MQTT客户端库（如MQTTnet）支持
+    /// MQTT 会话 —— 基于 MQTT 协议的会话实现。
+    /// 适用于通过 MQTT Broker 进行设备通信的场景。
+    /// 
+    /// 参考 Xmas11 项目的 iMqttClient 实现模式，适配 DeviceLink 分层架构：
+    /// - 使用 MQTTnet 4.3.x
+    /// - 使用 TaskCompletionSource 替代轮询，提高响应效率
+    /// - 支持请求-响应模式（发布到 RequestTopic，等待 ResponseTopic 响应）
     /// </summary>
     public class MqttSession : ISession
     {
@@ -17,6 +24,14 @@ namespace DeviceLink.Session
         private readonly ILogger _logger;
         private bool _disposed;
         private bool _isOpen;
+
+        private IMqttClient? _mqttClient;
+        private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
+
+        /// <summary>
+        /// 等待响应的 TaskCompletionSource（由 ApplicationMessageReceived 事件唤醒）
+        /// </summary>
+        private TaskCompletionSource<byte[]>? _responseTcs;
 
         /// <summary>
         /// 初始化MQTT会话
@@ -58,20 +73,60 @@ namespace DeviceLink.Session
         public string Name => $"MQTT({_options.BrokerHost}:{_options.BrokerPort})";
 
         /// <inheritdoc/>
-        public bool IsOpen => _isOpen;
+        public bool IsOpen => _isOpen && _mqttClient?.IsConnected == true;
 
         /// <inheritdoc/>
-        public Task OpenAsync(CancellationToken ct = default)
+        public async Task OpenAsync(CancellationToken ct = default)
         {
-            if (_isOpen) return Task.CompletedTask;
+            if (_isOpen) return;
 
             try
             {
-                // TODO: 实现MQTT连接逻辑
-                // 这里需要根据具体的MQTT客户端库进行实现
+                var factory = new MqttFactory();
+
+                // 配置客户端选项
+                var optionsBuilder = new MqttClientOptionsBuilder()
+                    .WithClientId(_options.ClientId)
+                    .WithTcpServer(_options.BrokerHost, _options.BrokerPort)
+                    .WithCleanSession(_options.CleanSession)
+                    .WithKeepAlivePeriod(TimeSpan.FromSeconds(_options.KeepAliveSeconds));
+
+                // 可选认证
+                if (!string.IsNullOrEmpty(_options.Username))
+                {
+                    optionsBuilder.WithCredentials(_options.Username, _options.Password);
+                }
+
+                // 可选 TLS
+                if (_options.UseTls)
+                {
+                    optionsBuilder.WithTlsOptions(o => o.UseTls());
+                }
+
+                var clientOptions = optionsBuilder.Build();
+
+                // 创建客户端并注册事件
+                _mqttClient = factory.CreateMqttClient();
+
+                // 消息接收事件 —— 匹配 ResponseTopic 后唤醒等待的 SendAndReceiveAsync
+                _mqttClient.ApplicationMessageReceivedAsync += OnApplicationMessageReceived;
+
+                // 连接成功事件
+                _mqttClient.ConnectedAsync += OnConnected;
+
+                // 断开连接事件
+                _mqttClient.DisconnectedAsync += OnDisconnected;
+
+                // 连接到 Broker
+                await _mqttClient.ConnectAsync(clientOptions, ct);
+
+                // 订阅响应主题
+                await _mqttClient.SubscribeAsync(new MqttClientSubscribeOptionsBuilder()
+                    .WithTopicFilter(_options.ResponseTopic)
+                    .Build(), ct);
+
                 _isOpen = true;
-                _logger?.LogInformation("MQTT会话 {Name} 已连接", Name);
-                return Task.CompletedTask;
+                _logger?.LogInformation("MQTT会话 {Name} 已连接，订阅主题: {Topic}", Name, _options.ResponseTopic);
             }
             catch (Exception ex)
             {
@@ -81,53 +136,99 @@ namespace DeviceLink.Session
         }
 
         /// <inheritdoc/>
-        public Task CloseAsync()
+        public async Task CloseAsync()
         {
-            if (_isOpen)
+            if (_isOpen && _mqttClient != null)
             {
-                // TODO: 实现MQTT断开逻辑
+                try
+                {
+                    await _mqttClient.DisconnectAsync();
+                    _mqttClient.Dispose();
+                    _mqttClient = null;
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "关闭MQTT会话 {Name} 时发生异常", Name);
+                }
+
                 _isOpen = false;
                 _logger?.LogInformation("MQTT会话 {Name} 已关闭", Name);
             }
-            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
         public async Task<byte[]> SendAndReceiveAsync(byte[] request, CancellationToken ct = default)
         {
-            if (!_isOpen)
+            if (!_isOpen || _mqttClient == null)
                 throw new SessionException("MQTT会话未打开");
 
+            await _sendLock.WaitAsync(ct);
             try
             {
-                // TODO: 实现MQTT请求-响应逻辑
-                // 1. 发布请求到RequestTopic
-                // 2. 订阅ResponseTopic等待响应
-                // 3. 超时处理
-                _logger?.LogDebug("向MQTT {Name} 发送了 {Count} 字节", Name, request.Length);
+                // 创建 TaskCompletionSource 用于等待响应
+                var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _responseTcs = tcs;
 
-                // 临时返回空数组，实际实现需要替换
-                await Task.Delay(10, ct);
-                return Array.Empty<byte>();
+                try
+                {
+                    // 发布请求到 RequestTopic
+                    var message = new MqttApplicationMessageBuilder()
+                        .WithTopic(_options.RequestTopic)
+                        .WithPayload(request)
+                        .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
+                        .Build();
+
+                    await _mqttClient.PublishAsync(message, ct);
+                    _logger?.LogDebug("向MQTT {Name} 发送了 {Count} 字节到主题 {Topic}",
+                        Name, request.Length, _options.RequestTopic);
+
+                    // 等待响应或超时
+                    using var timeoutCts = new CancellationTokenSource(_options.RequestTimeoutMs);
+                    using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
+
+                    // 注册超时取消回调
+                    linkedCts.Token.Register(() =>
+                    {
+                        tcs.TrySetCanceled();
+                    });
+
+                    return await tcs.Task;
+                }
+                catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+                {
+                    throw new SessionTimeoutException(
+                        $"MQTT会话 {Name} 请求超时 ({_options.RequestTimeoutMs}ms)");
+                }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not SessionException and not SessionTimeoutException)
             {
                 _logger?.LogError(ex, "MQTT会话 {Name} 请求失败", Name);
                 throw new SessionException($"MQTT会话 {Name} 请求失败: {ex.Message}", ex);
+            }
+            finally
+            {
+                _responseTcs = null;
+                _sendLock.Release();
             }
         }
 
         /// <inheritdoc/>
         public async Task SendOnlyAsync(byte[] request, CancellationToken ct = default)
         {
-            if (!_isOpen)
+            if (!_isOpen || _mqttClient == null)
                 throw new SessionException("MQTT会话未打开");
 
             try
             {
-                // TODO: 实现MQTT单向发送逻辑
-                _logger?.LogDebug("向MQTT {Name} 发送了 {Count} 字节", Name, request.Length);
-                await Task.Delay(10, ct);
+                var message = new MqttApplicationMessageBuilder()
+                    .WithTopic(_options.RequestTopic)
+                    .WithPayload(request)
+                    .WithQualityOfServiceLevel(MqttQualityOfServiceLevel.ExactlyOnce)
+                    .Build();
+
+                await _mqttClient.PublishAsync(message, ct);
+                _logger?.LogDebug("向MQTT {Name} 发送了 {Count} 字节到主题 {Topic}",
+                    Name, request.Length, _options.RequestTopic);
             }
             catch (Exception ex)
             {
@@ -139,22 +240,33 @@ namespace DeviceLink.Session
         /// <inheritdoc/>
         public async Task<byte[]> ReceiveOnlyAsync(CancellationToken ct = default)
         {
-            if (!_isOpen)
+            if (!_isOpen || _mqttClient == null)
                 throw new SessionException("MQTT会话未打开");
 
             try
             {
-                // TODO: 实现MQTT接收逻辑
+                var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _responseTcs = tcs;
+
                 _logger?.LogDebug("从MQTT {Name} 等待接收数据", Name);
 
-                // 临时返回空数组，实际实现需要替换
-                await Task.Delay(10, ct);
-                return Array.Empty<byte>();
+                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                linkedCts.Token.Register(() => tcs.TrySetCanceled());
+
+                return await tcs.Task;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 _logger?.LogError(ex, "MQTT会话 {Name} 接收失败", Name);
                 throw new SessionException($"MQTT会话 {Name} 接收失败: {ex.Message}", ex);
+            }
+            finally
+            {
+                _responseTcs = null;
             }
         }
 
@@ -163,8 +275,63 @@ namespace DeviceLink.Session
         {
             if (_disposed) return;
             _disposed = true;
+
+            _sendLock?.Dispose();
             CloseAsync().Wait();
         }
+
+        #region 事件处理
+
+        /// <summary>
+        /// MQTT 消息接收事件处理
+        /// 匹配 ResponseTopic 后，将 payload 传递给等待中的 TaskCompletionSource
+        /// </summary>
+        private Task OnApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs e)
+        {
+            var topic = e.ApplicationMessage.Topic;
+
+            if (string.Equals(topic, _options.ResponseTopic, StringComparison.Ordinal))
+            {
+                var segment = e.ApplicationMessage.PayloadSegment;
+                var payload = segment.Count == 0
+                    ? Array.Empty<byte>()
+                    : segment.Offset == 0 && segment.Count == segment.Array!.Length
+                        ? segment.Array
+                        : segment.Array!.AsSpan(segment.Offset, segment.Count).ToArray();
+                _logger?.LogDebug("从MQTT {Name} 收到 {Count} 字节响应", Name, payload.Length);
+
+                // 唤醒等待的 SendAndReceiveAsync
+                _responseTcs?.TrySetResult(payload);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// MQTT 连接成功事件
+        /// </summary>
+        private Task OnConnected(MqttClientConnectedEventArgs e)
+        {
+            _logger?.LogInformation("MQTT会话 {Name} 连接成功", Name);
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// MQTT 断开连接事件
+        /// </summary>
+        private Task OnDisconnected(MqttClientDisconnectedEventArgs e)
+        {
+            _isOpen = false;
+            _logger?.LogWarning("MQTT会话 {Name} 连接断开: {Reason}", Name, e.Reason);
+
+            // 唤醒等待中的请求，避免死锁
+            _responseTcs?.TrySetException(
+                new SessionException($"MQTT会话 {Name} 连接已断开"));
+
+            return Task.CompletedTask;
+        }
+
+        #endregion
     }
 
     /// <summary>
@@ -183,12 +350,12 @@ namespace DeviceLink.Session
         public int BrokerPort { get; set; } = 1883;
 
         /// <summary>
-        /// 请求主题
+        /// 请求主题（设备接收命令的主题）
         /// </summary>
         public string RequestTopic { get; set; } = "devicelink/request";
 
         /// <summary>
-        /// 响应主题
+        /// 响应主题（设备发送响应的主题）
         /// </summary>
         public string ResponseTopic { get; set; } = "devicelink/response";
 
@@ -201,5 +368,30 @@ namespace DeviceLink.Session
         /// 请求超时时间（毫秒）
         /// </summary>
         public int RequestTimeoutMs { get; set; } = 5000;
+
+        /// <summary>
+        /// MQTT 用户名（可选）
+        /// </summary>
+        public string? Username { get; set; }
+
+        /// <summary>
+        /// MQTT 密码（可选）
+        /// </summary>
+        public string? Password { get; set; }
+
+        /// <summary>
+        /// 是否使用 TLS 加密
+        /// </summary>
+        public bool UseTls { get; set; }
+
+        /// <summary>
+        /// 是否清理会话
+        /// </summary>
+        public bool CleanSession { get; set; } = true;
+
+        /// <summary>
+        /// 心跳间隔（秒）
+        /// </summary>
+        public ushort KeepAliveSeconds { get; set; } = 60;
     }
 }

@@ -336,5 +336,38 @@ namespace DeviceLink.Pipeline
                 .UseProtocol(new ScpiCodec())
                 .Build();
         }
+
+        /// <summary>
+        /// 创建MQTT通信管道
+        /// </summary>
+        /// <param name="brokerHost">MQTT Broker 地址</param>
+        /// <param name="brokerPort">MQTT Broker 端口号</param>
+        /// <param name="requestTopic">请求主题</param>
+        /// <param name="responseTopic">响应主题</param>
+        /// <param name="address">ConST 设备地址（默认 255）</param>
+        /// <param name="requestTimeoutMs">请求超时时间（毫秒，默认 5000）</param>
+        /// <returns>通信管道</returns>
+        public static CommunicationPipeline CreateMqttPipeline(
+            string brokerHost,
+            int brokerPort,
+            string requestTopic,
+            string responseTopic,
+            byte address = 255,
+            int requestTimeoutMs = 5000)
+        {
+            var session = new MqttSession(new MqttSessionOptions
+            {
+                BrokerHost = brokerHost,
+                BrokerPort = brokerPort,
+                RequestTopic = requestTopic,
+                ResponseTopic = responseTopic,
+                RequestTimeoutMs = requestTimeoutMs
+            });
+
+            return new CommunicationPipelineBuilder()
+                .UseSession(session)
+                .UseProtocol(new ConSTCodec(address))
+                .Build();
+        }
     }
 }

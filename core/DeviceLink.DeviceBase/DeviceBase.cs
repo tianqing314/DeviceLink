@@ -8,8 +8,6 @@ using DeviceLink.Pipeline;
 using DeviceLink.Protocol;
 using DeviceLink.Session;
 using DeviceLink.Transport;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DeviceLink.DeviceBase
 {
@@ -37,9 +35,6 @@ namespace DeviceLink.DeviceBase
         /// <summary>协议编解码器</summary>
         protected IProtocolCodec Codec { get; }
 
-        /// <summary>日志记录器</summary>
-        protected ILogger Logger { get; }
-
         /// <summary>设备名称，如 "DPSEX"、"DPG"</summary>
         public string Name { get; set; }
 
@@ -49,15 +44,12 @@ namespace DeviceLink.DeviceBase
         /// </summary>
         /// <param name="session">会话层</param>
         /// <param name="codec">协议编解码器</param>
-        /// <param name="logger">日志记录器</param>
         protected DeviceBase(
             ISession session,
-            IProtocolCodec codec,
-            ILogger? logger = null)
+            IProtocolCodec codec)
         {
             var sessionObj = session ?? throw new ArgumentNullException(nameof(session));
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
-            Logger = logger ?? NullLogger.Instance;
             Name = GetType().Name;
 
             // 创建一个只包含 Session 的 Pipeline（无 Transport/DataLink）
@@ -79,7 +71,28 @@ namespace DeviceLink.DeviceBase
         /// <param name="stopBits">停止位</param>
         /// <param name="parity">校验位</param>
         /// <param name="codec">协议编解码器</param>
-        /// <param name="logger">日志记录器</param>
+        protected DeviceBase(
+            string portName,
+            int baudRate,
+            int dataBits,
+            StopBits stopBits,
+            Parity parity,
+            IProtocolCodec codec)
+            : this(portName, baudRate, dataBits, stopBits, parity, codec, (byte[]?)null)
+        {
+        }
+
+        /// <summary>
+        /// 初始化设备基类（串口通信，带自定义帧分隔符）
+        /// 通过 CommunicationPipelineBuilder 组装完整 OSI 链路
+        /// </summary>
+        /// <param name="portName">串口名称</param>
+        /// <param name="baudRate">波特率</param>
+        /// <param name="dataBits">数据位</param>
+        /// <param name="stopBits">停止位</param>
+        /// <param name="parity">校验位</param>
+        /// <param name="codec">协议编解码器</param>
+        /// <param name="delimiter">帧分隔符（如 "\r\n" 对应 new byte[]{0x0D,0x0A}），null 则使用默认值 \0</param>
         protected DeviceBase(
             string portName,
             int baudRate,
@@ -87,16 +100,17 @@ namespace DeviceLink.DeviceBase
             StopBits stopBits,
             Parity parity,
             IProtocolCodec codec,
-            ILogger? logger = null)
+            byte[]? delimiter)
         {
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
-            Logger = logger ?? NullLogger.Instance;
             Name = GetType().Name;
+
+            var frameDelimiter = delimiter ?? new byte[] { 0 };
 
             // 通过 PipelineBuilder 组装完整 OSI 链路
             Pipeline = new CommunicationPipelineBuilder()
                 .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity))
-                .UseDataLink(new DelimiterFrameStrategy(new byte[] { 0 }))
+                .UseDataLink(new DelimiterFrameStrategy(frameDelimiter))
                 .UseProtocol(Codec)
                 .Build();
 
@@ -104,16 +118,14 @@ namespace DeviceLink.DeviceBase
         }
 
         /// <summary>
-        /// 初始化设备基类（串口通信，使用默认配置：4800,8,2,None）
+        /// 初始化设备基类（串口通信，使用默认配置：9600,8,1,None）
         /// </summary>
         /// <param name="portName">串口名称</param>
         /// <param name="codec">协议编解码器</param>
-        /// <param name="logger">日志记录器</param>
         protected DeviceBase(
             string portName,
-            IProtocolCodec codec,
-            ILogger? logger = null)
-            : this(portName, 4800, 8, StopBits.Two, Parity.None, codec, logger)
+            IProtocolCodec codec)
+            : this(portName, 9600, 8, StopBits.One, Parity.None, codec)
         {
         }
 
@@ -124,15 +136,12 @@ namespace DeviceLink.DeviceBase
         /// <param name="ipAddress">IP地址</param>
         /// <param name="port">端口号</param>
         /// <param name="codec">协议编解码器</param>
-        /// <param name="logger">日志记录器</param>
         protected DeviceBase(
             IPAddress ipAddress,
             int port,
-            IProtocolCodec codec,
-            ILogger? logger = null)
+            IProtocolCodec codec)
         {
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
-            Logger = logger ?? NullLogger.Instance;
             Name = GetType().Name;
 
             // 通过 PipelineBuilder 组装完整 OSI 链路
@@ -151,14 +160,11 @@ namespace DeviceLink.DeviceBase
         /// </summary>
         /// <param name="settings">通信配置</param>
         /// <param name="codec">协议编解码器</param>
-        /// <param name="logger">日志记录器</param>
         protected DeviceBase(
             DeviceCommSettings settings,
-            IProtocolCodec codec,
-            ILogger? logger = null)
+            IProtocolCodec codec)
         {
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
-            Logger = logger ?? NullLogger.Instance;
             Name = GetType().Name;
 
             // 通过 Settings 创建完整 OSI 链路
@@ -174,14 +180,14 @@ namespace DeviceLink.DeviceBase
         public virtual async Task OpenAsync(CancellationToken ct = default)
         {
             await Session.OpenAsync(ct);
-            Logger.LogInformation("[{Device}] 设备已打开", Name);
+            CommunicationLogger.LogInfo(Name, "设备已打开");
         }
 
         /// <summary>关闭设备连接</summary>
         public virtual async Task CloseAsync()
         {
             await Session.CloseAsync();
-            Logger.LogInformation("[{Device}] 设备已关闭", Name);
+            CommunicationLogger.LogInfo(Name, "设备已关闭");
         }
 
         /// <summary>
@@ -195,20 +201,40 @@ namespace DeviceLink.DeviceBase
             Command command,
             CancellationToken ct = default)
         {
+            // 编码命令
             var request = Codec.Encode(command);
-            Logger.LogDebug("[{Device}] 发送命令: {Command}", Name, command.Id);
+            var commandString = System.Text.Encoding.ASCII.GetString(request);
 
-            var response = await Session.SendAndReceiveAsync(request, ct);
+            // 记录发送日志
+            CommunicationLogger.LogSend(Name, command.Id, command.Kind.ToString(),
+                commandString, request);
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            byte[] response;
+            try
+            {
+                response = await Session.SendAndReceiveAsync(request, ct);
+            }
+            catch (Exception ex)
+            {
+                CommunicationLogger.LogError(Name, $"发送命令 [{command.Id}] 失败", ex);
+                throw;
+            }
+            finally
+            {
+                sw.Stop();
+            }
+
+            // 记录接收日志
+            var responseText = Codec.DecodeText(response);
+            CommunicationLogger.LogReceive(Name, sw.ElapsedMilliseconds, response, responseText);
 
             // 检查设备错误
             if (Codec.IsErrorResponse(response, out var errMsg))
             {
-                Logger.LogWarning("[{Device}] 设备返回错误: {Error}", Name, errMsg);
+                CommunicationLogger.LogError(Name, $"设备返回错误: {errMsg}");
                 throw new DeviceException($"设备错误: {errMsg}");
             }
-
-            Logger.LogDebug("[{Device}] 接收响应: {Text}", Name,
-                Codec.DecodeText(response));
 
             return response;
         }
@@ -234,7 +260,7 @@ namespace DeviceLink.DeviceBase
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "[{Device}] 解析响应失败: {Command}", Name, command.Id);
+                CommunicationLogger.LogError(Name, $"解析响应失败: {command.Id}", ex);
                 throw new DeviceException($"解析响应失败: {ex.Message}", ex);
             }
         }
@@ -249,8 +275,21 @@ namespace DeviceLink.DeviceBase
             CancellationToken ct = default)
         {
             var request = Codec.Encode(command);
-            Logger.LogDebug("[{Device}] 单向发送: {Command}", Name, command.Id);
-            await Session.SendOnlyAsync(request, ct);
+            var commandString = System.Text.Encoding.ASCII.GetString(request);
+
+            // 记录发送日志
+            CommunicationLogger.LogSend(Name, command.Id, command.Kind.ToString(),
+                commandString, request);
+
+            try
+            {
+                await Session.SendOnlyAsync(request, ct);
+            }
+            catch (Exception ex)
+            {
+                CommunicationLogger.LogError(Name, $"单向发送命令 [{command.Id}] 失败", ex);
+                throw;
+            }
         }
 
         /// <summary>
