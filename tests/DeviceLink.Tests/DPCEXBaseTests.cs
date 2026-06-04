@@ -14,7 +14,8 @@ namespace DeviceLink.Tests
         private (DPCEXBase dpsex, LoopbackSettings settings) CreateTestDevice()
         {
             var settings = new LoopbackSettings();
-            var dPCEX = new DPCEXBase("COM4", 9600, 8, System.IO.Ports.StopBits.One, System.IO.Ports.Parity.None);
+            //var dPCEX = new DPCEXBase("COM4", 9600, 8, System.IO.Ports.StopBits.One, System.IO.Ports.Parity.None);
+            var dPCEX = new DPCEXBase("192.168.4.103", 1883, "DEV/01221D050001/SCPI/REQ", "DEV/01221D050001/SCPI/RESP");
             return (dPCEX, settings);
         }
         [Fact]

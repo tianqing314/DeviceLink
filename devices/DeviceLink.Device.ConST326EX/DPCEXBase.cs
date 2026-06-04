@@ -66,8 +66,8 @@ namespace DeviceLink.Device.ConST326EX
         /// </summary>
         /// <param name="brokerHost">MQTT Broker 地址</param>
         /// <param name="brokerPort">MQTT Broker 端口号</param>
-        /// <param name="requestTopic">请求主题（设备接收命令的主题）</param>
-        /// <param name="responseTopic">响应主题（设备发送响应的主题）</param>
+        /// <param name="requestTopic">请求主题-发布主题（设备接收命令的主题）</param>
+        /// <param name="responseTopic">响应主题-订阅主题（设备发送响应的主题）</param>
         /// <param name="requestTimeoutMs">请求超时时间（毫秒，默认 5000）</param>
         public DPCEXBase(string brokerHost, int brokerPort, string requestTopic, string responseTopic,
             byte address = 255, int requestTimeoutMs = 5000)
