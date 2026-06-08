@@ -1,5 +1,6 @@
 ﻿using DeviceLink.Device.ConST326EX;
 using DeviceLink.Tests.Helpers;
+using DeviceLink.Transport;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -14,8 +15,7 @@ namespace DeviceLink.Tests
         private (DPCEXBase dpsex, LoopbackSettings settings) CreateTestDevice()
         {
             var settings = new LoopbackSettings();
-            //var dPCEX = new DPCEXBase("COM4", 9600, 8, System.IO.Ports.StopBits.One, System.IO.Ports.Parity.None);
-            var dPCEX = new DPCEXBase("192.168.4.103", 1883, "DEV/01221D050001/SCPI/REQ", "DEV/01221D050001/SCPI/RESP");
+            var dPCEX = new DPCEXBase(settings);
             return (dPCEX, settings);
         }
         [Fact]
@@ -23,10 +23,22 @@ namespace DeviceLink.Tests
         {
             // Arrange
             var (dPCEX, settings) = CreateTestDevice();
+            
+            // 设置回环响应 - 模拟设备返回版本信息
+            settings.Transport.OnSend += data =>
+            {
+                // 模拟 SCPI 响应
+                var response = System.Text.Encoding.ASCII.GetBytes("ConST326EX V1.0.0\r\n");
+                settings.Transport.EnqueueReceive(response);
+            };
+            
             await dPCEX.OpenAsync();
 
             // Act
-            var pressure = await dPCEX.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
+            var version = await dPCEX.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
+            
+            // Assert
+            Assert.NotNull(version);
         }
     }
 }

@@ -91,15 +91,11 @@ namespace DeviceLink.Protocol
                 }
             }
 
-            // 组装完整帧：从站地址 + 数据 + CRC
-            var frame = new byte[1 + data.Length + 2];
+            // 组装原始数据：从站地址 + 功能码 + 数据（不含CRC）
+            // CRC校验由数据链路层的 ModbusRtuFrameStrategy 负责
+            var frame = new byte[1 + data.Length];
             frame[0] = _slaveAddress;
             Array.Copy(data, 0, frame, 1, data.Length);
-
-            // 计算CRC
-            ushort crc = CalculateCrc16(frame, frame.Length - 2);
-            frame[frame.Length - 2] = (byte)(crc & 0xFF);        // CRC低字节
-            frame[frame.Length - 1] = (byte)((crc >> 8) & 0xFF); // CRC高字节
 
             return frame;
         }

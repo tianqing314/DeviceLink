@@ -2,6 +2,8 @@
 using DeviceLink.DeviceBase;
 using DeviceLink.Protocol;
 using DeviceLink.Session;
+using DeviceLink.Transport;
+using InTheHand.Net.Bluetooth;
 using System.IO.Ports;
 using System.Net;
 
@@ -79,6 +81,19 @@ namespace DeviceLink.Device.ConST326EX
                 ResponseTopic = responseTopic,
                 RequestTimeoutMs = requestTimeoutMs
             }), new ScpiCodec("\r\n"))
+        {
+            _codec = (ScpiCodec)Codec;
+        }
+
+        /// <summary>
+        /// 构造函数（蓝牙通讯方式使用）
+        /// </summary>
+        /// <param name="bluetoothOptions">蓝牙配置选项</param>
+        public DPCEXBase(BluetoothOptions bluetoothOptions)
+            : base(new BluetoothSettings
+            {
+                BluetoothOptions = bluetoothOptions ?? throw new ArgumentNullException(nameof(bluetoothOptions))
+            }, new ScpiCodec("\r\n"))
         {
             _codec = (ScpiCodec)Codec;
         }

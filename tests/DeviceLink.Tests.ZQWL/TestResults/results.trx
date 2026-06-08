@@ -1,0 +1,417 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="83d5852d-6fe5-472a-b02c-69a17c86bb8e" name="gsl940@GSL940A 2026-06-08 16:35:39" runUser="CONST\gsl940" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-06-08T16:35:39.2439540+08:00" queuing="2026-06-08T16:35:39.2439544+08:00" start="2026-06-08T16:35:34.7752274+08:00" finish="2026-06-08T16:35:39.4056254+08:00" />
+  <TestSettings name="default" id="957b219f-24b9-4c63-95de-576e7ec74284">
+    <Deployment runDeploymentRoot="gsl940_GSL940A_2026-06-08_16_35_39" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="44e113a5-c920-4ab2-824b-64b53b9add29" testId="7b495857-f5ce-b4ca-ecd6-675b4f177ca3" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractAnalogValue_ShouldExtractCorrectly" computerName="GSL940A" duration="00:00:00.0003266" startTime="2026-06-08T16:35:39.1398301+08:00" endTime="2026-06-08T16:35:39.1398301+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="44e113a5-c920-4ab2-824b-64b53b9add29" />
+    <UnitTestResult executionId="6079a6a8-8657-4934-ac85-bebd54802f1b" testId="c515560b-e3b9-e8ec-3865-cecd6abe1d9f" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_InvalidChecksum_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0000983" startTime="2026-06-08T16:35:39.1407498+08:00" endTime="2026-06-08T16:35:39.1407498+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6079a6a8-8657-4934-ac85-bebd54802f1b" />
+    <UnitTestResult executionId="19011de6-7c90-4039-a70a-b25b78cb9107" testId="27cfd16a-29c1-2790-bb7c-16d9d357ddc7" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_GetAllStatuses_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0005358" startTime="2026-06-08T16:35:39.1406206+08:00" endTime="2026-06-08T16:35:39.1406207+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="19011de6-7c90-4039-a70a-b25b78cb9107" />
+    <UnitTestResult executionId="f4b613ce-317a-4797-b56f-27558ec922b3" testId="e3fe10dc-0b8d-e774-0435-779705a5ca9d" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_GetAnalogInput_Channel0_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0294424" startTime="2026-06-08T16:35:39.0327778+08:00" endTime="2026-06-08T16:35:39.0327779+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f4b613ce-317a-4797-b56f-27558ec922b3" />
+    <UnitTestResult executionId="b249b21d-c29d-4e1d-8cab-1e7f0a767ed1" testId="4084126b-5d40-fb17-79de-a5d4750491da" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_CloseAll_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0006949" startTime="2026-06-08T16:35:39.1398553+08:00" endTime="2026-06-08T16:35:39.1398554+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b249b21d-c29d-4e1d-8cab-1e7f0a767ed1" />
+    <UnitTestResult executionId="e04df76a-a0bf-415a-bc76-69536bf7b2b4" testId="7fcff399-8ede-5679-c694-0401732d1a3c" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_IsErrorResponse_Null_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001756" startTime="2026-06-08T16:35:39.0329050+08:00" endTime="2026-06-08T16:35:39.0329050+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e04df76a-a0bf-415a-bc76-69536bf7b2b4" />
+    <UnitTestResult executionId="d5a91325-b082-44db-94f8-c4eeb36eaf4e" testId="5665e383-e62e-25aa-33f7-acfe7569ae46" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractAnalogValue_LargeValue_ShouldExtractCorrectly" computerName="GSL940A" duration="00:00:00.0001568" startTime="2026-06-08T16:35:39.0650312+08:00" endTime="2026-06-08T16:35:39.0650312+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d5a91325-b082-44db-94f8-c4eeb36eaf4e" />
+    <UnitTestResult executionId="ddfb5fff-a07a-4a16-a807-b28cfda0d726" testId="bd8d193b-097b-4c16-3871-8cd2bcd51095" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_IsErrorResponse_NormalResponse_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001512" startTime="2026-06-08T16:35:39.1406996+08:00" endTime="2026-06-08T16:35:39.1406997+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ddfb5fff-a07a-4a16-a807-b28cfda0d726" />
+    <UnitTestResult executionId="45af83b8-d8f6-4673-8878-0fd3cb4b0fc0" testId="3d4bbabc-f1a0-f449-dd94-7bf2ffaca4be" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_InvalidFooter_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001099" startTime="2026-06-08T16:35:39.1397519+08:00" endTime="2026-06-08T16:35:39.1397519+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="45af83b8-d8f6-4673-8878-0fd3cb4b0fc0" />
+    <UnitTestResult executionId="b0c4566c-5271-416f-8f5a-cabe0a611725" testId="6582626d-7752-c983-988f-1cd6d0dd8994" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_GetAnalogInput_Channel3_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0002166" startTime="2026-06-08T16:35:39.0328470+08:00" endTime="2026-06-08T16:35:39.0328471+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b0c4566c-5271-416f-8f5a-cabe0a611725" />
+    <UnitTestResult executionId="76d141e7-7aa5-47ca-92ab-1fe2afaadf2b" testId="5041678d-2c58-b1e4-bfda-158828d2e8ed" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_TryParseFrame_EmptyData_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001185" startTime="2026-06-08T16:35:39.0830374+08:00" endTime="2026-06-08T16:35:39.0830375+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="76d141e7-7aa5-47ca-92ab-1fe2afaadf2b" />
+    <UnitTestResult executionId="20194059-d24b-44b7-99dc-cfc3a0cfcf20" testId="2e1f8881-59be-0894-9ccb-891f63cda22f" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_TooShort_ShouldReturnEmpty" computerName="GSL940A" duration="00:00:00.0000792" startTime="2026-06-08T16:35:39.0930526+08:00" endTime="2026-06-08T16:35:39.0930526+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="20194059-d24b-44b7-99dc-cfc3a0cfcf20" />
+    <UnitTestResult executionId="f0029e3b-78c8-413d-bb3d-17591dac8998" testId="a80ce31b-d8d7-c830-e4b3-d29a8d47b149" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_Constructor_ShouldCreateInstance" computerName="GSL940A" duration="00:00:00.0010000" startTime="2026-06-08T16:35:39.0665294+08:00" endTime="2026-06-08T16:35:39.0665296+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f0029e3b-78c8-413d-bb3d-17591dac8998">
+      <Output>
+        <StdOut>需要实际串口设备</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="794395f6-7034-4df5-8fc5-9d53aadcf8fe" testId="0f7f7b58-febc-3a35-be33-626e9953fc13" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_GetInput_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0002337" startTime="2026-06-08T16:35:39.1396989+08:00" endTime="2026-06-08T16:35:39.1396990+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="794395f6-7034-4df5-8fc5-9d53aadcf8fe" />
+    <UnitTestResult executionId="ee73906a-de65-4b9d-9cd6-ebc21415034b" testId="ada19929-6e4a-d2a5-3586-802879b4674f" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_NibbleEncoding_ShouldEncodeEvenChannelCorrectly" computerName="GSL940A" duration="00:00:00.0001299" startTime="2026-06-08T16:35:39.0652255+08:00" endTime="2026-06-08T16:35:39.0652255+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ee73906a-de65-4b9d-9cd6-ebc21415034b" />
+    <UnitTestResult executionId="f44c0176-1ea1-45bb-bce6-9d6cfbdbdd02" testId="40cbb37f-5210-d18f-4cb6-21ff0a095420" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_GetVersion_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0001410" startTime="2026-06-08T16:35:39.1407244+08:00" endTime="2026-06-08T16:35:39.1407245+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f44c0176-1ea1-45bb-bce6-9d6cfbdbdd02" />
+    <UnitTestResult executionId="cef10766-0a3e-4d0c-92ce-bc9be7c64a61" testId="812eaebe-02e4-e1e5-b4ba-02fb5af30016" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_Constructor_ShouldCreateInstance" computerName="GSL940A" duration="00:00:00.0010000" startTime="2026-06-08T16:35:39.0912031+08:00" endTime="2026-06-08T16:35:39.0912032+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cef10766-0a3e-4d0c-92ce-bc9be7c64a61">
+      <Output>
+        <StdOut>需要实际串口设备</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="692fcd7e-1214-46fd-abe5-488e687efaa7" testId="d750cafa-8fa8-0890-52f1-9bb36f5a9892" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_Encode_GetAnalogInput_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0002793" startTime="2026-06-08T16:35:39.0328750+08:00" endTime="2026-06-08T16:35:39.0328751+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="692fcd7e-1214-46fd-abe5-488e687efaa7" />
+    <UnitTestResult executionId="455b6f98-78c2-4f74-b37b-ce25e5932ecb" testId="16232df5-d905-ce6e-136f-af6e8f0399d6" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_RoundTrip_ShouldPreserveData" computerName="GSL940A" duration="00:00:00.0018223" startTime="2026-06-08T16:35:39.0818439+08:00" endTime="2026-06-08T16:35:39.0818440+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="455b6f98-78c2-4f74-b37b-ce25e5932ecb" />
+    <UnitTestResult executionId="76b81e39-4c47-4c30-8177-8d02e1ab92f5" testId="a498eb4e-a403-1ef9-935b-6e68b515b8ce" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_ExtractInputState_Channel1_ShouldBeTrue" computerName="GSL940A" duration="00:00:00.0001683" startTime="2026-06-08T16:35:39.0652529+08:00" endTime="2026-06-08T16:35:39.0652529+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="76b81e39-4c47-4c30-8177-8d02e1ab92f5" />
+    <UnitTestResult executionId="6d36d8bd-611a-4e34-b640-1f7838d32d81" testId="1d0ab8e0-4ff6-4ca0-5162-cec6679f8883" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.BNRC8_Constructor_ShouldCreateInstance" computerName="GSL940A" duration="00:00:00.0010000" startTime="2026-06-08T16:35:39.1405863+08:00" endTime="2026-06-08T16:35:39.1405864+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="NotExecuted" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6d36d8bd-611a-4e34-b640-1f7838d32d81">
+      <Output>
+        <StdOut>需要实际串口设备</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f69dd572-6e29-4a16-b0ae-eae2fa8db59c" testId="b2d56846-f8bc-d86b-e75d-5d5f909e139b" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlFrameStrategy_BuildFrame_SetOutput_ShouldBuildCorrectFrame" computerName="GSL940A" duration="00:00:00.0001619" startTime="2026-06-08T16:35:39.0813111+08:00" endTime="2026-06-08T16:35:39.0813112+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f69dd572-6e29-4a16-b0ae-eae2fa8db59c" />
+    <UnitTestResult executionId="29d8c7da-1046-4c3a-b593-3101429f3c57" testId="b0625295-6927-5794-1f4f-e63fa3731be2" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_BitEncoding_Channel1_ShouldUseBit0" computerName="GSL940A" duration="00:00:00.0000972" startTime="2026-06-08T16:35:39.0931162+08:00" endTime="2026-06-08T16:35:39.0931162+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="29d8c7da-1046-4c3a-b593-3101429f3c57" />
+    <UnitTestResult executionId="8c0e3780-5184-45a0-853d-bebdcbfcd7b5" testId="873fbe46-759f-c5c1-2b89-34bb3a4fc731" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_BitEncoding_Channel4_ShouldUseBit3" computerName="GSL940A" duration="00:00:00.0001112" startTime="2026-06-08T16:35:39.0903816+08:00" endTime="2026-06-08T16:35:39.0903816+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8c0e3780-5184-45a0-853d-bebdcbfcd7b5" />
+    <UnitTestResult executionId="a934c818-90cc-4562-96f0-878f5dc36350" testId="e539998e-7be4-8569-c2c0-57c717aea947" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_CloseAll_Data_ShouldBeCorrect" computerName="GSL940A" duration="00:00:00.0005393" startTime="2026-06-08T16:35:39.0824035+08:00" endTime="2026-06-08T16:35:39.0824036+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a934c818-90cc-4562-96f0-878f5dc36350" />
+    <UnitTestResult executionId="701cdc3c-5a08-44a8-bf53-eba79bf5e7c9" testId="e874231e-e81a-5048-7b17-1befc6ad4d5b" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_DifferentAddress_ShouldUseCorrectAddress" computerName="GSL940A" duration="00:00:00.0002640" startTime="2026-06-08T16:35:39.1406741+08:00" endTime="2026-06-08T16:35:39.1406742+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="701cdc3c-5a08-44a8-bf53-eba79bf5e7c9" />
+    <UnitTestResult executionId="a07b260a-1863-4512-ae59-b4487907ec94" testId="5a0bff94-0d75-732c-bc1d-1182fec24814" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_IsErrorResponse_TooShort_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0002017" startTime="2026-06-08T16:35:39.0651569+08:00" endTime="2026-06-08T16:35:39.0651570+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a07b260a-1863-4512-ae59-b4487907ec94" />
+    <UnitTestResult executionId="00ed579d-5c16-4c29-b3c7-d2cec0e8779e" testId="29b13dfb-6b56-251a-a740-0b545e7ced53" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_Address10_ShouldUseCorrectAddress" computerName="GSL940A" duration="00:00:00.0000987" startTime="2026-06-08T16:35:39.0912573+08:00" endTime="2026-06-08T16:35:39.0912573+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="00ed579d-5c16-4c29-b3c7-d2cec0e8779e" />
+    <UnitTestResult executionId="a7a09fbb-84fd-4885-be66-270bdc61052d" testId="65ff8c73-eaf5-deb5-26bb-770e57b942c1" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_NibbleEncoding_ShouldEncodeOddChannelCorrectly" computerName="GSL940A" duration="00:00:00.0001079" startTime="2026-06-08T16:35:39.0808886+08:00" endTime="2026-06-08T16:35:39.0808901+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a7a09fbb-84fd-4885-be66-270bdc61052d" />
+    <UnitTestResult executionId="287d8117-f665-4c81-b0a7-cc95194c9de8" testId="b9915fd5-2e88-a505-efeb-bd4e92a119b0" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0025198" startTime="2026-06-08T16:35:39.1398809+08:00" endTime="2026-06-08T16:35:39.1398809+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="287d8117-f665-4c81-b0a7-cc95194c9de8" />
+    <UnitTestResult executionId="43c877a1-a580-4925-bf88-751779701514" testId="794458fb-5d23-1ef5-bd5b-b94b77a64f4a" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_V2Format_ShouldExtractCorrectly" computerName="GSL940A" duration="00:00:00.0017589" startTime="2026-06-08T16:35:39.1396401+08:00" endTime="2026-06-08T16:35:39.1396404+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="43c877a1-a580-4925-bf88-751779701514">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure&#xD;
+          ↓ (pos 0)&#xD;
+Expected: BN-32-V2&#xD;
+Actual:   \0BN-32-V&#xD;
+          ↑ (pos 0)</Message>
+          <StackTrace>   at DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_V2Format_ShouldExtractCorrectly() in G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\BNRC32Tests.cs:line 129</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2a5c4935-005b-4bca-a2bf-de5e0d1111e3" testId="4c662941-1dec-facc-839c-b8313931abe0" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractVersion_ShouldExtractCorrectly" computerName="GSL940A" duration="00:00:00.0142212" startTime="2026-06-08T16:35:39.1382831+08:00" endTime="2026-06-08T16:35:39.1382834+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2a5c4935-005b-4bca-a2bf-de5e0d1111e3">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure&#xD;
+          ↓ (pos 0)&#xD;
+Expected: IO-04-00&#xD;
+Actual:   \0IO-04-0&#xD;
+          ↑ (pos 0)</Message>
+          <StackTrace>   at DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractVersion_ShouldExtractCorrectly() in G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\BNRC8Tests.cs:line 258</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f0eca730-568a-47d4-818c-d8954907bdbb" testId="e3fcee1d-c5e7-50c7-6a5a-b3e6e295b1b8" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_DecodeText_EmptyData_ShouldReturnEmpty" computerName="GSL940A" duration="00:00:00.0007269" startTime="2026-06-08T16:35:39.1397785+08:00" endTime="2026-06-08T16:35:39.1397785+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f0eca730-568a-47d4-818c-d8954907bdbb" />
+    <UnitTestResult executionId="3a0441fe-f784-4d83-a11a-e15b2e208bb5" testId="2e3400a9-feda-a1a0-a686-7b49bbb1fa5e" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_IsErrorResponse_ShouldDetectError" computerName="GSL940A" duration="00:00:00.0000914" startTime="2026-06-08T16:35:39.1412898+08:00" endTime="2026-06-08T16:35:39.1412899+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3a0441fe-f784-4d83-a11a-e15b2e208bb5" />
+    <UnitTestResult executionId="52c21b0b-938c-42cb-951e-9e221f3afde7" testId="dd8fc43b-9405-0976-4347-d9730ec5b771" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_OpenAll_Data_ShouldBeCorrect" computerName="GSL940A" duration="00:00:00.0001315" startTime="2026-06-08T16:35:39.0929952+08:00" endTime="2026-06-08T16:35:39.0929952+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="52c21b0b-938c-42cb-951e-9e221f3afde7" />
+    <UnitTestResult executionId="bbe5e5dd-b12e-4278-be97-fe28b287f921" testId="bbe1c650-de27-ed3c-ec7d-068b937559a2" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlFrameStrategy_TryParseFrame_SetOutput_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0007768" startTime="2026-06-08T16:35:39.0651897+08:00" endTime="2026-06-08T16:35:39.0651898+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bbe5e5dd-b12e-4278-be97-fe28b287f921" />
+    <UnitTestResult executionId="8520a8ba-90f2-49e8-98d4-1dfade49332c" testId="89967e55-c54c-d437-3b12-6dac8572b28a" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_Address255_ShouldUseCorrectAddress" computerName="GSL940A" duration="00:00:00.0000950" startTime="2026-06-08T16:35:39.0929640+08:00" endTime="2026-06-08T16:35:39.0929640+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8520a8ba-90f2-49e8-98d4-1dfade49332c" />
+    <UnitTestResult executionId="c2b3ca8f-763e-4655-bbe6-697929927169" testId="d7a7dc47-06fa-7726-6a50-640e6a4cd540" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_ExtractInputState_Channel2_ShouldBeFalse" computerName="GSL940A" duration="00:00:00.0000832" startTime="2026-06-08T16:35:39.0652872+08:00" endTime="2026-06-08T16:35:39.0652872+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c2b3ca8f-763e-4655-bbe6-697929927169" />
+    <UnitTestResult executionId="938d4bcf-9506-4162-beac-e11abddfd161" testId="5f2efadd-4ddd-9b29-4d87-dead3d066f2f" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_OpenAll_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0033901" startTime="2026-06-08T16:35:39.1398040+08:00" endTime="2026-06-08T16:35:39.1398040+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="938d4bcf-9506-4162-beac-e11abddfd161" />
+    <UnitTestResult executionId="851f65b2-d491-48aa-b403-ca4c9c3e94e0" testId="fcda742b-4996-11f1-7ad9-daf8b21dc468" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_SetOutput_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0001707" startTime="2026-06-08T16:35:39.1412627+08:00" endTime="2026-06-08T16:35:39.1412627+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="851f65b2-d491-48aa-b403-ca4c9c3e94e0" />
+    <UnitTestResult executionId="a2df6156-3614-4052-9942-8b4fc83a8dcd" testId="fa48838b-06f0-c515-9b34-a91a8805ba7e" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_UnknownOperation_ShouldThrowException" computerName="GSL940A" duration="00:00:00.0033664" startTime="2026-06-08T16:35:39.1406467+08:00" endTime="2026-06-08T16:35:39.1406467+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a2df6156-3614-4052-9942-8b4fc83a8dcd" />
+    <UnitTestResult executionId="f60d5aec-1234-499f-923c-b5242b453dd1" testId="63e0b119-4aea-f343-edc6-220656dabaf5" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_SetOutput_Off_ShouldEncodeCorrectly" computerName="GSL940A" duration="00:00:00.0001169" startTime="2026-06-08T16:35:39.0935237+08:00" endTime="2026-06-08T16:35:39.0935237+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f60d5aec-1234-499f-923c-b5242b453dd1" />
+    <UnitTestResult executionId="8f474866-8ecd-4ee8-ab09-d20f33853582" testId="00ecdaf6-5901-950b-58d5-fa592cc9e869" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_TryParseFrame_PartialData_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0058562" startTime="2026-06-08T16:35:38.9967645+08:00" endTime="2026-06-08T16:35:38.9967898+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8f474866-8ecd-4ee8-ab09-d20f33853582" />
+    <UnitTestResult executionId="c7628279-cf2a-48e4-86df-3f93f00868d2" testId="d6784fcf-5e3a-a0d4-1b29-7b3c24d3a6a6" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_BuildFrame_ShouldBuildCorrectFrame" computerName="GSL940A" duration="00:00:00.0003180" startTime="2026-06-08T16:35:39.1403768+08:00" endTime="2026-06-08T16:35:39.1403769+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c7628279-cf2a-48e4-86df-3f93f00868d2" />
+    <UnitTestResult executionId="ba560034-a759-4e51-9b3a-98830b448d44" testId="3a69f7ce-c3ab-e2a0-fba5-c3f67e0ec683" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_DecodeText_ShouldReturnHexString" computerName="GSL940A" duration="00:00:00.0063729" startTime="2026-06-08T16:35:39.0317561+08:00" endTime="2026-06-08T16:35:39.0317562+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ba560034-a759-4e51-9b3a-98830b448d44" />
+    <UnitTestResult executionId="6236fa71-1a49-490e-9c0e-f7097ea68fa9" testId="2cd61fc8-e23b-1f17-60d1-d2c437566791" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_ExtractAnalogValue_ShouldExtract16BitValue" computerName="GSL940A" duration="00:00:00.0000839" startTime="2026-06-08T16:35:39.0653131+08:00" endTime="2026-06-08T16:35:39.0653132+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6236fa71-1a49-490e-9c0e-f7097ea68fa9" />
+    <UnitTestResult executionId="e2ec34d2-ec0d-49e8-b11e-bb2d3b4c60ec" testId="9893aca0-ae3d-3ccf-fc34-ec1f67d06f05" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_InvalidHeader_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0000863" startTime="2026-06-08T16:35:39.1412295+08:00" endTime="2026-06-08T16:35:39.1412295+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e2ec34d2-ec0d-49e8-b11e-bb2d3b4c60ec" />
+    <UnitTestResult executionId="5a0b6755-4023-467f-8cbb-c6d6c519576b" testId="0d64f691-c36e-cd0b-ad0f-fbf32fe47720" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_Encode_GetOutput_ShouldReturnCorrectFrame" computerName="GSL940A" duration="00:00:00.0390395" startTime="2026-06-08T16:35:39.0328019+08:00" endTime="2026-06-08T16:35:39.0328019+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5a0b6755-4023-467f-8cbb-c6d6c519576b" />
+    <UnitTestResult executionId="2b53ea9c-0cc3-4aae-9a5a-235d55c9bad3" testId="32a171eb-1ebf-ce30-b43e-9de4ec196ee4" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_CloseAll_Data_ShouldBeCorrect" computerName="GSL940A" duration="00:00:00.0001315" startTime="2026-06-08T16:35:39.0930211+08:00" endTime="2026-06-08T16:35:39.0930211+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2b53ea9c-0cc3-4aae-9a5a-235d55c9bad3" />
+    <UnitTestResult executionId="f75a6583-3406-4d08-be50-255155029547" testId="5c87f9a5-ab34-f86f-c9b8-d6d8ae6943de" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_SetOutput_Channel32_ShouldEncodeCorrectly" computerName="GSL940A" duration="00:00:00.0000967" startTime="2026-06-08T16:35:39.0929139+08:00" endTime="2026-06-08T16:35:39.0929140+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f75a6583-3406-4d08-be50-255155029547" />
+    <UnitTestResult executionId="d9d7da2f-f231-4692-8f7d-437c1b6c5157" testId="3e0635d3-8dd2-91fd-5a5e-36e86b0cc68d" testName="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_BuildFrame_OpenAll_ShouldBuildCorrectFrame" computerName="GSL940A" duration="00:00:00.0002856" startTime="2026-06-08T16:35:39.1397302+08:00" endTime="2026-06-08T16:35:39.1397303+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d9d7da2f-f231-4692-8f7d-437c1b6c5157" />
+    <UnitTestResult executionId="0b181109-4da9-4e87-b27e-af9b145c5b9f" testId="1774c9b5-9e25-22bc-f815-7dc5e434552b" testName="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_OpenAll_Data_ShouldBeCorrect" computerName="GSL940A" duration="00:00:00.0001764" startTime="2026-06-08T16:35:39.0903282+08:00" endTime="2026-06-08T16:35:39.0903286+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0b181109-4da9-4e87-b27e-af9b145c5b9f" />
+    <UnitTestResult executionId="f199fa07-1e71-4b7c-876b-cae48262816a" testId="70c1e483-56bc-0731-0c37-653286220b35" testName="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractInputState_ShouldExtractCorrectly" computerName="GSL940A" duration="00:00:00.0001043" startTime="2026-06-08T16:35:39.1407756+08:00" endTime="2026-06-08T16:35:39.1407757+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f199fa07-1e71-4b7c-876b-cae48262816a" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_Address10_ShouldUseCorrectAddress" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="29b13dfb-6b56-251a-a740-0b545e7ced53">
+      <Execution id="00ed579d-5c16-4c29-b3c7-d2cec0e8779e" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_Encode_Address10_ShouldUseCorrectAddress" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_TryParseFrame_EmptyData_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="5041678d-2c58-b1e4-bfda-158828d2e8ed">
+      <Execution id="76d141e7-7aa5-47ca-92ab-1fe2afaadf2b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlFrameStrategy_TryParseFrame_EmptyData_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_UnknownOperation_ShouldThrowException" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="fa48838b-06f0-c515-9b34-a91a8805ba7e">
+      <Execution id="a2df6156-3614-4052-9942-8b4fc83a8dcd" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_UnknownOperation_ShouldThrowException" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_ExtractAnalogValue_ShouldExtract16BitValue" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="2cd61fc8-e23b-1f17-60d1-d2c437566791">
+      <Execution id="6236fa71-1a49-490e-9c0e-f7097ea68fa9" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlCodec_ExtractAnalogValue_ShouldExtract16BitValue" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_TooShort_ShouldReturnEmpty" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="2e1f8881-59be-0894-9ccb-891f63cda22f">
+      <Execution id="20194059-d24b-44b7-99dc-cfc3a0cfcf20" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_ExtractVersion_TooShort_ShouldReturnEmpty" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_GetAnalogInput_Channel0_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="e3fe10dc-0b8d-e774-0435-779705a5ca9d">
+      <Execution id="f4b613ce-317a-4797-b56f-27558ec922b3" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_Encode_GetAnalogInput_Channel0_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_ExtractInputState_Channel1_ShouldBeTrue" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="a498eb4e-a403-1ef9-935b-6e68b515b8ce">
+      <Execution id="76b81e39-4c47-4c30-8177-8d02e1ab92f5" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlCodec_ExtractInputState_Channel1_ShouldBeTrue" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_IsErrorResponse_TooShort_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="5a0bff94-0d75-732c-bc1d-1182fec24814">
+      <Execution id="a07b260a-1863-4512-ae59-b4487907ec94" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_IsErrorResponse_TooShort_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_OpenAll_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="5f2efadd-4ddd-9b29-4d87-dead3d066f2f">
+      <Execution id="938d4bcf-9506-4162-beac-e11abddfd161" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_OpenAll_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_CloseAll_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="4084126b-5d40-fb17-79de-a5d4750491da">
+      <Execution id="b249b21d-c29d-4e1d-8cab-1e7f0a767ed1" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_CloseAll_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_SetOutput_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="fcda742b-4996-11f1-7ad9-daf8b21dc468">
+      <Execution id="851f65b2-d491-48aa-b403-ca4c9c3e94e0" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_SetOutput_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractInputState_ShouldExtractCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="70c1e483-56bc-0731-0c37-653286220b35">
+      <Execution id="f199fa07-1e71-4b7c-876b-cae48262816a" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_ExtractInputState_ShouldExtractCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_DecodeText_EmptyData_ShouldReturnEmpty" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="e3fcee1d-c5e7-50c7-6a5a-b3e6e295b1b8">
+      <Execution id="f0eca730-568a-47d4-818c-d8954907bdbb" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_DecodeText_EmptyData_ShouldReturnEmpty" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_OpenAll_Data_ShouldBeCorrect" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="dd8fc43b-9405-0976-4347-d9730ec5b771">
+      <Execution id="52c21b0b-938c-42cb-951e-9e221f3afde7" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="BNRC32_OpenAll_Data_ShouldBeCorrect" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_NibbleEncoding_ShouldEncodeOddChannelCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="65ff8c73-eaf5-deb5-26bb-770e57b942c1">
+      <Execution id="a7a09fbb-84fd-4885-be66-270bdc61052d" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="BNRC16_NibbleEncoding_ShouldEncodeOddChannelCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_BitEncoding_Channel4_ShouldUseBit3" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="873fbe46-759f-c5c1-2b89-34bb3a4fc731">
+      <Execution id="8c0e3780-5184-45a0-853d-bebdcbfcd7b5" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="BNRC32_BitEncoding_Channel4_ShouldUseBit3" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractAnalogValue_LargeValue_ShouldExtractCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="5665e383-e62e-25aa-33f7-acfe7569ae46">
+      <Execution id="d5a91325-b082-44db-94f8-c4eeb36eaf4e" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_ExtractAnalogValue_LargeValue_ShouldExtractCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_TryParseFrame_PartialData_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="00ecdaf6-5901-950b-58d5-fa592cc9e869">
+      <Execution id="8f474866-8ecd-4ee8-ab09-d20f33853582" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlFrameStrategy_TryParseFrame_PartialData_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_Constructor_ShouldCreateInstance" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="812eaebe-02e4-e1e5-b4ba-02fb5af30016">
+      <Execution id="cef10766-0a3e-4d0c-92ce-bc9be7c64a61" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="BNRC32_Constructor_ShouldCreateInstance" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_GetInput_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="0f7f7b58-febc-3a35-be33-626e9953fc13">
+      <Execution id="794395f6-7034-4df5-8fc5-9d53aadcf8fe" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_GetInput_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_InvalidHeader_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="9893aca0-ae3d-3ccf-fc34-ec1f67d06f05">
+      <Execution id="e2ec34d2-ec0d-49e8-b11e-bb2d3b4c60ec" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlFrameStrategy_TryParseFrame_InvalidHeader_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_Encode_GetAnalogInput_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="d750cafa-8fa8-0890-52f1-9bb36f5a9892">
+      <Execution id="692fcd7e-1214-46fd-abe5-488e687efaa7" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlCodec_Encode_GetAnalogInput_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_OpenAll_Data_ShouldBeCorrect" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="1774c9b5-9e25-22bc-f815-7dc5e434552b">
+      <Execution id="0b181109-4da9-4e87-b27e-af9b145c5b9f" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="BNRC16_OpenAll_Data_ShouldBeCorrect" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractAnalogValue_ShouldExtractCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="7b495857-f5ce-b4ca-ecd6-675b4f177ca3">
+      <Execution id="44e113a5-c920-4ab2-824b-64b53b9add29" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_ExtractAnalogValue_ShouldExtractCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_Encode_GetOutput_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="0d64f691-c36e-cd0b-ad0f-fbf32fe47720">
+      <Execution id="5a0b6755-4023-467f-8cbb-c6d6c519576b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlCodec_Encode_GetOutput_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlFrameStrategy_BuildFrame_SetOutput_ShouldBuildCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="b2d56846-f8bc-d86b-e75d-5d5f909e139b">
+      <Execution id="f69dd572-6e29-4a16-b0ae-eae2fa8db59c" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlFrameStrategy_BuildFrame_SetOutput_ShouldBuildCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_BuildFrame_ShouldBuildCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="d6784fcf-5e3a-a0d4-1b29-7b3c24d3a6a6">
+      <Execution id="c7628279-cf2a-48e4-86df-3f93f00868d2" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlFrameStrategy_BuildFrame_ShouldBuildCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_GetAnalogInput_Channel3_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="6582626d-7752-c983-988f-1cd6d0dd8994">
+      <Execution id="b0c4566c-5271-416f-8f5a-cabe0a611725" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_Encode_GetAnalogInput_Channel3_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_CloseAll_Data_ShouldBeCorrect" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="e539998e-7be4-8569-c2c0-57c717aea947">
+      <Execution id="a934c818-90cc-4562-96f0-878f5dc36350" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="BNRC16_CloseAll_Data_ShouldBeCorrect" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_Constructor_ShouldCreateInstance" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="a80ce31b-d8d7-c830-e4b3-d29a8d47b149">
+      <Execution id="f0029e3b-78c8-413d-bb3d-17591dac8998" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="BNRC16_Constructor_ShouldCreateInstance" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="b9915fd5-2e88-a505-efeb-bd4e92a119b0">
+      <Execution id="287d8117-f665-4c81-b0a7-cc95194c9de8" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlFrameStrategy_TryParseFrame_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractVersion_ShouldExtractCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="4c662941-1dec-facc-839c-b8313931abe0">
+      <Execution id="2a5c4935-005b-4bca-a2bf-de5e0d1111e3" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_ExtractVersion_ShouldExtractCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlFrameStrategy_TryParseFrame_SetOutput_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="bbe1c650-de27-ed3c-ec7d-068b937559a2">
+      <Execution id="bbe5e5dd-b12e-4278-be97-fe28b287f921" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlFrameStrategy_TryParseFrame_SetOutput_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.ZqwlCodec_ExtractInputState_Channel2_ShouldBeFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="d7a7dc47-06fa-7726-6a50-640e6a4cd540">
+      <Execution id="c2b3ca8f-763e-4655-bbe6-697929927169" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="ZqwlCodec_ExtractInputState_Channel2_ShouldBeFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_Address255_ShouldUseCorrectAddress" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="89967e55-c54c-d437-3b12-6dac8572b28a">
+      <Execution id="8520a8ba-90f2-49e8-98d4-1dfade49332c" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_Encode_Address255_ShouldUseCorrectAddress" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_IsErrorResponse_NormalResponse_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="bd8d193b-097b-4c16-3871-8cd2bcd51095">
+      <Execution id="ddfb5fff-a07a-4a16-a807-b28cfda0d726" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_IsErrorResponse_NormalResponse_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_BuildFrame_OpenAll_ShouldBuildCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="3e0635d3-8dd2-91fd-5a5e-36e86b0cc68d">
+      <Execution id="d9d7da2f-f231-4692-8f7d-437c1b6c5157" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlFrameStrategy_BuildFrame_OpenAll_ShouldBuildCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_V2Format_ShouldExtractCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="794458fb-5d23-1ef5-bd5b-b94b77a64f4a">
+      <Execution id="43c877a1-a580-4925-bf88-751779701514" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_ExtractVersion_V2Format_ShouldExtractCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_GetAllStatuses_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="27cfd16a-29c1-2790-bb7c-16d9d357ddc7">
+      <Execution id="19011de6-7c90-4039-a70a-b25b78cb9107" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_GetAllStatuses_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_InvalidChecksum_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="c515560b-e3b9-e8ec-3865-cecd6abe1d9f">
+      <Execution id="6079a6a8-8657-4934-ac85-bebd54802f1b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlFrameStrategy_TryParseFrame_InvalidChecksum_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_DifferentAddress_ShouldUseCorrectAddress" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="e874231e-e81a-5048-7b17-1befc6ad4d5b">
+      <Execution id="701cdc3c-5a08-44a8-bf53-eba79bf5e7c9" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_DifferentAddress_ShouldUseCorrectAddress" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_IsErrorResponse_ShouldDetectError" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="2e3400a9-feda-a1a0-a686-7b49bbb1fa5e">
+      <Execution id="3a0441fe-f784-4d83-a11a-e15b2e208bb5" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_IsErrorResponse_ShouldDetectError" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_IsErrorResponse_Null_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="7fcff399-8ede-5679-c694-0401732d1a3c">
+      <Execution id="e04df76a-a0bf-415a-bc76-69536bf7b2b4" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_IsErrorResponse_Null_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_CloseAll_Data_ShouldBeCorrect" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="32a171eb-1ebf-ce30-b43e-9de4ec196ee4">
+      <Execution id="2b53ea9c-0cc3-4aae-9a5a-235d55c9bad3" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="BNRC32_CloseAll_Data_ShouldBeCorrect" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_SetOutput_Channel32_ShouldEncodeCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="5c87f9a5-ab34-f86f-c9b8-d6d8ae6943de">
+      <Execution id="f75a6583-3406-4d08-be50-255155029547" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_Encode_SetOutput_Channel32_ShouldEncodeCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_BitEncoding_Channel1_ShouldUseBit0" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="b0625295-6927-5794-1f4f-e63fa3731be2">
+      <Execution id="29d8c7da-1046-4c3a-b593-3101429f3c57" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="BNRC32_BitEncoding_Channel1_ShouldUseBit0" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.BNRC8_Constructor_ShouldCreateInstance" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="1d0ab8e0-4ff6-4ca0-5162-cec6679f8883">
+      <Execution id="6d36d8bd-611a-4e34-b640-1f7838d32d81" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="BNRC8_Constructor_ShouldCreateInstance" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_NibbleEncoding_ShouldEncodeEvenChannelCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="ada19929-6e4a-d2a5-3586-802879b4674f">
+      <Execution id="ee73906a-de65-4b9d-9cd6-ebc21415034b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC16Tests" name="BNRC16_NibbleEncoding_ShouldEncodeEvenChannelCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlFrameStrategy_TryParseFrame_InvalidFooter_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="3d4bbabc-f1a0-f449-dd94-7bf2ffaca4be">
+      <Execution id="45af83b8-d8f6-4673-8878-0fd3cb4b0fc0" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlFrameStrategy_TryParseFrame_InvalidFooter_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_Encode_SetOutput_Off_ShouldEncodeCorrectly" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="63e0b119-4aea-f343-edc6-220656dabaf5">
+      <Execution id="f60d5aec-1234-499f-923c-b5242b453dd1" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlCodec_Encode_SetOutput_Off_ShouldEncodeCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_Encode_GetVersion_ShouldReturnCorrectFrame" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="40cbb37f-5210-d18f-4cb6-21ff0a095420">
+      <Execution id="f44c0176-1ea1-45bb-bce6-9d6cfbdbdd02" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_Encode_GetVersion_ShouldReturnCorrectFrame" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlFrameStrategy_RoundTrip_ShouldPreserveData" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="16232df5-d905-ce6e-136f-af6e8f0399d6">
+      <Execution id="455b6f98-78c2-4f74-b37b-ce25e5932ecb" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC32Tests" name="ZqwlFrameStrategy_RoundTrip_ShouldPreserveData" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_DecodeText_ShouldReturnHexString" storage="g:\devicelink\tests\devicelink.tests.zqwl\bin\debug\net6.0\devicelink.tests.zqwl.dll" id="3a69f7ce-c3ab-e2a0-fba5-c3f67e0ec683">
+      <Execution id="ba560034-a759-4e51-9b3a-98830b448d44" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\bin\Debug\net6.0\DeviceLink.Tests.ZQWL.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.ZQWL.BNRC8Tests" name="ZqwlCodec_DecodeText_ShouldReturnHexString" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="7b495857-f5ce-b4ca-ecd6-675b4f177ca3" executionId="44e113a5-c920-4ab2-824b-64b53b9add29" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c515560b-e3b9-e8ec-3865-cecd6abe1d9f" executionId="6079a6a8-8657-4934-ac85-bebd54802f1b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="27cfd16a-29c1-2790-bb7c-16d9d357ddc7" executionId="19011de6-7c90-4039-a70a-b25b78cb9107" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e3fe10dc-0b8d-e774-0435-779705a5ca9d" executionId="f4b613ce-317a-4797-b56f-27558ec922b3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4084126b-5d40-fb17-79de-a5d4750491da" executionId="b249b21d-c29d-4e1d-8cab-1e7f0a767ed1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7fcff399-8ede-5679-c694-0401732d1a3c" executionId="e04df76a-a0bf-415a-bc76-69536bf7b2b4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5665e383-e62e-25aa-33f7-acfe7569ae46" executionId="d5a91325-b082-44db-94f8-c4eeb36eaf4e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd8d193b-097b-4c16-3871-8cd2bcd51095" executionId="ddfb5fff-a07a-4a16-a807-b28cfda0d726" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3d4bbabc-f1a0-f449-dd94-7bf2ffaca4be" executionId="45af83b8-d8f6-4673-8878-0fd3cb4b0fc0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6582626d-7752-c983-988f-1cd6d0dd8994" executionId="b0c4566c-5271-416f-8f5a-cabe0a611725" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5041678d-2c58-b1e4-bfda-158828d2e8ed" executionId="76d141e7-7aa5-47ca-92ab-1fe2afaadf2b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2e1f8881-59be-0894-9ccb-891f63cda22f" executionId="20194059-d24b-44b7-99dc-cfc3a0cfcf20" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a80ce31b-d8d7-c830-e4b3-d29a8d47b149" executionId="f0029e3b-78c8-413d-bb3d-17591dac8998" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0f7f7b58-febc-3a35-be33-626e9953fc13" executionId="794395f6-7034-4df5-8fc5-9d53aadcf8fe" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ada19929-6e4a-d2a5-3586-802879b4674f" executionId="ee73906a-de65-4b9d-9cd6-ebc21415034b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="40cbb37f-5210-d18f-4cb6-21ff0a095420" executionId="f44c0176-1ea1-45bb-bce6-9d6cfbdbdd02" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="812eaebe-02e4-e1e5-b4ba-02fb5af30016" executionId="cef10766-0a3e-4d0c-92ce-bc9be7c64a61" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d750cafa-8fa8-0890-52f1-9bb36f5a9892" executionId="692fcd7e-1214-46fd-abe5-488e687efaa7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="16232df5-d905-ce6e-136f-af6e8f0399d6" executionId="455b6f98-78c2-4f74-b37b-ce25e5932ecb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a498eb4e-a403-1ef9-935b-6e68b515b8ce" executionId="76b81e39-4c47-4c30-8177-8d02e1ab92f5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1d0ab8e0-4ff6-4ca0-5162-cec6679f8883" executionId="6d36d8bd-611a-4e34-b640-1f7838d32d81" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b2d56846-f8bc-d86b-e75d-5d5f909e139b" executionId="f69dd572-6e29-4a16-b0ae-eae2fa8db59c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b0625295-6927-5794-1f4f-e63fa3731be2" executionId="29d8c7da-1046-4c3a-b593-3101429f3c57" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="873fbe46-759f-c5c1-2b89-34bb3a4fc731" executionId="8c0e3780-5184-45a0-853d-bebdcbfcd7b5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e539998e-7be4-8569-c2c0-57c717aea947" executionId="a934c818-90cc-4562-96f0-878f5dc36350" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e874231e-e81a-5048-7b17-1befc6ad4d5b" executionId="701cdc3c-5a08-44a8-bf53-eba79bf5e7c9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5a0bff94-0d75-732c-bc1d-1182fec24814" executionId="a07b260a-1863-4512-ae59-b4487907ec94" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="29b13dfb-6b56-251a-a740-0b545e7ced53" executionId="00ed579d-5c16-4c29-b3c7-d2cec0e8779e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="65ff8c73-eaf5-deb5-26bb-770e57b942c1" executionId="a7a09fbb-84fd-4885-be66-270bdc61052d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b9915fd5-2e88-a505-efeb-bd4e92a119b0" executionId="287d8117-f665-4c81-b0a7-cc95194c9de8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="794458fb-5d23-1ef5-bd5b-b94b77a64f4a" executionId="43c877a1-a580-4925-bf88-751779701514" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4c662941-1dec-facc-839c-b8313931abe0" executionId="2a5c4935-005b-4bca-a2bf-de5e0d1111e3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e3fcee1d-c5e7-50c7-6a5a-b3e6e295b1b8" executionId="f0eca730-568a-47d4-818c-d8954907bdbb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2e3400a9-feda-a1a0-a686-7b49bbb1fa5e" executionId="3a0441fe-f784-4d83-a11a-e15b2e208bb5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd8fc43b-9405-0976-4347-d9730ec5b771" executionId="52c21b0b-938c-42cb-951e-9e221f3afde7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bbe1c650-de27-ed3c-ec7d-068b937559a2" executionId="bbe5e5dd-b12e-4278-be97-fe28b287f921" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="89967e55-c54c-d437-3b12-6dac8572b28a" executionId="8520a8ba-90f2-49e8-98d4-1dfade49332c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d7a7dc47-06fa-7726-6a50-640e6a4cd540" executionId="c2b3ca8f-763e-4655-bbe6-697929927169" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5f2efadd-4ddd-9b29-4d87-dead3d066f2f" executionId="938d4bcf-9506-4162-beac-e11abddfd161" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fcda742b-4996-11f1-7ad9-daf8b21dc468" executionId="851f65b2-d491-48aa-b403-ca4c9c3e94e0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa48838b-06f0-c515-9b34-a91a8805ba7e" executionId="a2df6156-3614-4052-9942-8b4fc83a8dcd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="63e0b119-4aea-f343-edc6-220656dabaf5" executionId="f60d5aec-1234-499f-923c-b5242b453dd1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00ecdaf6-5901-950b-58d5-fa592cc9e869" executionId="8f474866-8ecd-4ee8-ab09-d20f33853582" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d6784fcf-5e3a-a0d4-1b29-7b3c24d3a6a6" executionId="c7628279-cf2a-48e4-86df-3f93f00868d2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3a69f7ce-c3ab-e2a0-fba5-c3f67e0ec683" executionId="ba560034-a759-4e51-9b3a-98830b448d44" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2cd61fc8-e23b-1f17-60d1-d2c437566791" executionId="6236fa71-1a49-490e-9c0e-f7097ea68fa9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9893aca0-ae3d-3ccf-fc34-ec1f67d06f05" executionId="e2ec34d2-ec0d-49e8-b11e-bb2d3b4c60ec" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0d64f691-c36e-cd0b-ad0f-fbf32fe47720" executionId="5a0b6755-4023-467f-8cbb-c6d6c519576b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="32a171eb-1ebf-ce30-b43e-9de4ec196ee4" executionId="2b53ea9c-0cc3-4aae-9a5a-235d55c9bad3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c87f9a5-ab34-f86f-c9b8-d6d8ae6943de" executionId="f75a6583-3406-4d08-be50-255155029547" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3e0635d3-8dd2-91fd-5a5e-36e86b0cc68d" executionId="d9d7da2f-f231-4692-8f7d-437c1b6c5157" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1774c9b5-9e25-22bc-f815-7dc5e434552b" executionId="0b181109-4da9-4e87-b27e-af9b145c5b9f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="70c1e483-56bc-0731-0c37-653286220b35" executionId="f199fa07-1e71-4b7c-876b-cae48262816a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="53" executed="50" passed="48" failed="2" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:01.24]   Discovering: DeviceLink.Tests.ZQWL&#xD;
+[xUnit.net 00:00:01.32]   Discovered:  DeviceLink.Tests.ZQWL&#xD;
+[xUnit.net 00:00:01.33]   Starting:    DeviceLink.Tests.ZQWL&#xD;
+[xUnit.net 00:00:01.57]       需要实际串口设备&#xD;
+在测试运行中跳过测试“DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_Constructor_ShouldCreateInstance”。&#xD;
+[xUnit.net 00:00:01.59]       需要实际串口设备&#xD;
+在测试运行中跳过测试“DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_Constructor_ShouldCreateInstance”。&#xD;
+[xUnit.net 00:00:01.63]       Assert.Equal() Failure&#xD;
+[xUnit.net 00:00:01.63]                 ↓ (pos 0)&#xD;
+[xUnit.net 00:00:01.63]       Expected: IO-04-00&#xD;
+[xUnit.net 00:00:01.63]       Actual:   \0IO-04-0&#xD;
+[xUnit.net 00:00:01.63]                 ↑ (pos 0)&#xD;
+[xUnit.net 00:00:01.63]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.64]         G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\BNRC8Tests.cs(258,0): at DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractVersion_ShouldExtractCorrectly()&#xD;
+[xUnit.net 00:00:01.64]       Assert.Equal() Failure&#xD;
+[xUnit.net 00:00:01.64]                 ↓ (pos 0)&#xD;
+[xUnit.net 00:00:01.64]       Expected: BN-32-V2&#xD;
+[xUnit.net 00:00:01.64]       Actual:   \0BN-32-V&#xD;
+[xUnit.net 00:00:01.64]                 ↑ (pos 0)&#xD;
+[xUnit.net 00:00:01.64]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.64]         G:\DeviceLink\tests\DeviceLink.Tests.ZQWL\BNRC32Tests.cs(129,0): at DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_V2Format_ShouldExtractCorrectly()&#xD;
+[xUnit.net 00:00:01.64]       需要实际串口设备&#xD;
+在测试运行中跳过测试“DeviceLink.Tests.ZQWL.BNRC8Tests.BNRC8_Constructor_ShouldCreateInstance”。&#xD;
+[xUnit.net 00:00:01.64]   Finished:    DeviceLink.Tests.ZQWL&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="GSL940A" outcome="Warning" timestamp="2026-06-08T16:35:39.2786250+08:00">
+        <Text>[xUnit.net 00:00:01.57]     DeviceLink.Tests.ZQWL.BNRC16Tests.BNRC16_Constructor_ShouldCreateInstance [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Warning" timestamp="2026-06-08T16:35:39.2936742+08:00">
+        <Text>[xUnit.net 00:00:01.59]     DeviceLink.Tests.ZQWL.BNRC32Tests.BNRC32_Constructor_ShouldCreateInstance [SKIP]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-06-08T16:35:39.2969870+08:00">
+        <Text>[xUnit.net 00:00:01.62]     DeviceLink.Tests.ZQWL.BNRC8Tests.ZqwlCodec_ExtractVersion_ShouldExtractCorrectly [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-06-08T16:35:39.3210010+08:00">
+        <Text>[xUnit.net 00:00:01.64]     DeviceLink.Tests.ZQWL.BNRC32Tests.ZqwlCodec_ExtractVersion_V2Format_ShouldExtractCorrectly [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Warning" timestamp="2026-06-08T16:35:39.3220039+08:00">
+        <Text>[xUnit.net 00:00:01.64]     DeviceLink.Tests.ZQWL.BNRC8Tests.BNRC8_Constructor_ShouldCreateInstance [SKIP]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

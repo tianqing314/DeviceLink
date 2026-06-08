@@ -54,9 +54,14 @@ namespace DeviceLink.DeviceBase
         public Parity Parity { get; set; } = Parity.None;
 
         /// <summary>
-        /// 帧分隔符
+        /// 帧分隔符（当 FrameStrategy 为 null 时使用 DelimiterFrameStrategy）
         /// </summary>
         public byte[] Delimiter { get; set; } = new byte[] { 0 };
+
+        /// <summary>
+        /// 自定义帧策略（如 ModbusRtuFrameStrategy），为 null 时使用 DelimiterFrameStrategy
+        /// </summary>
+        public IFrameStrategy? FrameStrategy { get; set; }
 
         /// <summary>
         /// 启用 DTR（数据终端就绪）信号
@@ -116,9 +121,11 @@ namespace DeviceLink.DeviceBase
         /// <returns>通信管道</returns>
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
+            var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
+            
             return new CommunicationPipelineBuilder()
                 .UseTransport(new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity, DtrEnable, RtsEnable))
-                .UseDataLink(new DelimiterFrameStrategy(Delimiter))
+                .UseDataLink(dataLink)
                 .UseProtocol(codec)
                 .Build();
         }
@@ -145,9 +152,14 @@ namespace DeviceLink.DeviceBase
         public int ConnectTimeoutMs { get; set; } = 5000;
 
         /// <summary>
-        /// 帧分隔符
+        /// 帧分隔符（当 FrameStrategy 为 null 时使用 DelimiterFrameStrategy）
         /// </summary>
         public byte[] Delimiter { get; set; } = new byte[] { 0 };
+
+        /// <summary>
+        /// 自定义帧策略（如 ModbusRtuFrameStrategy），为 null 时使用 DelimiterFrameStrategy
+        /// </summary>
+        public IFrameStrategy? FrameStrategy { get; set; }
 
         /// <summary>
         /// 初始化TCP通信配置
@@ -186,9 +198,11 @@ namespace DeviceLink.DeviceBase
         /// <returns>通信管道</returns>
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
+            var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
+            
             return new CommunicationPipelineBuilder()
                 .UseTransport(new TcpTransport(IpAddress.ToString(), Port, ConnectTimeoutMs))
-                .UseDataLink(new DelimiterFrameStrategy(Delimiter))
+                .UseDataLink(dataLink)
                 .UseProtocol(codec)
                 .Build();
         }

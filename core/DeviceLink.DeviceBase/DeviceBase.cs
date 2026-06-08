@@ -39,6 +39,26 @@ namespace DeviceLink.DeviceBase
         public string Name { get; set; }
 
         /// <summary>
+        /// 根据协议编解码器类型自动选择推荐的帧策略。
+        /// 这是框架层面的"协议→帧策略"映射，设备子类无需关心。
+        /// 
+        /// 映射规则：
+        ///   ModbusRtuCodec → ModbusRtuFrameStrategy（CRC16校验）
+        ///   其他协议       → null（使用默认的 DelimiterFrameStrategy）
+        /// </summary>
+        /// <param name="codec">协议编解码器</param>
+        /// <returns>推荐的帧策略，或 null 使用默认策略</returns>
+        protected static IFrameStrategy? GetDefaultFrameStrategy(IProtocolCodec codec)
+        {
+            return codec.ProtocolName switch
+            {
+                "ModbusRTU" => new ModbusRtuFrameStrategy(),
+                "ZQWL" => new ZqwlFrameStrategy(),
+                _ => null  // 默认使用 DelimiterFrameStrategy
+            };
+        }
+
+        /// <summary>
         /// 初始化设备基类（基础构造函数，直接注入会话层）
         /// 适用于测试、MQTT 等场景，不需要完整 OSI 链路
         /// </summary>
@@ -83,6 +103,39 @@ namespace DeviceLink.DeviceBase
         }
 
         /// <summary>
+        /// 初始化设备基类（串口通信，自定义帧策略）
+        /// 适用于 Modbus RTU 等需要特定帧格式的协议
+        /// </summary>
+        /// <param name="portName">串口名称</param>
+        /// <param name="baudRate">波特率</param>
+        /// <param name="dataBits">数据位</param>
+        /// <param name="stopBits">停止位</param>
+        /// <param name="parity">校验位</param>
+        /// <param name="codec">协议编解码器</param>
+        /// <param name="frameStrategy">帧策略（如 ModbusRtuFrameStrategy）</param>
+        protected DeviceBase(
+            string portName,
+            int baudRate,
+            int dataBits,
+            StopBits stopBits,
+            Parity parity,
+            IProtocolCodec codec,
+            IFrameStrategy frameStrategy)
+        {
+            Codec = codec ?? throw new ArgumentNullException(nameof(codec));
+            Name = GetType().Name;
+
+            // 通过 PipelineBuilder 组装完整 OSI 链路
+            Pipeline = new CommunicationPipelineBuilder()
+                .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity))
+                .UseDataLink(frameStrategy ?? throw new ArgumentNullException(nameof(frameStrategy)))
+                .UseProtocol(Codec)
+                .Build();
+
+            ConstructDefaultInfo();
+        }
+
+        /// <summary>
         /// 初始化设备基类（串口通信，带自定义帧分隔符）
         /// 通过 CommunicationPipelineBuilder 组装完整 OSI 链路
         /// </summary>
@@ -105,12 +158,14 @@ namespace DeviceLink.DeviceBase
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
             Name = GetType().Name;
 
-            var frameDelimiter = delimiter ?? new byte[] { 0 };
+            // 根据协议类型自动选择帧策略，否则使用 DelimiterFrameStrategy
+            var dataLink = GetDefaultFrameStrategy(codec)
+                ?? new DelimiterFrameStrategy(delimiter ?? new byte[] { 0 });
 
             // 通过 PipelineBuilder 组装完整 OSI 链路
             Pipeline = new CommunicationPipelineBuilder()
                 .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity))
-                .UseDataLink(new DelimiterFrameStrategy(frameDelimiter))
+                .UseDataLink(dataLink)
                 .UseProtocol(Codec)
                 .Build();
 
@@ -130,6 +185,21 @@ namespace DeviceLink.DeviceBase
         }
 
         /// <summary>
+        /// 初始化设备基类（串口通信，使用默认配置：9600,8,1,None，自定义帧策略）
+        /// 适用于需要自定义帧策略但使用默认串口参数的场景
+        /// </summary>
+        /// <param name="portName">串口名称</param>
+        /// <param name="codec">协议编解码器</param>
+        /// <param name="frameStrategy">帧策略</param>
+        protected DeviceBase(
+            string portName,
+            IProtocolCodec codec,
+            IFrameStrategy frameStrategy)
+            : this(portName, 9600, 8, StopBits.One, Parity.None, codec, frameStrategy)
+        {
+        }
+
+        /// <summary>
         /// 初始化设备基类（TCP通信）
         /// 通过 CommunicationPipelineBuilder 组装完整 OSI 链路
         /// </summary>
@@ -144,12 +214,67 @@ namespace DeviceLink.DeviceBase
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
             Name = GetType().Name;
 
+            // 根据协议类型自动选择帧策略，否则使用 DelimiterFrameStrategy
+            var dataLink = GetDefaultFrameStrategy(codec)
+                ?? new DelimiterFrameStrategy(new byte[] { 0 });
+
             // 通过 PipelineBuilder 组装完整 OSI 链路
             Pipeline = new CommunicationPipelineBuilder()
                 .UseTransport(new TcpTransport(ipAddress.ToString(), port))
-                .UseDataLink(new DelimiterFrameStrategy(new byte[] { 0 }))
+                .UseDataLink(dataLink)
                 .UseProtocol(Codec)
                 .Build();
+
+            ConstructDefaultInfo();
+        }
+
+        /// <summary>
+        /// 初始化设备基类（TCP通信，自定义帧策略）
+        /// </summary>
+        /// <param name="ipAddress">IP地址</param>
+        /// <param name="port">端口号</param>
+        /// <param name="codec">协议编解码器</param>
+        /// <param name="frameStrategy">帧策略（如 ModbusRtuFrameStrategy）</param>
+        protected DeviceBase(
+            IPAddress ipAddress,
+            int port,
+            IProtocolCodec codec,
+            IFrameStrategy frameStrategy)
+        {
+            Codec = codec ?? throw new ArgumentNullException(nameof(codec));
+            Name = GetType().Name;
+
+            // 通过 PipelineBuilder 组装完整 OSI 链路
+            Pipeline = new CommunicationPipelineBuilder()
+                .UseTransport(new TcpTransport(ipAddress.ToString(), port))
+                .UseDataLink(frameStrategy ?? throw new ArgumentNullException(nameof(frameStrategy)))
+                .UseProtocol(Codec)
+                .Build();
+
+            ConstructDefaultInfo();
+        }
+
+        /// <summary>
+        /// 初始化设备基类（蓝牙通信）
+        /// 通过蓝牙地址创建完整 OSI 链路
+        /// </summary>
+        /// <param name="bluetoothOptions">蓝牙配置选项</param>
+        /// <param name="codec">协议编解码器</param>
+        protected DeviceBase(
+            BluetoothOptions bluetoothOptions,
+            IProtocolCodec codec)
+        {
+            Codec = codec ?? throw new ArgumentNullException(nameof(codec));
+            Name = GetType().Name;
+
+            // 创建蓝牙配置
+            var settings = new BluetoothSettings
+            {
+                BluetoothOptions = bluetoothOptions ?? throw new ArgumentNullException(nameof(bluetoothOptions))
+            };
+
+            // 通过 Settings 创建完整 OSI 链路
+            Pipeline = settings.CreatePipeline(Codec);
 
             ConstructDefaultInfo();
         }
@@ -166,6 +291,51 @@ namespace DeviceLink.DeviceBase
         {
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
             Name = GetType().Name;
+
+            // 如果 settings 没有设置帧策略，则根据协议类型自动选择
+            if (settings is SerialPortSettings serialSettings && serialSettings.FrameStrategy == null)
+            {
+                var defaultStrategy = GetDefaultFrameStrategy(codec);
+                if (defaultStrategy != null)
+                    serialSettings.FrameStrategy = defaultStrategy;
+            }
+            else if (settings is TcpSettings tcpSettings && tcpSettings.FrameStrategy == null)
+            {
+                var defaultStrategy = GetDefaultFrameStrategy(codec);
+                if (defaultStrategy != null)
+                    tcpSettings.FrameStrategy = defaultStrategy;
+            }
+
+            // 通过 Settings 创建完整 OSI 链路
+            Pipeline = settings.CreatePipeline(Codec);
+
+            ConstructDefaultInfo();
+        }
+
+        /// <summary>
+        /// 初始化设备基类（通信设置实例，自定义帧策略）
+        /// 适用于 Modbus RTU 等需要特定帧格式的协议
+        /// </summary>
+        /// <param name="settings">通信配置</param>
+        /// <param name="codec">协议编解码器</param>
+        /// <param name="frameStrategy">帧策略（如 ModbusRtuFrameStrategy）</param>
+        protected DeviceBase(
+            DeviceCommSettings settings,
+            IProtocolCodec codec,
+            IFrameStrategy frameStrategy)
+        {
+            Codec = codec ?? throw new ArgumentNullException(nameof(codec));
+            Name = GetType().Name;
+
+            // 设置帧策略到配置对象
+            if (settings is SerialPortSettings serialSettings)
+            {
+                serialSettings.FrameStrategy = frameStrategy ?? throw new ArgumentNullException(nameof(frameStrategy));
+            }
+            else if (settings is TcpSettings tcpSettings)
+            {
+                tcpSettings.FrameStrategy = frameStrategy ?? throw new ArgumentNullException(nameof(frameStrategy));
+            }
 
             // 通过 Settings 创建完整 OSI 链路
             Pipeline = settings.CreatePipeline(Codec);

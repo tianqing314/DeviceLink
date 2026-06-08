@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
-    <RootNamespace>DeviceLink.Transport</RootNamespace>
-    <AssemblyName>DeviceLink.Transport</AssemblyName>
+    <RootNamespace>DeviceLink.Device.ZQWL</RootNamespace>
+    <AssemblyName>DeviceLink.Device.ZQWL</AssemblyName>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
-    <PackageReference Include="InTheHand.Net.Bluetooth" Version="4.2.4" />
+    <ProjectReference Include="../../core/DeviceLink.Session/DeviceLink.Session.csproj" />
+    <ProjectReference Include="../../core/DeviceLink.DeviceBase/DeviceLink.DeviceBase.csproj" />
   </ItemGroup>
 
 </Project>

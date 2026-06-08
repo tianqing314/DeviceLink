@@ -1,0 +1,21 @@
+  正在确定要还原的项目…
+  所有项目均是最新的，无法还原。
+  DeviceLink.Protocol -> g:\DeviceLink\core\DeviceLink.Protocol\bin\Debug\net6.0\DeviceLink.Protocol.dll
+  DeviceLink.Protocol -> g:\DeviceLink\core\DeviceLink.Protocol\bin\Debug\netstandard2.0\DeviceLink.Protocol.dll
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(76,44): error CS0411: 无法从用法中推断出方法“Array.Find<T>(T[], Predicate<T>)”的类型参数。请尝试显式指定类型参数。 [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=netstandard2.0]
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(81,57): error CS1061: “T”未包含“DeviceAddress”的定义，并且找不到可接受第一个“T”类型参数的可访问扩展方法“DeviceAddress”(是否缺少 using 指令或程序集引用?) [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=netstandard2.0]
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(76,44): error CS0411: 无法从用法中推断出方法“Array.Find<T>(T[], Predicate<T>)”的类型参数。请尝试显式指定类型参数。 [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=net6.0]
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(81,57): error CS1061: “T”未包含“DeviceAddress”的定义，并且找不到可接受第一个“T”类型参数的可访问扩展方法“DeviceAddress”(是否缺少 using 指令或程序集引用?) [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=net6.0]
+
+生成失败。
+
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(76,44): error CS0411: 无法从用法中推断出方法“Array.Find<T>(T[], Predicate<T>)”的类型参数。请尝试显式指定类型参数。 [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=netstandard2.0]
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(81,57): error CS1061: “T”未包含“DeviceAddress”的定义，并且找不到可接受第一个“T”类型参数的可访问扩展方法“DeviceAddress”(是否缺少 using 指令或程序集引用?) [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=netstandard2.0]
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(76,44): error CS0411: 无法从用法中推断出方法“Array.Find<T>(T[], Predicate<T>)”的类型参数。请尝试显式指定类型参数。 [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=net6.0]
+g:\DeviceLink\core\DeviceLink.Transport\Implementations\BluetoothTransport.cs(81,57): error CS1061: “T”未包含“DeviceAddress”的定义，并且找不到可接受第一个“T”类型参数的可访问扩展方法“DeviceAddress”(是否缺少 using 指令或程序集引用?) [g:\DeviceLink\core\DeviceLink.Transport\DeviceLink.Transport.csproj::TargetFramework=net6.0]
+    0 个警告
+    4 个错误
+
+已用时间 00:00:30.04
+
+有可用的工作负载更新。有关详细信息，请运行 `dotnet workload list`。
