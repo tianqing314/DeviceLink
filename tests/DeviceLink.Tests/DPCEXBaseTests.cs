@@ -15,7 +15,7 @@ namespace DeviceLink.Tests
         private (DPCEXBase dpsex, LoopbackSettings settings) CreateTestDevice()
         {
             var settings = new LoopbackSettings();
-            var dPCEX = new DPCEXBase(settings);
+            var dPCEX = new DPCEXBase(new BluetoothOptions() { DeviceAddress = "68:0a:e2:de:a5:2e" });
             return (dPCEX, settings);
         }
         [Fact]
@@ -23,7 +23,7 @@ namespace DeviceLink.Tests
         {
             // Arrange
             var (dPCEX, settings) = CreateTestDevice();
-            
+
             // 设置回环响应 - 模拟设备返回版本信息
             settings.Transport.OnSend += data =>
             {
@@ -31,12 +31,12 @@ namespace DeviceLink.Tests
                 var response = System.Text.Encoding.ASCII.GetBytes("ConST326EX V1.0.0\r\n");
                 settings.Transport.EnqueueReceive(response);
             };
-            
+
             await dPCEX.OpenAsync();
 
             // Act
             var version = await dPCEX.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
-            
+
             // Assert
             Assert.NotNull(version);
         }
