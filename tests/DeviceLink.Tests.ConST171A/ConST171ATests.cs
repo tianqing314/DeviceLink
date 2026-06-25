@@ -1,9 +1,5 @@
-using DeviceLink.DataLink;
 using DeviceLink.Device.ConST171A;
 using DeviceLink.DeviceBase;
-using DeviceLink.Protocol;
-using DeviceLink.Session;
-using DeviceLink.Transport;
 using System.IO.Ports;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,12 +12,17 @@ namespace DeviceLink.Tests.ConST171A
     /// ConST171A 压力控制器设备测试
     /// 
     /// 注意：这些测试需要实际的 ConST171A 设备连接到串口。
-    /// 测试使用串口连接，串口参数为 COM1, 115200, 8, 1, None。
+    /// 测试使用串口连接，串口参数为 COM7, 115200, 8, 1, None。
     /// 如果设备未连接，测试将失败。
+    /// 
+    /// 气源参数遵循文档规范：
+    ///   Pressure = 正压气源
+    ///   Vacuum   = 真空气源
+    ///   Pre      = 前级泵
     /// </summary>
     public class ConST171ATests
     {
-        private const string TestPortName = "COM1";
+        private const string TestPortName = "COM7";
         private const int TestBaudRate = 115200;
         private const int TestDataBits = 8;
         private const StopBits TestStopBits = StopBits.One;
@@ -29,12 +30,14 @@ namespace DeviceLink.Tests.ConST171A
 
         private ConST171ADevice CreateDevice()
         {
-            var transport = new SerialPortTransport(TestPortName, TestBaudRate, TestDataBits, TestStopBits, TestParity);
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0x0D, 0x0A });
-            var dataLink = new DirectDataLink(transport, frameStrategy);
-            var session = new DirectSession(dataLink);
-            var codec = new ScpiCodec("\r\n");
-            return new ConST171ADevice(session, codec);
+            var settings = new SerialPortSettings(TestPortName, TestBaudRate, TestDataBits, TestStopBits, TestParity)
+            {
+                ReceiveTimeoutMs = 15000,     // SCPI 设备响应可能较慢，给予 15 秒超时
+                ReceiveIdleTimeoutMs = 100,    // 帧内间隔 100ms
+                MaxRetryCount = 2,             // 失败重试 2 次
+                RetryDelayMs = 500             // 重试间隔 500ms
+            };
+            return new ConST171ADevice(settings);
         }
 
         // ============================================================
@@ -49,11 +52,12 @@ namespace DeviceLink.Tests.ConST171A
             await device.OpenAsync();
 
             // Act
-            var identification = await device.GetIdentificationAsync();
+            var id = await device.GetIdentificationAsync();
 
             // Assert
-            Assert.NotNull(identification);
-            Assert.NotEmpty(identification);
+            Assert.NotNull(id);
+            Assert.NotEmpty(id.Manufacturer);
+            Assert.NotEmpty(id.Model);
         }
 
         [Fact]
@@ -83,7 +87,7 @@ namespace DeviceLink.Tests.ConST171A
         // ============================================================
 
         [Fact]
-        public async Task GetPressureAsync_ShouldReturnPressure()
+        public async Task GetPressureAsync_ShouldReturnDualPressure()
         {
             // Arrange
             using var device = CreateDevice();
@@ -93,20 +97,23 @@ namespace DeviceLink.Tests.ConST171A
             var result = await device.GetPressureAsync();
 
             // Assert
-            Assert.False(double.IsNaN(result.Value));
-            Assert.NotNull(result.Unit);
-            Assert.NotEmpty(result.Unit);
+            // PRESsure? 无参数返回正压+真空双路值：正压值,正压单位,真空值,真空单位
+            Assert.True(result.IsValid, "应返回有效的双气源压力值");
+            Assert.False(double.IsNaN(result.PositiveValue), "正压值应有效");
+            Assert.False(double.IsNaN(result.VacuumValue), "真空值应有效");
+            Assert.NotEmpty(result.PositiveUnit);
+            Assert.NotEmpty(result.VacuumUnit);
         }
 
         [Fact]
-        public async Task GetPressureAsync_WithSource_ShouldReturnPressure()
+        public async Task GetPressureAsync_WithSourcePressure_ShouldReturnPressure()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var result = await device.GetPressureAsync("1");
+            var result = await device.GetPressureAsync(SourceModule.Pressure);
 
             // Assert
             Assert.False(double.IsNaN(result.Value));
@@ -115,14 +122,30 @@ namespace DeviceLink.Tests.ConST171A
         }
 
         [Fact]
-        public async Task GetPressureUnitAsync_ShouldReturnUnit()
+        public async Task GetPressureAsync_WithSourceVacuum_ShouldReturnPressure()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var unit = await device.GetPressureUnitAsync("1");
+            var result = await device.GetPressureAsync(SourceModule.Vacuum);
+
+            // Assert
+            Assert.False(double.IsNaN(result.Value));
+            Assert.NotNull(result.Unit);
+            Assert.NotEmpty(result.Unit);
+        }
+
+        [Fact]
+        public async Task GetPressureUnitAsync_WithPressureSource_ShouldReturnUnit()
+        {
+            // Arrange
+            using var device = CreateDevice();
+            await device.OpenAsync();
+
+            // Act
+            var unit = await device.GetPressureUnitAsync(SourceModule.Pressure);
 
             // Assert
             Assert.NotNull(unit);
@@ -130,18 +153,48 @@ namespace DeviceLink.Tests.ConST171A
         }
 
         [Fact]
-        public async Task GetPressureRangeAsync_ShouldReturnRange()
+        public async Task GetPressureUnitAsync_WithVacuumSource_ShouldReturnUnit()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var range = await device.GetPressureRangeAsync("1");
+            var unit = await device.GetPressureUnitAsync(SourceModule.Vacuum);
+
+            // Assert
+            Assert.NotNull(unit);
+            Assert.NotEmpty(unit);
+        }
+
+        [Fact]
+        public async Task GetPressureRangeAsync_ShouldReturnPressureRange()
+        {
+            // Arrange
+            using var device = CreateDevice();
+            await device.OpenAsync();
+
+            // Act
+            var range = await device.GetPressureRangeAsync(SourceModule.Pressure);
 
             // Assert
             Assert.NotNull(range);
-            Assert.NotEmpty(range);
+            Assert.True(range.IsValid, "压力范围应有效");
+            Assert.True(range.Max >= range.Min, "上限应大于等于下限");
+        }
+
+        [Fact]
+        public async Task GetPressureControlStateAsync_ShouldReturnBool()
+        {
+            // Arrange
+            using var device = CreateDevice();
+            await device.OpenAsync();
+
+            // Act
+            var state = await device.GetPressureControlStateAsync(SourceModule.Pressure);
+
+            // Assert
+            Assert.IsType<bool>(state);
         }
 
         // ============================================================
@@ -194,7 +247,7 @@ namespace DeviceLink.Tests.ConST171A
         }
 
         [Fact]
-        public async Task GetVersionAsync_ShouldReturnVersion()
+        public async Task GetVersionAsync_ShouldReturnVersionInfo()
         {
             // Arrange
             using var device = CreateDevice();
@@ -205,18 +258,18 @@ namespace DeviceLink.Tests.ConST171A
 
             // Assert
             Assert.NotNull(version);
-            Assert.NotEmpty(version);
+            Assert.NotEmpty(version.Firmware);
         }
 
         [Fact]
-        public async Task GetVersionAsync_WithModule_ShouldReturnVersion()
+        public async Task GetVersionAsync_WithBootModule_ShouldReturnBootVersion()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var version = await device.GetVersionAsync("MCU");
+            var version = await device.GetVersionAsync(VersionModules.Boot);
 
             // Assert
             Assert.NotNull(version);
@@ -224,22 +277,40 @@ namespace DeviceLink.Tests.ConST171A
         }
 
         [Fact]
-        public async Task GetRs232InfoAsync_ShouldReturnRs232Info()
+        public async Task GetVersionAsync_WithFirmModule_ShouldReturnFirmwareVersion()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var rs232Info = await device.GetRs232InfoAsync();
+            var version = await device.GetVersionAsync(VersionModules.Firmware);
 
             // Assert
-            Assert.NotNull(rs232Info);
-            Assert.NotEmpty(rs232Info);
+            Assert.NotNull(version);
+            Assert.NotEmpty(version);
         }
 
         [Fact]
-        public async Task GetErrorAsync_ShouldReturnError()
+        public async Task GetRs232InfoAsync_ShouldReturnRs232Settings()
+        {
+            // Arrange
+            using var device = CreateDevice();
+            await device.OpenAsync();
+
+            // Act
+            var rs232 = await device.GetRs232InfoAsync();
+
+            // Assert
+            Assert.NotNull(rs232);
+            Assert.True(rs232.BaudRate > 0, "波特率应大于0");
+            Assert.True(rs232.DataBits >= 7, "数据位应 >= 7");
+            Assert.NotEmpty(rs232.StopBits);
+            Assert.NotEmpty(rs232.Parity);
+        }
+
+        [Fact]
+        public async Task GetErrorAsync_ShouldReturnScpiError()
         {
             // Arrange
             using var device = CreateDevice();
@@ -250,7 +321,8 @@ namespace DeviceLink.Tests.ConST171A
 
             // Assert
             Assert.NotNull(error);
-            Assert.NotEmpty(error);
+            Assert.IsType<int>(error.Code);
+            Assert.NotNull(error.Message);
         }
 
         [Fact]
@@ -292,7 +364,8 @@ namespace DeviceLink.Tests.ConST171A
             var brightness = await device.GetBrightnessAsync();
 
             // Assert
-            Assert.True(brightness >= 0 && brightness <= 100);
+            Assert.True(brightness >= 0 && brightness <= 100,
+                $"亮度值应在 0-100 范围内，实际值: {brightness}");
         }
 
         [Fact]
@@ -385,18 +458,32 @@ namespace DeviceLink.Tests.ConST171A
             var logo = await device.GetLogoAsync();
 
             // Assert
-            Assert.True(logo >= 0);
+            Assert.True(logo >= 0, $"LOGO 值应 >= 0，实际值: {logo}");
         }
 
         [Fact]
-        public async Task GetFanSpeedAsync_ShouldReturnFanSpeed()
+        public async Task GetFanSpeedAsync_WithPressure_ShouldReturnFanSpeed()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var fanSpeed = await device.GetFanSpeedAsync("FAN1");
+            var fanSpeed = await device.GetFanSpeedAsync(SourceModule.Pressure);
+
+            // Assert
+            Assert.True(fanSpeed >= 0, $"风扇转速应 >= 0，实际值: {fanSpeed}");
+        }
+
+        [Fact]
+        public async Task GetFanSpeedAsync_WithVacuum_ShouldReturnFanSpeed()
+        {
+            // Arrange
+            using var device = CreateDevice();
+            await device.OpenAsync();
+
+            // Act
+            var fanSpeed = await device.GetFanSpeedAsync(SourceModule.Vacuum);
 
             // Assert
             Assert.True(fanSpeed >= 0);
@@ -424,7 +511,7 @@ namespace DeviceLink.Tests.ConST171A
             await device.OpenAsync();
 
             // Act
-            var valve = await device.GetValveAsync(1);
+            var valve = await device.GetValveAsync(ValveIds.BoostV1);
 
             // Assert
             Assert.IsType<bool>(valve);
@@ -441,12 +528,11 @@ namespace DeviceLink.Tests.ConST171A
             var temperature = await device.GetBoardTemperatureAsync();
 
             // Assert
-            Assert.NotNull(temperature);
-            Assert.NotEmpty(temperature);
+            Assert.False(double.IsNaN(temperature), "主板温度应有效");
         }
 
         [Fact]
-        public async Task GetBoardVoltageAsync_ShouldReturnVoltage()
+        public async Task GetBoardVoltageAsync_ShouldReturnBoardVoltage()
         {
             // Arrange
             using var device = CreateDevice();
@@ -457,18 +543,20 @@ namespace DeviceLink.Tests.ConST171A
 
             // Assert
             Assert.NotNull(voltage);
-            Assert.NotEmpty(voltage);
+            Assert.False(double.IsNaN(voltage.Voltage24V), "24V 电压应有效");
+            Assert.False(double.IsNaN(voltage.BoostSensorVoltage), "Boost 传感器电压应有效");
+            Assert.False(double.IsNaN(voltage.VacuumSensorVoltage), "Vacuum 传感器电压应有效");
         }
 
         [Fact]
-        public async Task GetPumpStateAsync_ShouldReturnPumpState()
+        public async Task GetPumpStateAsync_WithPressure_ShouldReturnPumpState()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var pumpState = await device.GetPumpStateAsync("PUMP1");
+            var pumpState = await device.GetPumpStateAsync(SourceModule.Pressure);
 
             // Assert
             Assert.IsType<bool>(pumpState);
@@ -486,22 +574,24 @@ namespace DeviceLink.Tests.ConST171A
 
             // Assert
             Assert.NotNull(focState);
-            Assert.NotEmpty(focState);
+            Assert.IsType<bool>(focState.PreStageOk);
+            Assert.IsType<bool>(focState.BoostOk);
         }
 
         [Fact]
-        public async Task GetPumpTemperatureAsync_ShouldReturnTemperature()
+        public async Task GetPumpTemperatureAsync_ShouldReturnTemperatures()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var temperature = await device.GetPumpTemperatureAsync();
+            var temps = await device.GetPumpTemperatureAsync();
 
             // Assert
-            Assert.NotNull(temperature);
-            Assert.NotEmpty(temperature);
+            Assert.NotNull(temps);
+            Assert.False(double.IsNaN(temps.PreStagePump), "前级泵温度应有效");
+            Assert.False(double.IsNaN(temps.BoostPump), "增压泵温度应有效");
         }
 
         [Fact]
@@ -516,7 +606,8 @@ namespace DeviceLink.Tests.ConST171A
 
             // Assert
             Assert.NotNull(current);
-            Assert.NotEmpty(current);
+            Assert.False(double.IsNaN(current.PreStagePump), "前级泵电流应有效");
+            Assert.False(double.IsNaN(current.BoostPump), "增压泵电流应有效");
         }
 
         // ============================================================
@@ -531,7 +622,7 @@ namespace DeviceLink.Tests.ConST171A
             await device.OpenAsync();
 
             // Act
-            var result = await device.GetRawPressureAsync("1");
+            var result = await device.GetRawPressureAsync(SourceModule.Pressure);
 
             // Assert
             Assert.False(double.IsNaN(result.Value));
@@ -586,18 +677,20 @@ namespace DeviceLink.Tests.ConST171A
         // ============================================================
 
         [Fact]
-        public async Task GetCalibrationDataAsync_ShouldReturnCalibrationData()
+        public async Task GetCalibrationDataAsync_ShouldReturnCalibrationRecord()
         {
             // Arrange
             using var device = CreateDevice();
             await device.OpenAsync();
 
             // Act
-            var calibrationData = await device.GetCalibrationDataAsync("1", "123456", 0);
+            var calibrationData = await device.GetCalibrationDataAsync(SourceModule.Pressure, "123456", 0);
 
             // Assert
             Assert.NotNull(calibrationData);
-            Assert.NotEmpty(calibrationData);
+            Assert.True(calibrationData.StandardValues.Length > 0, "应有校准标准值");
+            Assert.True(calibrationData.RawValues.Length > 0, "应有原始值");
+            Assert.True(calibrationData.Year > 2000, $"校准年份应 > 2000，实际值: {calibrationData.Year}");
         }
 
         // ============================================================
@@ -629,7 +722,7 @@ namespace DeviceLink.Tests.ConST171A
             var blowTestState = await device.GetBlowTestStateAsync();
 
             // Assert
-            Assert.True(blowTestState >= 0);
+            Assert.True(blowTestState >= 0, $"吹扫测试状态应 >= 0，实际值: {blowTestState}");
         }
 
         [Fact]
@@ -640,10 +733,10 @@ namespace DeviceLink.Tests.ConST171A
             await device.OpenAsync();
 
             // Act
-            var screenTestResult = await device.GetScreenTestResultAsync(1);
+            var screenTestResult = await device.GetScreenTestResultAsync(0);
 
             // Assert
-            Assert.True(screenTestResult >= 0);
+            Assert.True(screenTestResult >= 0, $"屏幕测试结果应 >= 0，实际值: {screenTestResult}");
         }
     }
 }

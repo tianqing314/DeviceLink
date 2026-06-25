@@ -113,6 +113,7 @@ namespace DeviceLink.DeviceBase
         /// <param name="parity">校验位</param>
         /// <param name="codec">协议编解码器</param>
         /// <param name="frameStrategy">帧策略（如 ModbusRtuFrameStrategy）</param>
+        /// <param name="dataLinkOptions">数据链路配置选项（控制超时等），null 使用默认值</param>
         protected DeviceBase(
             string portName,
             int baudRate,
@@ -120,15 +121,17 @@ namespace DeviceLink.DeviceBase
             StopBits stopBits,
             Parity parity,
             IProtocolCodec codec,
-            IFrameStrategy frameStrategy)
+            IFrameStrategy frameStrategy,
+            DataLinkOptions? dataLinkOptions = null)
         {
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
             Name = GetType().Name;
 
             // 通过 PipelineBuilder 组装完整 OSI 链路
             Pipeline = new CommunicationPipelineBuilder()
-                .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity))
-                .UseDataLink(frameStrategy ?? throw new ArgumentNullException(nameof(frameStrategy)))
+                .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity,
+                    dtrEnable: true, rtsEnable: true))
+                .UseDataLink(frameStrategy ?? throw new ArgumentNullException(nameof(frameStrategy)), dataLinkOptions)
                 .UseProtocol(Codec)
                 .Build();
 
@@ -146,6 +149,7 @@ namespace DeviceLink.DeviceBase
         /// <param name="parity">校验位</param>
         /// <param name="codec">协议编解码器</param>
         /// <param name="delimiter">帧分隔符（如 "\r\n" 对应 new byte[]{0x0D,0x0A}），null 则使用默认值 \0</param>
+        /// <param name="dataLinkOptions">数据链路配置选项（控制超时等），null 使用默认值</param>
         protected DeviceBase(
             string portName,
             int baudRate,
@@ -153,7 +157,8 @@ namespace DeviceLink.DeviceBase
             StopBits stopBits,
             Parity parity,
             IProtocolCodec codec,
-            byte[]? delimiter)
+            byte[]? delimiter,
+            DataLinkOptions? dataLinkOptions = null)
         {
             Codec = codec ?? throw new ArgumentNullException(nameof(codec));
             Name = GetType().Name;
@@ -164,8 +169,9 @@ namespace DeviceLink.DeviceBase
 
             // 通过 PipelineBuilder 组装完整 OSI 链路
             Pipeline = new CommunicationPipelineBuilder()
-                .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity))
-                .UseDataLink(dataLink)
+                .UseTransport(new SerialPortTransport(portName, baudRate, dataBits, stopBits, parity,
+                    dtrEnable: true, rtsEnable: true))
+                .UseDataLink(dataLink, dataLinkOptions)
                 .UseProtocol(Codec)
                 .Build();
 

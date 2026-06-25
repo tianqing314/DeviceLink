@@ -74,6 +74,27 @@ namespace DeviceLink.DeviceBase
         public bool RtsEnable { get; set; }
 
         /// <summary>
+        /// 接收超时时间（毫秒），默认 5000ms
+        /// </summary>
+        public int ReceiveTimeoutMs { get; set; } = 5000;
+
+        /// <summary>
+        /// 接收空闲超时时间（毫秒），默认 50ms
+        /// 连续无数据到达视为帧结束
+        /// </summary>
+        public int ReceiveIdleTimeoutMs { get; set; } = 50;
+
+        /// <summary>
+        /// 最大重试次数，默认 0（不重试）
+        /// </summary>
+        public int MaxRetryCount { get; set; } = 0;
+
+        /// <summary>
+        /// 重试延迟时间（毫秒），默认 300ms
+        /// </summary>
+        public int RetryDelayMs { get; set; } = 300;
+
+        /// <summary>
         /// 初始化串口通信配置
         /// </summary>
         public SerialPortSettings()
@@ -122,10 +143,17 @@ namespace DeviceLink.DeviceBase
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
             var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
+            var options = new DataLinkOptions
+            {
+                ReceiveTimeoutMs = ReceiveTimeoutMs,
+                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs,
+                MaxRetryCount = MaxRetryCount,
+                RetryDelayMs = RetryDelayMs
+            };
             
             return new CommunicationPipelineBuilder()
                 .UseTransport(new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity, DtrEnable, RtsEnable))
-                .UseDataLink(dataLink)
+                .UseDataLink(dataLink, options)
                 .UseProtocol(codec)
                 .Build();
         }
