@@ -1,5 +1,6 @@
 using DeviceLink.Device.ConST171A;
 using DeviceLink.DeviceBase;
+using System;
 using System.IO.Ports;
 using System.Threading.Tasks;
 using Xunit;
@@ -229,6 +230,35 @@ namespace DeviceLink.Tests.ConST171A
             // Assert
             Assert.NotNull(model);
             Assert.NotEmpty(model);
+        }
+        [Fact]
+        public async Task IsExistVerify()
+        {
+            // Arrange
+            using var device = CreateDevice();
+
+            // Act
+            await device.OpenAsync();
+
+            // 分步诊断 IsExistAsync
+            var isOpen = device.IsOpen;
+            Assert.True(isOpen, "OpenAsync 后 IsOpen 应为 true");
+
+            try
+            {
+                var version = await device.GetVersionAsync();
+                // 手动检查是否为 ConST171A
+                var isConST171 = version.IsValid &&
+                    (version.Firmware.ToUpperInvariant().Contains("EPU-LP") ||
+                     version.Hardware.ToUpperInvariant().Contains("EPU-LP"));
+
+                Assert.True(isConST171,
+                    $"版本信息应包含 EPU-LP。Firmware='{version.Firmware}', Hardware='{version.Hardware}', IsValid={version.IsValid}");
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"GetVersionAsync 抛出异常: {ex.GetType().Name}: {ex.Message}");
+            }
         }
 
         [Fact]
