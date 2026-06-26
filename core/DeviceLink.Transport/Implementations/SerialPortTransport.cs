@@ -73,7 +73,7 @@ namespace DeviceLink.Transport
                     _options.DataBits,
                     _options.StopBits)
                 {
-                    ReadTimeout = SerialPort.InfiniteTimeout,
+                    ReadTimeout = _options.ReadTimeoutMs,
                     WriteTimeout = SerialPort.InfiniteTimeout,
                     ReadBufferSize = _options.ReadBufferSize > 0 ? _options.ReadBufferSize : 4096,
                     WriteBufferSize = _options.WriteBufferSize > 0 ? _options.WriteBufferSize : 2048,
@@ -82,6 +82,7 @@ namespace DeviceLink.Transport
                 };
 
                 _serialPort.Open();
+                _serialPort.ReadTimeout = _options.ReadTimeoutMs;
                 _logger?.LogInformation("串口 {PortName} 已连接", Name);
                 return Task.CompletedTask;
             }
@@ -123,17 +124,17 @@ namespace DeviceLink.Transport
 
             try
             {
-                int available = Math.Min(_serialPort.BytesToRead, count);
-                if (available == 0)
-                    return Task.FromResult(0);
-
-                int read = _serialPort.Read(buffer, offset, available);
-                _logger?.LogDebug("从串口 {PortName} 读取了 {Count} 字节", Name, read);
+                // SerialPort.Read() 会阻塞直到至少1个字节可读，或 ReadTimeout 超时
+                // 一次最多读取 count 字节，实际读取量取决于缓冲区可用数据量
+                int read = _serialPort.Read(buffer, offset, count);
                 return Task.FromResult(read);
+            }
+            catch (TimeoutException)
+            {
+                return Task.FromResult(0);
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "从串口 {PortName} 读取数据失败", Name);
                 throw new TransportException($"从串口 {Name} 读取数据失败: {ex.Message}", ex);
             }
         }

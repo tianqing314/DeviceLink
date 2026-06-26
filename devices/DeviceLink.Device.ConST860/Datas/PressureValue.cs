@@ -1,4 +1,6 @@
-namespace DeviceLink.Device.ConST171A
+using System;
+
+namespace DeviceLink.Device.ConST860
 {
     /// <summary>
     /// 压力值（含单位）
@@ -14,7 +16,6 @@ namespace DeviceLink.Device.ConST171A
         /// <summary>是否有效</summary>
         public bool IsValid => !double.IsNaN(Value);
 
-        /// <inheritdoc/>
         public override string ToString() => $"{Value} {Unit}";
     }
 }

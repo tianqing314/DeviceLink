@@ -8,7 +8,7 @@ namespace DeviceLink.DataLink
         /// <summary>
         /// 接收超时时间（毫秒）
         /// </summary>
-        public int ReceiveTimeoutMs { get; set; } = 1000;
+        public int ReceiveTimeoutMs { get; set; } = 5000;
 
         /// <summary>
         /// 接收空闲超时时间（毫秒）—— 连续无数据到达视为帧结束

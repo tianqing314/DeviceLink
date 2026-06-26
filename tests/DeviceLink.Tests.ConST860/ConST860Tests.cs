@@ -1,9 +1,4 @@
-using DeviceLink.DataLink;
 using DeviceLink.Device.ConST860;
-using DeviceLink.DeviceBase;
-using DeviceLink.Protocol;
-using DeviceLink.Session;
-using DeviceLink.Transport;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -25,12 +20,7 @@ namespace DeviceLink.Tests.ConST860
 
         private ConST860Device CreateDevice()
         {
-            var transport = new TcpTransport(TestIpAddress, TestPort);
-            var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
-            var dataLink = new DirectDataLink(transport, frameStrategy);
-            var session = new DirectSession(dataLink);
-            var codec = new ScpiCodec("\n");
-            return new ConST860Device(session, codec);
+            return new ConST860Device(TestIpAddress, TestPort);
         }
 
         [Fact]

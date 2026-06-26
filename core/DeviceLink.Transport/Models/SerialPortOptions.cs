@@ -43,6 +43,12 @@ namespace DeviceLink.Transport
         public int WriteBufferSize { get; set; } = 2048;
 
         /// <summary>
+        /// 读取超时时间（毫秒），默认 500ms
+        /// 每次 Read 等待的最长时间，到达任意字节即返回
+        /// </summary>
+        public int ReadTimeoutMs { get; set; } = 500;
+
+        /// <summary>
         /// 启用 DTR（数据终端就绪）信号
         /// </summary>
         public bool DtrEnable { get; set; }

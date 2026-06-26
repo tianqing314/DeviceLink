@@ -28,6 +28,28 @@ namespace DeviceLink.DeviceBase
         public IFrameStrategy? FrameStrategy { get; set; }
 
         /// <summary>
+        /// 接收超时时间（毫秒），默认 5000ms
+        /// 蓝牙设备建议设置为 10000ms 或更长
+        /// </summary>
+        public int ReceiveTimeoutMs { get; set; } = 5000;
+
+        /// <summary>
+        /// 接收空闲超时时间（毫秒），默认 50ms
+        /// </summary>
+        public int ReceiveIdleTimeoutMs { get; set; } = 50;
+
+        /// <summary>
+        /// 最大重试次数，默认 0（不重试）
+        /// 蓝牙设备建议设置为 2-3 次
+        /// </summary>
+        public int MaxRetryCount { get; set; } = 0;
+
+        /// <summary>
+        /// 重试延迟时间（毫秒），默认 300ms
+        /// </summary>
+        public int RetryDelayMs { get; set; } = 300;
+
+        /// <summary>
         /// 初始化蓝牙通讯配置
         /// </summary>
         public BluetoothSettings()
@@ -61,9 +83,18 @@ namespace DeviceLink.DeviceBase
         {
             var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
             
+            // 创建数据链路选项
+            var dataLinkOptions = new DataLinkOptions
+            {
+                ReceiveTimeoutMs = ReceiveTimeoutMs,
+                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs,
+                MaxRetryCount = MaxRetryCount,
+                RetryDelayMs = RetryDelayMs
+            };
+            
             return new CommunicationPipelineBuilder()
                 .UseTransport(new BluetoothTransport(BluetoothOptions))
-                .UseDataLink(dataLink)
+                .UseDataLink(dataLink, dataLinkOptions)
                 .UseProtocol(codec)
                 .Build();
         }

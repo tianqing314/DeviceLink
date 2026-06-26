@@ -221,17 +221,10 @@ namespace DeviceLink.DataLink
                     hasReceivedData = true;
                     idleTimer.Restart();
 
-                    _logger.LogDebug(
-                        "[{DataLink}] 累积接收 {Read} bytes, 总计 {Total} bytes",
-                        Name, read, accumulated.Count);
-
                     // 帧解析检查
                     var accArray = accumulated.ToArray();
                     if (_frameStrategy.TryParseFrame(accArray, out int frameLen, out byte[] frameData))
                     {
-                        _logger.LogDebug(
-                            "[{DataLink}] 帧检测成功, 帧长度 {FrameLen}",
-                            Name, frameLen);
                         return frameData;
                     }
                 }
