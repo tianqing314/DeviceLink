@@ -31,12 +31,18 @@ namespace DeviceLink.Tests.ConST171A
 
         private ConST171ADevice CreateDevice()
         {
+            return new DeviceLink.Device.ConST171A.ConST171Base(TestPortName, TestBaudRate, TestDataBits, TestStopBits, TestParity);
+        }
+
+        /// <summary>使用 SerialPortSettings 创建设备（参考对比用）</summary>
+        private ConST171ADevice CreateDeviceWithSettings()
+        {
             var settings = new SerialPortSettings(TestPortName, TestBaudRate, TestDataBits, TestStopBits, TestParity)
             {
-                ReceiveTimeoutMs = 15000,     // SCPI 设备响应可能较慢，给予 15 秒超时
-                ReceiveIdleTimeoutMs = 100,    // 帧内间隔 100ms
-                MaxRetryCount = 2,             // 失败重试 2 次
-                RetryDelayMs = 500             // 重试间隔 500ms
+                ReceiveTimeoutMs = 15000,
+                ReceiveIdleTimeoutMs = 100,
+                MaxRetryCount = 2,
+                RetryDelayMs = 500
             };
             return new ConST171ADevice(settings);
         }
@@ -247,7 +253,6 @@ namespace DeviceLink.Tests.ConST171A
             try
             {
                 var version = await device.GetVersionAsync();
-                // 手动检查是否为 ConST171A
                 var isConST171 = version.IsValid &&
                     (version.Firmware.ToUpperInvariant().Contains("EPU-LP") ||
                      version.Hardware.ToUpperInvariant().Contains("EPU-LP"));

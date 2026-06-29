@@ -1,11 +1,10 @@
+using DeviceLink.DeviceBase;
+using DeviceLink.Protocol;
 using System;
 using System.Globalization;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using DeviceLink.DeviceBase;
-using DeviceLink.Protocol;
-using DeviceLink.Session;
 
 namespace DeviceLink.Device.ConST171A
 {
@@ -48,10 +47,20 @@ namespace DeviceLink.Device.ConST171A
         public ConST171Base(DeviceCommSettings settings) : base(settings, new ScpiCodec("\r\n")) { _codec = (ScpiCodec)Codec; }
 
         /// <summary>串口通信（默认 9600,8,1,None）</summary>
+        /// <remarks>
+        /// 通过 SerialPortSettings 创建通信管道，DTR/RTS 默认关闭（与 SCPI 设备兼容），
+        /// 并配置适合 SCPI 设备的超时参数。
+        /// </remarks>
         public ConST171Base(string portName, int baudRate = 9600, int dataBits = 8,
             System.IO.Ports.StopBits stopBits = System.IO.Ports.StopBits.One,
             System.IO.Ports.Parity parity = System.IO.Ports.Parity.None)
-            : base(portName, baudRate, dataBits, stopBits, parity, new ScpiCodec("\r\n"), CrlfDelimiter)
+            : base(new SerialPortSettings(portName, baudRate, dataBits, stopBits, parity)
+            {
+                ReceiveTimeoutMs = 15000,
+                ReceiveIdleTimeoutMs = 100,
+                MaxRetryCount = 2,
+                RetryDelayMs = 500
+            }, new ScpiCodec("\r\n"))
         { _codec = (ScpiCodec)Codec; }
 
         /// <summary>构造默认设备信息</summary>
