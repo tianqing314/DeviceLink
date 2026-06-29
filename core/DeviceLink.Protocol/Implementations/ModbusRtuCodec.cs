@@ -5,14 +5,16 @@ namespace DeviceLink.Protocol
 {
     /// <summary>
     /// Modbus RTU 协议编解码器。
-    /// 
+    ///
     /// Modbus RTU 是一种二进制协议，常用于工业设备通信。
     /// 帧格式：[设备地址][功能码][数据...][CRC低字节][CRC高字节]
-    /// 
+    ///
     /// 常用功能码：
     ///   0x03: 读保持寄存器
     ///   0x06: 写单个寄存器
     ///   0x10: 写多个寄存器
+    ///   0x28: 读寄存器（PS02自定义 F40）
+    ///   0x29: 写寄存器（PS02自定义 F41）
     /// </summary>
     public class ModbusRtuCodec : IProtocolCodec
     {
@@ -90,6 +92,37 @@ namespace DeviceLink.Protocol
                     data[7 + i * 2] = (byte)(values[i] & 0xFF);
                 }
             }
+            else if (functionCode == 0x29) // F41: 写寄存器（PS02自定义，支持原始数据写入）
+            {
+                // 命令格式：Command.Write("41.地址", "数据长度", "数据字节1", "数据字节2", ...)
+                // 或通过 Command.Data 传入原始字节数组
+                byte[] payload;
+                if (command.Data != null && command.Data.Length > 0)
+                {
+                    payload = command.Data;
+                }
+                else if (command.Parameters.Length >= 1)
+                {
+                    payload = new byte[command.Parameters.Length];
+                    for (int i = 0; i < command.Parameters.Length; i++)
+                    {
+                        payload[i] = byte.Parse(command.Parameters[i]);
+                    }
+                }
+                else
+                {
+                    throw new ProtocolException("F41写寄存器需要提供数据");
+                }
+
+                data = new byte[7 + payload.Length];
+                data[0] = functionCode;
+                data[1] = (byte)(registerAddress >> 8);
+                data[2] = (byte)(registerAddress & 0xFF);
+                data[3] = (byte)(registerCount >> 8);
+                data[4] = (byte)(registerCount & 0xFF);
+                data[5] = (byte)payload.Length; // 数据字节数
+                Array.Copy(payload, 0, data, 6, payload.Length);
+            }
 
             // 组装原始数据：从站地址 + 功能码 + 数据（不含CRC）
             // CRC校验由数据链路层的 ModbusRtuFrameStrategy 负责
@@ -158,7 +191,8 @@ namespace DeviceLink.Protocol
                 return Array.Empty<ushort>();
 
             // 响应格式：从站地址 + 功能码 + 字节数 + 数据... + CRC
-            if (raw[1] == 0x03) // 读保持寄存器响应
+            byte funcCode = raw[1];
+            if (funcCode == 0x03 || funcCode == 0x28) // F03 读保持寄存器 / F40 读寄存器
             {
                 int byteCount = raw[2];
                 int registerCount = byteCount / 2;
