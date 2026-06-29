@@ -1,11 +1,11 @@
-using System;
-using System.IO.Ports;
-using System.Net;
 using DeviceLink.DataLink;
 using DeviceLink.Pipeline;
 using DeviceLink.Protocol;
 using DeviceLink.Session;
 using DeviceLink.Transport;
+using System;
+using System.IO.Ports;
+using System.Net;
 
 namespace DeviceLink.DeviceBase
 {
@@ -76,18 +76,18 @@ namespace DeviceLink.DeviceBase
         /// <summary>
         /// 接收超时时间（毫秒），默认 5000ms
         /// </summary>
-        public int ReceiveTimeoutMs { get; set; } = 5000;
+        public int ReceiveTimeoutMs { get; set; } = 10 * 1000;
 
         /// <summary>
         /// 接收空闲超时时间（毫秒），默认 50ms
         /// 连续无数据到达视为帧结束
         /// </summary>
-        public int ReceiveIdleTimeoutMs { get; set; } = 50;
+        public int ReceiveIdleTimeoutMs { get; set; } = 100;
 
         /// <summary>
         /// 最大重试次数，默认 0（不重试）
         /// </summary>
-        public int MaxRetryCount { get; set; } = 0;
+        public int MaxRetryCount { get; set; } = 2;
 
         /// <summary>
         /// 重试延迟时间（毫秒），默认 300ms
@@ -150,7 +150,7 @@ namespace DeviceLink.DeviceBase
                 MaxRetryCount = MaxRetryCount,
                 RetryDelayMs = RetryDelayMs
             };
-            
+
             return new CommunicationPipelineBuilder()
                 .UseTransport(new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity, DtrEnable, RtsEnable))
                 .UseDataLink(dataLink, options)
@@ -227,7 +227,7 @@ namespace DeviceLink.DeviceBase
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
             var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
-            
+
             return new CommunicationPipelineBuilder()
                 .UseTransport(new TcpTransport(IpAddress.ToString(), Port, ConnectTimeoutMs))
                 .UseDataLink(dataLink)

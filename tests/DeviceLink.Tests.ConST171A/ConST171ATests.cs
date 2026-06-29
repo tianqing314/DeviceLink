@@ -26,7 +26,7 @@ namespace DeviceLink.Tests.ConST171A
         private const string TestPortName = "COM7";
         private const int TestBaudRate = 115200;
         private const int TestDataBits = 8;
-        private const StopBits TestStopBits = StopBits.One;
+        private const StopBits TestStopBits = StopBits.Two;
         private const Parity TestParity = Parity.None;
 
         private ConST171ADevice CreateDevice()
@@ -252,6 +252,7 @@ namespace DeviceLink.Tests.ConST171A
                     (version.Firmware.ToUpperInvariant().Contains("EPU-LP") ||
                      version.Hardware.ToUpperInvariant().Contains("EPU-LP"));
 
+                var result = await device.IsExistAsync();
                 Assert.True(isConST171,
                     $"版本信息应包含 EPU-LP。Firmware='{version.Firmware}', Hardware='{version.Hardware}', IsValid={version.IsValid}");
             }
