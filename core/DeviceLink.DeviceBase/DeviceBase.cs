@@ -373,7 +373,7 @@ namespace DeviceLink.DeviceBase
         /// <param name="command">逻辑命令</param>
         /// <param name="ct">取消令牌</param>
         /// <returns>原始响应数据</returns>
-        protected async Task<byte[]> SendAsync(
+        protected virtual async Task<byte[]> SendAsync(
             Command command,
             CancellationToken ct = default)
         {
@@ -446,7 +446,7 @@ namespace DeviceLink.DeviceBase
         /// </summary>
         /// <param name="command">逻辑命令</param>
         /// <param name="ct">取消令牌</param>
-        protected async Task SendNonQueryAsync(
+        protected virtual async Task SendNonQueryAsync(
             Command command,
             CancellationToken ct = default)
         {

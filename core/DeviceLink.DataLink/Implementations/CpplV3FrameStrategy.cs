@@ -14,8 +14,8 @@ namespace DeviceLink.DataLink
     ///   bit[1:3]: 000=V3.0(2B地址), 001=V3.1(3B地址)
     /// 
     /// 多字节数据采用小端模式。
-    /// CRC8 计算范围：帧头～数据长度（共13字节）。
-    /// CRC16 计算范围：数据内容（N字节），无数据时为 0xFFFF。
+    /// CRC8 计算范围：帧头～数据长度（共13字节），多项式 0x07，初始值 0x00。
+    /// CRC16 计算范围：数据内容（N字节），CRC16-CCITT-FALSE（多项式 0x1021，初始值 0xFFFF，不反射）。
     /// </summary>
     public class CpplV3FrameStrategy : IFrameStrategy
     {
@@ -28,8 +28,8 @@ namespace DeviceLink.DataLink
         /// <summary>帧头到数据长度的固定字节数（用于CRC8计算）</summary>
         private const int Crc8Length = 13;
 
-        /// <summary>默认目标地址（转换板）：23 01 00 (小端)</summary>
-        private static readonly byte[] DefaultTargetAddress = new byte[] { 0x23, 0x01, 0x00 };
+        /// <summary>默认目标地址（转换板）：26 01 00 (小端)</summary>
+        private static readonly byte[] DefaultTargetAddress = new byte[] { 0x26, 0x01, 0x00 };
 
         /// <summary>默认源地址（PC）：36 22 11 (小端)</summary>
         private static readonly byte[] DefaultSourceAddress = new byte[] { 0x36, 0x22, 0x11 };
@@ -47,7 +47,7 @@ namespace DeviceLink.DataLink
         /// 创建 CPPI V3 帧策略（使用默认地址和功能码）
         /// </summary>
         public CpplV3FrameStrategy()
-            : this(DefaultTargetAddress, DefaultSourceAddress, 0x4900, 0x0400)
+            : this(DefaultTargetAddress, DefaultSourceAddress, 0x0400, 0x4900, 0x10)
         {
         }
 
@@ -58,11 +58,13 @@ namespace DeviceLink.DataLink
         /// <param name="sourceAddress">源地址（3字节，小端）</param>
         /// <param name="sendFunctionCode">发送帧功能码</param>
         /// <param name="recvFunctionCode">响应帧功能码</param>
+        /// <param name="initialSequenceNumber">初始流水号（默认0x10）</param>
         public CpplV3FrameStrategy(
             byte[] targetAddress,
             byte[] sourceAddress,
-            ushort sendFunctionCode = 0x4900,
-            ushort recvFunctionCode = 0x0400)
+            ushort sendFunctionCode = 0x0400,
+            ushort recvFunctionCode = 0x4900,
+            byte initialSequenceNumber = 0x10)
         {
             _targetAddress = targetAddress ?? throw new ArgumentNullException(nameof(targetAddress));
             _sourceAddress = sourceAddress ?? throw new ArgumentNullException(nameof(sourceAddress));
@@ -72,6 +74,7 @@ namespace DeviceLink.DataLink
                 throw new ArgumentException("源地址必须为3字节", nameof(sourceAddress));
             _sendFunctionCode = sendFunctionCode;
             _recvFunctionCode = recvFunctionCode;
+            _sequenceNumber = initialSequenceNumber;
         }
 
         /// <inheritdoc/>
@@ -135,8 +138,8 @@ namespace DeviceLink.DataLink
             // 数据内容
             Array.Copy(modbusFrame, 0, frame, HeaderSize + Crc8Size, modbusFrame.Length);
 
-            // 数据 CRC16
-            ushort dataCrc = CalculateCrc16(frame, HeaderSize + Crc8Size, modbusFrame.Length);
+            // 数据 CRC16（计算数据部分的CRC）
+            ushort dataCrc = CalculateCrc16(modbusFrame, 0, modbusFrame.Length);
             frame[frameSize - 2] = (byte)(dataCrc & 0xFF);
             frame[frameSize - 1] = (byte)((dataCrc >> 8) & 0xFF);
 
@@ -222,7 +225,7 @@ namespace DeviceLink.DataLink
         /// </summary>
         private static byte CalculateCrc8(byte[] data, int length, int offset = 0)
         {
-            byte crc = 0xFF;
+            byte crc = 0x00;
             for (int i = 0; i < length; i++)
             {
                 crc ^= data[offset + i];
@@ -242,24 +245,23 @@ namespace DeviceLink.DataLink
         }
 
         /// <summary>
-        /// 计算 CRC16（多项式 0x8005，与 Modbus 一致）
+        /// 计算 CRC16-CCITT-FALSE（多项式 0x1021，初始值 0xFFFF，不反射）
         /// </summary>
         private static ushort CalculateCrc16(byte[] data, int offset, int length)
         {
             ushort crc = 0xFFFF;
             for (int i = 0; i < length; i++)
             {
-                crc ^= data[offset + i];
+                crc ^= (ushort)(data[offset + i] << 8);
                 for (int j = 0; j < 8; j++)
                 {
-                    if ((crc & 0x0001) != 0)
+                    if ((crc & 0x8000) != 0)
                     {
-                        crc >>= 1;
-                        crc ^= 0xA001;
+                        crc = (ushort)((crc << 1) ^ 0x1021);
                     }
                     else
                     {
-                        crc >>= 1;
+                        crc = (ushort)(crc << 1);
                     }
                 }
             }

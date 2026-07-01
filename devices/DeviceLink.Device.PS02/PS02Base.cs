@@ -1,14 +1,13 @@
+using DeviceLink.DataLink;
+using DeviceLink.DeviceBase;
+using DeviceLink.Protocol;
+using DeviceLink.Transport;
 using System;
-using System.Globalization;
 using System.IO.Ports;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DeviceLink.DataLink;
-using DeviceLink.DeviceBase;
-using DeviceLink.Protocol;
-using DeviceLink.Session;
 
 namespace DeviceLink.Device.PS02
 {
@@ -29,10 +28,11 @@ namespace DeviceLink.Device.PS02
     ///   var pressure = await ps02.GetPressureAsync();
     ///   var serialNumber = await ps02.GetSerialNumberAsync();
     /// </summary>
-    public class PS02 : DeviceBase.DeviceBase
+    public class PS02Base : DeviceBase.DeviceBase
     {
         private readonly ModbusRtuCodec _codec;
         private readonly byte _slaveAddress;
+        private readonly CpplV3FrameStrategy _cppiV3FrameStrategy;
 
         #region 构造函数
 
@@ -45,7 +45,7 @@ namespace DeviceLink.Device.PS02
         /// <param name="stopBits">停止位（默认1）</param>
         /// <param name="parity">校验位（默认None）</param>
         /// <param name="slaveAddress">Modbus从站地址（默认1）</param>
-        public PS02(string serialPortName, int baudRate = 9600, int dataBits = 8,
+        public PS02Base(string serialPortName, int baudRate = 9600, int dataBits = 8,
             StopBits stopBits = StopBits.One, Parity parity = Parity.None, byte slaveAddress = 1)
             : base(serialPortName, baudRate, dataBits, stopBits, parity,
                 new ModbusRtuCodec(slaveAddress),
@@ -53,6 +53,7 @@ namespace DeviceLink.Device.PS02
         {
             _codec = (ModbusRtuCodec)Codec;
             _slaveAddress = slaveAddress;
+            _cppiV3FrameStrategy = new CpplV3FrameStrategy();
         }
 
         /// <summary>
@@ -60,11 +61,12 @@ namespace DeviceLink.Device.PS02
         /// </summary>
         /// <param name="serialPortName">串口号（如 COM3）</param>
         /// <param name="slaveAddress">Modbus从站地址（默认1）</param>
-        public PS02(string serialPortName, byte slaveAddress = 1)
+        public PS02Base(string serialPortName, byte slaveAddress = 1)
             : base(serialPortName, new ModbusRtuCodec(slaveAddress), new CpplV3FrameStrategy())
         {
             _codec = (ModbusRtuCodec)Codec;
             _slaveAddress = slaveAddress;
+            _cppiV3FrameStrategy = new CpplV3FrameStrategy();
         }
 
         /// <summary>
@@ -73,11 +75,12 @@ namespace DeviceLink.Device.PS02
         /// <param name="ipAddress">IP地址</param>
         /// <param name="port">端口号</param>
         /// <param name="slaveAddress">Modbus从站地址（默认1）</param>
-        public PS02(IPAddress ipAddress, int port, byte slaveAddress = 1)
+        public PS02Base(IPAddress ipAddress, int port, byte slaveAddress = 1)
             : base(ipAddress, port, new ModbusRtuCodec(slaveAddress), new CpplV3FrameStrategy())
         {
             _codec = (ModbusRtuCodec)Codec;
             _slaveAddress = slaveAddress;
+            _cppiV3FrameStrategy = new CpplV3FrameStrategy();
         }
 
         /// <summary>
@@ -85,11 +88,12 @@ namespace DeviceLink.Device.PS02
         /// </summary>
         /// <param name="settings">通信配置</param>
         /// <param name="slaveAddress">Modbus从站地址（默认1）</param>
-        public PS02(DeviceCommSettings settings, byte slaveAddress = 1)
+        public PS02Base(DeviceCommSettings settings, byte slaveAddress = 1)
             : base(settings, new ModbusRtuCodec(slaveAddress), new CpplV3FrameStrategy())
         {
             _codec = (ModbusRtuCodec)Codec;
             _slaveAddress = slaveAddress;
+            _cppiV3FrameStrategy = new CpplV3FrameStrategy();
         }
 
         /// <summary>
@@ -102,6 +106,103 @@ namespace DeviceLink.Device.PS02
         }
 
         #endregion 构造函数
+
+        // ═══════════════════════════════════════════════════════════
+        // 重写发送方法 - 添加 CPPI V3 帧日志
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 发送命令并接收响应（重写基类方法，添加 CPPI V3 帧日志记录）
+        /// </summary>
+        protected override async Task<byte[]> SendAsync(
+            Command command,
+            CancellationToken ct = default)
+        {
+            // 编码命令
+            var request = Codec.Encode(command);
+            var commandString = Encoding.ASCII.GetString(request);
+
+            // 记录发送日志（Modbus RTU 负载）
+            CommunicationLogger.LogSend(Name, command.Id, command.Kind.ToString(),
+                commandString, request);
+
+            // 构建 CPPI V3 帧并记录（用于调试对比）
+            try
+            {
+                var cppiV3Frame = _cppiV3FrameStrategy.BuildFrame(request);
+                CommunicationLogger.LogRaw(Name, ">>> CPPI V3 发送帧", cppiV3Frame);
+            }
+            catch (Exception ex)
+            {
+                CommunicationLogger.LogError(Name, "构建 CPPI V3 帧失败", ex);
+            }
+
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            byte[] response;
+            try
+            {
+                response = await Session.SendAndReceiveAsync(request, ct);
+            }
+            catch (Exception ex)
+            {
+                CommunicationLogger.LogError(Name, $"发送命令 [{command.Id}] 失败", ex);
+                throw;
+            }
+            finally
+            {
+                sw.Stop();
+            }
+
+            // 记录接收日志
+            var responseText = Codec.DecodeText(response);
+            CommunicationLogger.LogReceive(Name, sw.ElapsedMilliseconds, response, responseText);
+
+            // 检查设备错误
+            if (Codec.IsErrorResponse(response, out var errMsg))
+            {
+                CommunicationLogger.LogError(Name, $"设备返回错误: {errMsg}");
+                throw new DeviceException($"设备错误: {errMsg}");
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// 发送单向命令（重写基类方法，添加 CPPI V3 帧日志记录）
+        /// </summary>
+        protected override async Task SendNonQueryAsync(
+            Command command,
+            CancellationToken ct = default)
+        {
+            // 编码命令
+            var request = Codec.Encode(command);
+            var commandString = Encoding.ASCII.GetString(request);
+
+            // 记录发送日志（Modbus RTU 负载）
+            CommunicationLogger.LogSend(Name, command.Id, command.Kind.ToString(),
+                commandString, request);
+
+            // 构建 CPPI V3 帧并记录（用于调试对比）
+            try
+            {
+                var cppiV3Frame = _cppiV3FrameStrategy.BuildFrame(request);
+                CommunicationLogger.LogRaw(Name, ">>> CPPI V3 发送帧", cppiV3Frame);
+            }
+            catch (Exception ex)
+            {
+                CommunicationLogger.LogError(Name, "构建 CPPI V3 帧失败", ex);
+            }
+
+            try
+            {
+                await Session.SendOnlyAsync(request, ct);
+            }
+            catch (Exception ex)
+            {
+                CommunicationLogger.LogError(Name, $"单向发送命令 [{command.Id}] 失败", ex);
+                throw;
+            }
+        }
 
         // ═══════════════════════════════════════════════════════════
         // 通用读写方法
@@ -198,7 +299,7 @@ namespace DeviceLink.Device.PS02
         {
             return await SendForResultAsync(
                 Command.Read("40.2.2"),
-                raw => ParseFloat32BigEndian(raw, 3),
+                raw => ParseFloat32BigEndian(raw, 4),
                 ct);
         }
 
@@ -216,7 +317,7 @@ namespace DeviceLink.Device.PS02
         {
             return await SendForResultAsync(
                 Command.Read("40.20896.6"),
-                raw => ExtractAsciiString(raw, 3, 12),
+                raw => ExtractAsciiString(raw, 4, 12),
                 ct);
         }
 
@@ -232,7 +333,8 @@ namespace DeviceLink.Device.PS02
                 Command.Read("40.20790.1"),
                 raw =>
                 {
-                    var registers = _codec.ExtractRegisters(raw);
+                    var normalized = NormalizeF40Response(raw);
+                    var registers = _codec.ExtractRegisters(normalized);
                     return registers.Length > 0 ? registers[0] : (ushort)0;
                 },
                 ct);
@@ -250,7 +352,8 @@ namespace DeviceLink.Device.PS02
                 Command.Read("40.20791.1"),
                 raw =>
                 {
-                    var registers = _codec.ExtractRegisters(raw);
+                    var normalized = NormalizeF40Response(raw);
+                    var registers = _codec.ExtractRegisters(normalized);
                     return registers.Length > 0 ? registers[0] : (ushort)0;
                 },
                 ct);
@@ -269,13 +372,13 @@ namespace DeviceLink.Device.PS02
                 Command.Read("40.20798.4"),
                 raw =>
                 {
-                    if (raw == null || raw.Length < 11) // 地址(1) + 功能码(1) + 字节数(1) + 数据(8)
+                    if (raw == null || raw.Length < 12) // 前缀(1) + 地址(1) + 功能码(1) + 字节数(1) + 数据(8)
                         return new PressureRange();
 
                     return new PressureRange
                     {
-                        Lower = ParseFloat32BigEndian(raw, 3),
-                        Upper = ParseFloat32BigEndian(raw, 7)
+                        Lower = ParseFloat32BigEndian(raw, 4),
+                        Upper = ParseFloat32BigEndian(raw, 8)
                     };
                 },
                 ct);
@@ -291,7 +394,7 @@ namespace DeviceLink.Device.PS02
         {
             return await SendForResultAsync(
                 Command.Read("40.32784.9"),
-                raw => ExtractAsciiString(raw, 3, 18),
+                raw => ExtractAsciiString(raw, 4, 18),
                 ct);
         }
 
@@ -305,7 +408,7 @@ namespace DeviceLink.Device.PS02
         {
             return await SendForResultAsync(
                 Command.Read("40.32794.5"),
-                raw => ExtractAsciiString(raw, 3, 10),
+                raw => ExtractAsciiString(raw, 4, 10),
                 ct);
         }
 
@@ -320,7 +423,8 @@ namespace DeviceLink.Device.PS02
                 Command.Read("40.32800.1"),
                 raw =>
                 {
-                    var registers = _codec.ExtractRegisters(raw);
+                    var normalized = NormalizeF40Response(raw);
+                    var registers = _codec.ExtractRegisters(normalized);
                     return registers.Length > 0 ? registers[0] : (ushort)0;
                 },
                 ct);
@@ -468,6 +572,27 @@ namespace DeviceLink.Device.PS02
         // ═══════════════════════════════════════════════════════════
         // 私有解析方法
         // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 移除 F40 响应中转换板添加的额外 0x00 前缀字节。
+        /// 转换板在 CPPI V3 数据字段中会添加一个多余的 0x00 字节，
+        /// 使标准 Modbus 响应偏移 1 字节。
+        /// </summary>
+        private static byte[] NormalizeF40Response(byte[] raw)
+        {
+            if (raw == null || raw.Length < 2)
+                return raw;
+
+            // 如果第一个字节是 0x00 且第二个字节是有效的 Modbus 从站地址（0x01），
+            // 则认为是转换板添加的额外前缀
+            if (raw[0] == 0x00 && raw.Length >= 4)
+            {
+                var result = new byte[raw.Length - 1];
+                Array.Copy(raw, 1, result, 0, result.Length);
+                return result;
+            }
+            return raw;
+        }
 
         /// <summary>
         /// 从 Modbus 响应中解析 float32 大端浮点数

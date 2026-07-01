@@ -47,8 +47,8 @@ namespace DeviceLink.Tests.PS02
             var data = new byte[] { 0x01, 0x03, 0x00, 0x02, 0x00, 0x02 };
             var frame = _strategy.BuildFrame(data);
 
-            // 默认目标地址: 23 01 00 (小端)
-            Assert.Equal(0x23, frame[2]);
+            // 默认目标地址: 26 01 00 (小端)
+            Assert.Equal(0x26, frame[2]);
             Assert.Equal(0x01, frame[3]);
             Assert.Equal(0x00, frame[4]);
         }
@@ -71,9 +71,9 @@ namespace DeviceLink.Tests.PS02
             var data = new byte[] { 0x01, 0x03, 0x00, 0x02, 0x00, 0x02 };
             var frame = _strategy.BuildFrame(data);
 
-            // 默认发送功能码: 0x4900 (小端: 00 49)
+            // 默认发送功能码: 0x0400 (小端: 00 04)
             Assert.Equal(0x00, frame[8]);
-            Assert.Equal(0x49, frame[9]);
+            Assert.Equal(0x04, frame[9]);
         }
 
         [Fact]

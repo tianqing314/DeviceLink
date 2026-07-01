@@ -1,11 +1,9 @@
 using DeviceLink.DataLink;
-using DeviceLink.DeviceBase;
 using DeviceLink.Tests.PS02.Helpers;
 using System;
-using System.Buffers.Binary;
 using System.Threading.Tasks;
 using Xunit;
-using Ps02Device = DeviceLink.Device.PS02.PS02;
+using Ps02Device = DeviceLink.Device.PS02.PS02Base;
 using Ps02PressureType = DeviceLink.Device.PS02.PressureType;
 
 namespace DeviceLink.Tests.PS02
@@ -86,37 +84,41 @@ namespace DeviceLink.Tests.PS02
         }
 
         /// <summary>
-        /// 构造 Modbus F40 读寄存器的响应
+        /// 构造 Modbus F40 读寄存器的响应（含转换板添加的 0x00 前缀）
         /// </summary>
         private static byte[] BuildReadRegistersResponse(byte slaveAddr, ushort[] values)
         {
             int byteCount = values.Length * 2;
-            var response = new byte[3 + byteCount];
-            response[0] = slaveAddr;
-            response[1] = 0x28; // F40
-            response[2] = (byte)byteCount;
+            // 转换板在 F40 响应前添加 0x00 前缀字节
+            var response = new byte[4 + byteCount];
+            response[0] = 0x00; // 转换板添加的额外前缀
+            response[1] = slaveAddr;
+            response[2] = 0x28; // F40
+            response[3] = (byte)byteCount;
 
             for (int i = 0; i < values.Length; i++)
             {
-                response[3 + i * 2] = (byte)(values[i] >> 8);
-                response[4 + i * 2] = (byte)(values[i] & 0xFF);
+                response[4 + i * 2] = (byte)(values[i] >> 8);
+                response[5 + i * 2] = (byte)(values[i] & 0xFF);
             }
 
             return response;
         }
 
         /// <summary>
-        /// 构造 Modbus F40 读字符串的响应
+        /// 构造 Modbus F40 读字符串的响应（含转换板添加的 0x00 前缀）
         /// </summary>
         private static byte[] BuildReadStringResponse(byte slaveAddr, string text, int expectedLen)
         {
             byte[] textBytes = System.Text.Encoding.ASCII.GetBytes(text);
             int byteCount = Math.Min(textBytes.Length, expectedLen);
-            var response = new byte[3 + byteCount];
-            response[0] = slaveAddr;
-            response[1] = 0x28; // F40
-            response[2] = (byte)byteCount;
-            Array.Copy(textBytes, 0, response, 3, byteCount);
+            // 转换板在 F40 响应前添加 0x00 前缀字节
+            var response = new byte[4 + byteCount];
+            response[0] = 0x00; // 转换板添加的额外前缀
+            response[1] = slaveAddr;
+            response[2] = 0x28; // F40
+            response[3] = (byte)byteCount;
+            Array.Copy(textBytes, 0, response, 4, byteCount);
             return response;
         }
 
@@ -287,21 +289,22 @@ namespace DeviceLink.Tests.PS02
             {
                 if (modbusData.Length >= 6 && modbusData[1] == 0x28)
                 {
-                    // F40 响应：[地址][功能码][字节数][下限float32][上限float32]
-                    var response = new byte[11];
-                    response[0] = 0x01;
-                    response[1] = 0x28;
-                    response[2] = 0x08; // 8 字节
+                    // F40 响应（含转换板 0x00 前缀）：[0x00][地址][功能码][字节数][下限float32][上限float32]
+                    var response = new byte[12];
+                    response[0] = 0x00; // 转换板添加的额外前缀
+                    response[1] = 0x01;
+                    response[2] = 0x28;
+                    response[3] = 0x08; // 8 字节
 
                     // 下限 -100.0 (float32 大端: C2C80000)
                     byte[] lowerBytes = BitConverter.GetBytes(-100.0f);
-                    response[3] = lowerBytes[3]; response[4] = lowerBytes[2];
-                    response[5] = lowerBytes[1]; response[6] = lowerBytes[0];
+                    response[4] = lowerBytes[3]; response[5] = lowerBytes[2];
+                    response[6] = lowerBytes[1]; response[7] = lowerBytes[0];
 
                     // 上限 500.0 (float32 大端: 43FA0000)
                     byte[] upperBytes = BitConverter.GetBytes(500.0f);
-                    response[7] = upperBytes[3]; response[8] = upperBytes[2];
-                    response[9] = upperBytes[1]; response[10] = upperBytes[0];
+                    response[8] = upperBytes[3]; response[9] = upperBytes[2];
+                    response[10] = upperBytes[1]; response[11] = upperBytes[0];
 
                     return response;
                 }

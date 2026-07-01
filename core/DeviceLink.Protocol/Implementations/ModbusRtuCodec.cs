@@ -43,9 +43,21 @@ namespace DeviceLink.Protocol
 
             byte functionCode = byte.Parse(parts[0]);
             ushort registerAddress = ushort.Parse(parts[1]);
-            ushort registerCount = command.Parameters.Length > 0 ? ushort.Parse(command.Parameters[0]) : (ushort)1;
+            ushort registerCount;
+            if (parts.Length >= 3)
+            {
+                registerCount = ushort.Parse(parts[2]);
+            }
+            else if (command.Parameters.Length > 0)
+            {
+                registerCount = ushort.Parse(command.Parameters[0]);
+            }
+            else
+            {
+                registerCount = 1;
+            }
 
-            var data = new byte[6]; // 功能码 + 地址 + 数量
+            var data = new byte[5]; // 功能码 + 地址(2字节) + 数量(2字节)
             data[0] = functionCode;
             data[1] = (byte)(registerAddress >> 8);   // 地址高字节
             data[2] = (byte)(registerAddress & 0xFF); // 地址低字节
@@ -114,7 +126,7 @@ namespace DeviceLink.Protocol
                     throw new ProtocolException("F41写寄存器需要提供数据");
                 }
 
-                data = new byte[7 + payload.Length];
+                data = new byte[6 + payload.Length];
                 data[0] = functionCode;
                 data[1] = (byte)(registerAddress >> 8);
                 data[2] = (byte)(registerAddress & 0xFF);
