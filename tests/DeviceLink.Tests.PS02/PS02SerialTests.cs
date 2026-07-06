@@ -327,6 +327,101 @@ namespace DeviceLink.Tests.PS02
         }
 
         // ═══════════════════════════════════════════════════════════
+        // 转接板初始化测试
+        // ═══════════════════════════════════════════════════════════
+
+        [Fact]
+        [Trait("Category", "Serial")]
+        public async Task Serial_ConverterInitialization_ShouldSucceed()
+        {
+            if (!IsSerialPortAvailable())
+            {
+                _output.WriteLine("跳过测试: 串口不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 开始转接板初始化序列 ===");
+
+                // 1. 第一次扫描从设备
+                _output.WriteLine("[1/7] 第一次扫描从设备...");
+                var interfaceType1 = await _device!.ScanDeviceAsync();
+                _output.WriteLine($"  扫描结果: {interfaceType1} ({(byte)interfaceType1})");
+                Assert.True(Enum.IsDefined(typeof(DeviceInterfaceType), interfaceType1),
+                    $"接口类型 {interfaceType1} 应该是有效的枚举值");
+
+                // 2. 读取转接板固件版本
+                _output.WriteLine("[2/7] 读取转接板固件版本...");
+                var firmwareVersion = await _device.GetConverterFirmwareVersionAsync();
+                _output.WriteLine($"  固件版本: {firmwareVersion}");
+                Assert.False(string.IsNullOrEmpty(firmwareVersion), "固件版本不应为空");
+
+                // 3. 读取转接板硬件版本
+                _output.WriteLine("[3/7] 读取转接板硬件版本...");
+                var hardwareVersion = await _device.GetConverterHardwareVersionAsync();
+                _output.WriteLine($"  硬件版本: {hardwareVersion}");
+                Assert.False(string.IsNullOrEmpty(hardwareVersion), "硬件版本不应为空");
+
+                // 4. 第二次扫描从设备
+                _output.WriteLine("[4/7] 第二次扫描从设备...");
+                var interfaceType2 = await _device.ScanDeviceAsync();
+                _output.WriteLine($"  扫描结果: {interfaceType2} ({(byte)interfaceType2})");
+                Assert.True(Enum.IsDefined(typeof(DeviceInterfaceType), interfaceType2),
+                    $"接口类型 {interfaceType2} 应该是有效的枚举值");
+
+                // 5. 第三次扫描从设备
+                _output.WriteLine("[5/7] 第三次扫描从设备...");
+                var interfaceType3 = await _device.ScanDeviceAsync();
+                _output.WriteLine($"  扫描结果: {interfaceType3} ({(byte)interfaceType3})");
+                Assert.True(Enum.IsDefined(typeof(DeviceInterfaceType), interfaceType3),
+                    $"接口类型 {interfaceType3} 应该是有效的枚举值");
+
+                // 6. 启用 OWI 通信模式
+                _output.WriteLine("[6/7] 启用 OWI 通信模式...");
+                bool owiEnabled = await _device.EnableOwiViaConverterAsync(_slaveAddress);
+                _output.WriteLine($"  OWI 启用结果: {owiEnabled}");
+                Assert.True(owiEnabled, "启用 OWI 通信模式应该成功");
+
+                // 等待一下，确保 OWI 模式生效
+                await Task.Delay(500);
+
+                // 7. 读取 PS02 模块序列号
+                _output.WriteLine("[7/7] 读取 PS02 模块序列号...");
+                var serialNumber = await _device.GetSerialNumberAsync();
+                _output.WriteLine($"  序列号: {serialNumber}");
+                Assert.False(string.IsNullOrEmpty(serialNumber), "序列号不应为空");
+                Assert.True(serialNumber.Length >= 8, "序列号长度应该至少8个字符");
+
+                _output.WriteLine("=== 转接板初始化序列完成 ===");
+                _output.WriteLine($"  接口类型变化: {interfaceType1} -> {interfaceType2} -> {interfaceType3}");
+                _output.WriteLine($"  转接板固件: {firmwareVersion}");
+                _output.WriteLine($"  转接板硬件: {hardwareVersion}");
+                _output.WriteLine($"  PS02 序列号: {serialNumber}");
+            }
+            finally
+            {
+                // 尝试禁用 OWI 模式，恢复设备状态
+                if (_device != null)
+                {
+                    try
+                    {
+                        bool owiDisabled = await _device.DisableOwiViaConverterAsync(_slaveAddress);
+                        _output.WriteLine($"禁用 OWI 通信模式结果: {owiDisabled}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _output.WriteLine($"禁用 OWI 通信模式时出错: {ex.Message}");
+                    }
+                }
+
+                await CloseDeviceAsync();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
         // 压力读取测试
         // ═══════════════════════════════════════════════════════════
 
