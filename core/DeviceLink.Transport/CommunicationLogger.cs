@@ -84,12 +84,15 @@ namespace DeviceLink.Transport
             var sb = new StringBuilder();
             sb.AppendLine();
             sb.AppendLine(separator);
-            sb.AppendLine($"[{timestamp}] [{deviceName}] >>> 发送命令 [{commandId}]");
+            sb.AppendLine($"功能：发送指令");
+            sb.AppendLine($"设备：{deviceName}");
+            sb.AppendLine($"时间：{timestamp}");
+            sb.AppendLine($"命令ID：{commandId}");
             sb.AppendLine(subSeparator);
-            sb.AppendLine($"指令类型: {commandKind}");
-            sb.AppendLine($"指令字符串: {EscapeString(commandString)}");
-            sb.AppendLine($"字节数组: [{BitConverter.ToString(bytes)}]");
-            sb.AppendLine($"字节长度: {bytes.Length}");
+            sb.AppendLine($"指令类型：{commandKind}");
+            sb.AppendLine($"指令字符串：{EscapeString(commandString)}");
+            sb.AppendLine($"字节数组：[{BitConverter.ToString(bytes)}]");
+            sb.AppendLine($"字节长度：{bytes.Length}");
 
             WriteToFile(sb.ToString());
         }
@@ -112,10 +115,13 @@ namespace DeviceLink.Transport
 
             var sb = new StringBuilder();
             sb.AppendLine(subSeparator);
-            sb.AppendLine($"[{timestamp}] [{deviceName}] <<< 接收响应 ({elapsedMs}ms)");
+            sb.AppendLine($"功能：接收指令");
+            sb.AppendLine($"设备：{deviceName}");
+            sb.AppendLine($"时间：{timestamp}");
+            sb.AppendLine($"耗时：{elapsedMs} ms");
             sb.AppendLine(subSeparator);
-            sb.AppendLine($"响应字节: [{BitConverter.ToString(responseBytes)}]");
-            sb.AppendLine($"响应文本: \"{EscapeString(responseText)}\"");
+            sb.AppendLine($"响应字节：[{BitConverter.ToString(responseBytes)}]");
+            sb.AppendLine($"响应文本：\"{EscapeString(responseText)}\"");
             sb.AppendLine(separator);
 
             WriteToFile(sb.ToString());
@@ -136,11 +142,11 @@ namespace DeviceLink.Transport
             sb.AppendLine($"[{timestamp}] [{deviceName}] !!! 错误: {message}");
             if (exception != null)
             {
-                sb.AppendLine($"异常类型: {exception.GetType().Name}");
-                sb.AppendLine($"异常消息: {exception.Message}");
+                sb.AppendLine($"异常类型：{exception.GetType().Name}");
+                sb.AppendLine($"异常消息：{exception.Message}");
                 if (exception.StackTrace != null)
                 {
-                    sb.AppendLine($"堆栈跟踪: {exception.StackTrace}");
+                    sb.AppendLine($"堆栈跟踪：{exception.StackTrace}");
                 }
             }
 
@@ -174,7 +180,8 @@ namespace DeviceLink.Transport
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             var hexDump = FormatHexDump(data);
             var sb = new StringBuilder();
-            sb.AppendLine($"[{timestamp}] [{deviceName}] {direction} 原始数据 ({data.Length} 字节)");
+            sb.AppendLine($"[{timestamp}] [{deviceName}] {direction}");
+            sb.AppendLine($"原始数据 ({data.Length} 字节):");
             sb.AppendLine(hexDump);
 
             WriteToFile(sb.ToString());
