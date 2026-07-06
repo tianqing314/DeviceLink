@@ -3,6 +3,7 @@ using DeviceLink.DeviceBase;
 using DeviceLink.Protocol;
 using DeviceLink.Transport;
 using System;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Net;
 using System.Text;
@@ -33,6 +34,9 @@ namespace DeviceLink.Device.PS02
         private readonly ModbusRtuCodec _codec;
         private readonly byte _slaveAddress;
         private readonly CpplV3FrameStrategy _cppiV3FrameStrategy;
+
+        /// <summary>转接板专用帧策略（目标地址 0x000123）</summary>
+        private readonly CpplV3FrameStrategy _converterFrameStrategy;
 
         #region 构造函数
 
@@ -94,6 +98,12 @@ namespace DeviceLink.Device.PS02
             _codec = (ModbusRtuCodec)Codec;
             _slaveAddress = slaveAddress;
             _cppiV3FrameStrategy = new CpplV3FrameStrategy();
+
+            // 转接板专用帧策略：目标地址 0x000123，源地址 0x112236，流水号从 0x01 开始
+            _converterFrameStrategy = new CpplV3FrameStrategy(
+                targetAddress: new byte[] { 0x23, 0x01, 0x00 },
+                sourceAddress: new byte[] { 0x36, 0x22, 0x11 },
+                initialSequenceNumber: 0x01);
         }
 
         /// <summary>
@@ -569,6 +579,411 @@ namespace DeviceLink.Device.PS02
             await WriteRegistersF41Async(PS02Registers.AdcSampleRate, data, ct);
         }
 
+        #region 转接板指令
+
+        // ═══════════════════════════════════════════════════════════
+        // 转接板 CPPI V3 指令
+        // ═══════════════════════════════════════════════════════════
+        //
+        // 通信参数：
+        //   PC（主机）源地址：0x112236 (36 22 11)
+        //   转接板（从机）目标地址：0x000123 (23 01 00)
+        //
+        // 功能码定义：
+        //   0x0106 - 读取设备固件版本（返回 ASCII 字符串）
+        //   0x0108 - 读取设备硬件版本（返回 ASCII 字符串）
+        //   0x0210 - 设定输出项目（参数：项目代号 + 输出值类型）
+        //   0x0300 - 扫描从设备（返回接口类型）
+        //   0x0301 - 读取内部参数（返回参数值）
+        //
+        // 错误码定义：
+        //   0x00 - 无错误
+        //   100 - CRC 校验错误
+        //   101 - 无此指令
+        //   102 - 当前状态不支持此操作
+        //   103 - 密码错误
+        //   104 - 参数格式错误
+        //   105 - 参数超范围
+        //   106 - 执行错误
+        //   107 - 参数错误
+
+        /// <summary>
+        /// 扫描从设备（功能码 0x0300）
+        /// 返回下游设备的接口类型
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>设备接口类型</returns>
+        public async Task<DeviceInterfaceType> ScanDeviceAsync(CancellationToken ct = default)
+        {
+            // 构建 CPPI V3 帧：功能码 0x0300，数据 0x01
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0300, new byte[] { 0x01 });
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 扫描从设备", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+
+            // 使用帧策略解析 CPPI V3 帧
+            if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
+            {
+                throw new DeviceException($"转接板响应帧解析失败，数据: {BitConverter.ToString(response)}");
+            }
+
+            // 至少需要 1 字节错误码
+            if (frameData.Length < 1)
+            {
+                throw new DeviceException("转接板响应数据为空");
+            }
+
+            // 检查错误码
+            byte errorCode = frameData[0];
+            if (errorCode != 0)
+            {
+                var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                    ? ((ConverterErrorCode)errorCode).ToString()
+                    : $"未知错误({errorCode})";
+                throw new DeviceException($"转接板返回错误: {errorName}");
+            }
+
+            // 如果有接口类型数据（frameData > 1 字节），返回接口类型
+            if (frameData.Length > 1)
+            {
+                return (DeviceInterfaceType)frameData[1];
+            }
+
+            // 如果只有错误码（frameData == 1 字节），返回 NotConnected
+            CommunicationLogger.LogInfo(Name, "扫描响应只有错误码，假设未连接设备");
+            return DeviceInterfaceType.NotConnected;
+        }
+
+        /// <summary>
+        /// 读取转接板固件版本（功能码 0x0106）
+        /// 返回 ASCII 字符串，如 "A20-98 V00.00.00.07"
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>固件版本字符串</returns>
+        public async Task<string> GetConverterFirmwareVersionAsync(CancellationToken ct = default)
+        {
+            // 构建 CPPI V3 帧：功能码 0x0106，无数据
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0106);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取固件版本", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 0);
+
+            // 解析 ASCII 字符串（跳过错误码）
+            return Encoding.ASCII.GetString(data).TrimEnd('\0');
+        }
+
+        /// <summary>
+        /// 读取转接板硬件版本（功能码 0x0108）
+        /// 返回 ASCII 字符串，如 "A20-98 V00.01"
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>硬件版本字符串</returns>
+        public async Task<string> GetConverterHardwareVersionAsync(CancellationToken ct = default)
+        {
+            // 构建 CPPI V3 帧：功能码 0x0108，无数据
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0108);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取硬件版本", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 0);
+
+            // 解析 ASCII 字符串（跳过错误码）
+            return Encoding.ASCII.GetString(data).TrimEnd('\0');
+        }
+
+        /// <summary>
+        /// 设定输出项目（功能码 0x0210）
+        /// 控制转接板的电流/电压输出
+        /// </summary>
+        /// <param name="project">输出项目代号</param>
+        /// <param name="valueType">输出值类型</param>
+        /// <param name="ct">取消令牌</param>
+        public async Task SetOutputProjectAsync(OutputProject project, OutputValueType valueType, CancellationToken ct = default)
+        {
+            // 构建 CPPI V3 帧：功能码 0x0210，数据 [项目代号, 输出值类型]
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0210, new byte[] { (byte)project, (byte)valueType });
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 设定输出项目 ({project}, {valueType})", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            ParseConverterResponse(response, 0); // 验证无错误
+        }
+
+        /// <summary>
+        /// 关闭所有输出（功能码 0x0210 的便捷方法）
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        public async Task DisableAllOutputAsync(CancellationToken ct = default)
+        {
+            await SetOutputProjectAsync(OutputProject.Off, OutputValueType.Zero, ct);
+        }
+
+        /// <summary>
+        /// 读取转接板内部参数（功能码 0x0301）
+        /// 返回参数值（1 字节）
+        /// </summary>
+        /// <param name="parameterIndex">参数索引（0-4，对应流水号 0x07-0x0B）</param>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>参数值</returns>
+        public async Task<byte> ReadConverterParameterAsync(byte parameterIndex, CancellationToken ct = default)
+        {
+            // 构建 CPPI V3 帧：功能码 0x0301，无数据
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0301);
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 读取参数 #{parameterIndex}", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 1);
+
+            // 返回值在错误码之后的第一个字节
+            return data[0];
+        }
+
+        /// <summary>
+        /// 通过转接板发送 Modbus RTU 指令（功能码 0x0400）
+        /// 转接板将 Modbus RTU 报文透传给下游变送器
+        /// </summary>
+        /// <param name="modbusFrame">完整的 Modbus RTU 报文（含 CRC16）</param>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>Modbus RTU 响应（不含 CPPI 错误码）</returns>
+        private async Task<byte[]> SendModbusForwardAsync(byte[] modbusFrame, CancellationToken ct)
+        {
+            // 使用 _cppiV3FrameStrategy（端口38，功能码0x0400）构建 CPPI V3 帧
+            var frame = _cppiV3FrameStrategy.BuildRawFrame(0x0400, modbusFrame);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板 Modbus 转发", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+
+            // 使用帧策略解析 CPPI V3 响应
+            if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
+            {
+                throw new DeviceException($"转接板响应帧解析失败，数据: {BitConverter.ToString(response)}");
+            }
+
+            // 至少需要 1 字节错误码 + Modbus 响应
+            if (frameData.Length < 1)
+            {
+                throw new DeviceException("转接板响应数据为空");
+            }
+
+            // 检查 CPPI 错误码
+            byte errorCode = frameData[0];
+            if (errorCode != 0)
+            {
+                var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                    ? ((ConverterErrorCode)errorCode).ToString()
+                    : $"未知错误({errorCode})";
+                throw new DeviceException($"转接板返回错误: {errorName}");
+            }
+
+            // 提取 Modbus 响应（跳过 CPPI 错误码）
+            if (frameData.Length > 1)
+            {
+                var modbusResponse = new byte[frameData.Length - 1];
+                Array.Copy(frameData, 1, modbusResponse, 0, modbusResponse.Length);
+                CommunicationLogger.LogRaw(Name, "<<< Modbus 响应", modbusResponse);
+                return modbusResponse;
+            }
+
+            return Array.Empty<byte>();
+        }
+
+        /// <summary>
+        /// 通过转接板启用 OWI 通信模式
+        /// 向下游变送器写入寄存器 0x8000 = 0x0001
+        /// </summary>
+        /// <param name="slaveAddress">Modbus 从机地址（默认1）</param>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>true: 指令执行成功，false: 指令执行失败</returns>
+        public async Task<bool> EnableOwiViaConverterAsync(byte slaveAddress = 1, CancellationToken ct = default)
+        {
+            // 构建 Modbus RTU 帧：F41 写寄存器 0x8000 = 0x0001
+            var modbusFrame = BuildModbusRtuFrame(slaveAddress, 0x29, 0x8000, 0x0001, new byte[] { 0x00, 0x01 });
+            CommunicationLogger.LogRaw(Name, ">>> Modbus RTU: 启用 OWI 通信模式", modbusFrame);
+
+            try
+            {
+                await SendModbusForwardAsync(modbusFrame, ct);
+                CommunicationLogger.LogInfo(Name, "OWI 通信模式已启用");
+                return true;
+            }
+            catch (DeviceException ex)
+            {
+                CommunicationLogger.LogError(Name, "启用 OWI 通信模式失败", ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 通过转接板禁用 OWI 通信模式
+        /// 向下游变送器写入寄存器 0x8000 = 0x0000
+        /// </summary>
+        /// <param name="slaveAddress">Modbus 从机地址（默认1）</param>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>true: 指令执行成功，false: 指令执行失败</returns>
+        public async Task<bool> DisableOwiViaConverterAsync(byte slaveAddress = 1, CancellationToken ct = default)
+        {
+            // 构建 Modbus RTU 帧：F41 写寄存器 0x8000 = 0x0000
+            var modbusFrame = BuildModbusRtuFrame(slaveAddress, 0x29, 0x8000, 0x0001, new byte[] { 0x00, 0x00 });
+            CommunicationLogger.LogRaw(Name, ">>> Modbus RTU: 禁用 OWI 通信模式", modbusFrame);
+
+            try
+            {
+                await SendModbusForwardAsync(modbusFrame, ct);
+                CommunicationLogger.LogInfo(Name, "OWI 通信模式已禁用");
+                return true;
+            }
+            catch (DeviceException ex)
+            {
+                CommunicationLogger.LogError(Name, "禁用 OWI 通信模式失败", ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 发送原始 CPPI V3 帧并接收响应
+        /// </summary>
+        private async Task<byte[]> SendRawFrameAsync(byte[] frame, CancellationToken ct)
+        {
+            // 记录发送日志
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令", frame);
+
+            // 直接使用传输层发送和接收（绕过 BuildFrame 的 Modbus CRC 添加）
+            var transport = Pipeline.Transport;
+            if (transport == null || !transport.IsOpen)
+                throw new DeviceException("传输层未打开");
+
+            // 清空接收缓冲区
+            await transport.ClearReceiveBufferAsync(ct);
+
+            // 发送原始帧
+            await transport.WriteAsync(frame, 0, frame.Length, ct);
+
+            // 接收响应（使用转接板帧策略解析）
+            var response = await ReceiveRawFrameAsync(transport, ct);
+
+            // 记录接收日志
+            CommunicationLogger.LogRaw(Name, "<<< 转接板响应", response);
+
+            return response;
+        }
+
+        /// <summary>
+        /// 接收原始 CPPI V3 帧响应
+        /// </summary>
+        private async Task<byte[]> ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)
+        {
+            var accumulated = new List<byte>();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var idleSw = System.Diagnostics.Stopwatch.StartNew();
+            bool hasReceivedData = false;
+
+            while (true)
+            {
+                ct.ThrowIfCancellationRequested();
+
+                // 等待一小段时间
+                await Task.Delay(10, ct);
+
+                // 尝试读取数据
+                var buffer = new byte[4096];
+                int read = await transport.ReadAsync(buffer, 0, buffer.Length, ct);
+
+                if (read > 0)
+                {
+                    accumulated.AddRange(buffer.AsSpan(0, read).ToArray());
+                    hasReceivedData = true;
+                    idleSw.Restart();
+
+                    // 尝试解析帧
+                    var accArray = accumulated.ToArray();
+                    if (_converterFrameStrategy.TryParseRawFrame(accArray, out int frameLen, out byte[] frameData))
+                    {
+                        // 返回完整帧（包括帧头和 CRC）
+                        return accArray.AsSpan(0, frameLen).ToArray();
+                    }
+                }
+
+                // 首次响应超时检查（15秒）
+                if (!hasReceivedData && sw.ElapsedMilliseconds > 15000)
+                {
+                    throw new DeviceException("转接板响应超时");
+                }
+
+                // 接收空闲超时检查（100ms 无新数据）
+                if (hasReceivedData && idleSw.ElapsedMilliseconds > 100)
+                {
+                    // 返回累积的数据（可能不是完整帧）
+                    if (accumulated.Count > 0)
+                        return accumulated.ToArray();
+                    break;
+                }
+            }
+
+            throw new DeviceException("未收到转接板响应");
+        }
+
+        /// <summary>
+        /// 解析转接板响应帧
+        /// </summary>
+        /// <param name="response">完整的 CPPI V3 响应帧</param>
+        /// <param name="expectedDataLength">期望的数据长度（不含错误码），0 表示不检查</param>
+        /// <returns>数据内容（不含错误码）</returns>
+        private byte[] ParseConverterResponse(byte[] response, int expectedDataLength)
+        {
+            // 调试日志：显示接收到的原始数据
+            CommunicationLogger.LogRaw(Name, "<<< 转接板响应原始数据", response);
+
+            // 使用帧策略解析 CPPI V3 帧（原始模式，不剥离 Modbus CRC）
+            if (!_converterFrameStrategy.TryParseRawFrame(response, out int frameLen, out byte[] frameData))
+            {
+                throw new DeviceException($"转接板响应帧解析失败，数据: {BitConverter.ToString(response)}");
+            }
+
+            // 调试日志：显示解析后的帧数据
+            CommunicationLogger.LogRaw(Name, $"<<< 解析结果: frameLen={frameLen}, dataLen={frameData.Length}", frameData);
+
+            // 至少需要 1 字节错误码
+            if (frameData.Length < 1)
+            {
+                throw new DeviceException("转接板响应数据为空");
+            }
+
+            // 检查错误码
+            byte errorCode = frameData[0];
+            if (errorCode != 0)
+            {
+                var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                    ? ((ConverterErrorCode)errorCode).ToString()
+                    : $"未知错误({errorCode})";
+                throw new DeviceException($"转接板返回错误: {errorName}");
+            }
+
+            // 提取数据部分（跳过错误码）
+            if (frameData.Length > 1)
+            {
+                var data = new byte[frameData.Length - 1];
+                Array.Copy(frameData, 1, data, 0, data.Length);
+
+                // 验证数据长度
+                if (expectedDataLength > 0 && data.Length < expectedDataLength)
+                {
+                    throw new DeviceException($"转接板响应数据长度不足: 期望 {expectedDataLength}，实际 {data.Length}");
+                }
+
+                return data;
+            }
+
+            // 只有错误码，没有额外数据
+            if (expectedDataLength > 0)
+            {
+                throw new DeviceException($"转接板响应数据长度不足: 期望 {expectedDataLength}，实际 0");
+            }
+
+            return Array.Empty<byte>();
+        }
+
+        #endregion 转接板指令
+
         // ═══════════════════════════════════════════════════════════
         // 私有解析方法
         // ═══════════════════════════════════════════════════════════
@@ -633,6 +1048,62 @@ namespace DeviceLink.Device.PS02
             buffer[offset + 1] = bytes[2];
             buffer[offset + 2] = bytes[1];
             buffer[offset + 3] = bytes[0];
+        }
+
+        /// <summary>
+        /// 计算 Modbus CRC16（多项式 0xA001，初始值 0xFFFF）
+        /// </summary>
+        private static ushort CalculateModbusCrc16(byte[] data, int length)
+        {
+            ushort crc = 0xFFFF;
+            for (int i = 0; i < length; i++)
+            {
+                crc ^= data[i];
+                for (int j = 0; j < 8; j++)
+                {
+                    if ((crc & 0x0001) != 0)
+                    {
+                        crc >>= 1;
+                        crc ^= 0xA001;
+                    }
+                    else
+                    {
+                        crc >>= 1;
+                    }
+                }
+            }
+            return crc;
+        }
+
+        /// <summary>
+        /// 构建完整的 Modbus RTU 帧（含从机地址、功能码、数据、CRC16）
+        /// </summary>
+        private static byte[] BuildModbusRtuFrame(byte slaveAddress, byte functionCode, ushort registerAddress, ushort registerCount, byte[] data)
+        {
+            // Modbus RTU 帧：地址(1) + 功能码(1) + 起始地址(2) + 寄存器数量(2) + 字节数(1) + 数据(N) + CRC(2)
+            int dataLen = data?.Length ?? 0;
+            int frameLen = 7 + dataLen + 2; // +2 for CRC
+            var frame = new byte[frameLen];
+
+            frame[0] = slaveAddress;
+            frame[1] = functionCode;
+            frame[2] = (byte)(registerAddress >> 8);   // 寄存器地址高字节
+            frame[3] = (byte)(registerAddress & 0xFF); // 寄存器地址低字节
+            frame[4] = (byte)(registerCount >> 8);     // 寄存器数量高字节
+            frame[5] = (byte)(registerCount & 0xFF);   // 寄存器数量低字节
+            frame[6] = (byte)dataLen;                  // 数据字节数
+
+            if (data != null && dataLen > 0)
+            {
+                Array.Copy(data, 0, frame, 7, dataLen);
+            }
+
+            // 计算 CRC16（不含 CRC 本身）
+            ushort crc = CalculateModbusCrc16(frame, frameLen - 2);
+            frame[frameLen - 2] = (byte)(crc & 0xFF);
+            frame[frameLen - 1] = (byte)((crc >> 8) & 0xFF);
+
+            return frame;
         }
 
         /// <summary>
