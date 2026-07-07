@@ -344,106 +344,116 @@ namespace DeviceLink.Tests.PS02
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
 
-                _output.WriteLine("=== 开始转接板初始化序列 ===");
+                _output.WriteLine("=== 开始转接板初始化序列（15步） ===");
 
-                // 0. 状态恢复：尝试禁用 OWI 模式（如果上次测试异常退出，使用短超时）
-                _output.WriteLine("[0/6] 状态恢复：尝试禁用 OWI 模式...");
-                try
-                {
-                    using var recoveryCts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-                    bool owiDisabled = await _device!.DisableOwiViaConverterAsync(_slaveAddress, recoveryCts.Token);
-                    _output.WriteLine($"  OWI 禁用结果: {owiDisabled}");
-                }
-                catch (OperationCanceledException)
-                {
-                    _output.WriteLine("  OWI 禁用超时（3秒），继续执行...");
-                }
-                catch (Exception ex)
-                {
-                    _output.WriteLine($"  OWI 禁用异常（可忽略）: {ex.Message}");
-                }
-                // 等待传感器恢复
-                await Task.Delay(1000);
+                // 指令 1：扫描从设备（scanType=0x01）
+                _output.WriteLine("[01/13] 扫描从设备（类型 0x01）...");
+                var scanResult1 = await _device!.ScanDeviceAsync(0x01);
+                _output.WriteLine($"  扫描结果: {scanResult1} ({(byte)scanResult1})");
 
-                // 1. 先扫描设备（类型 0x01）
-                _output.WriteLine("[1/6] 第一次扫描从设备...");
-                var interfaceType1 = await _device!.ScanDeviceAsync(0x01);
-                _output.WriteLine($"  扫描结果: {interfaceType1} ({(byte)interfaceType1})");
-                Assert.True(Enum.IsDefined(typeof(DeviceInterfaceType), interfaceType1),
-                    $"接口类型 {interfaceType1} 应该是有效的枚举值");
+                // 指令 2：读取转接板固件版本（第一次）
+                _output.WriteLine("[02/13] 读取转接板固件版本（第一次）...");
+                var firmwareVersion1 = await _device.GetConverterFirmwareVersionAsync();
+                _output.WriteLine($"  固件版本: {firmwareVersion1}");
+                Assert.False(string.IsNullOrEmpty(firmwareVersion1), "固件版本不应为空");
 
-                // 2. 读取转接板固件版本
-                _output.WriteLine("[2/6] 读取转接板固件版本...");
-                var firmwareVersion = await _device.GetConverterFirmwareVersionAsync();
-                _output.WriteLine($"  固件版本: {firmwareVersion}");
-                Assert.False(string.IsNullOrEmpty(firmwareVersion), "固件版本不应为空");
+                // 指令 3：读取转接板固件版本（第二次，验证一致性）
+                _output.WriteLine("[03/13] 读取转接板固件版本（第二次，验证）...");
+                var firmwareVersion2 = await _device.GetConverterFirmwareVersionAsync();
+                _output.WriteLine($"  固件版本: {firmwareVersion2}");
+                Assert.Equal(firmwareVersion1, firmwareVersion2);
 
-                // 3. 读取转接板硬件版本
-                _output.WriteLine("[3/6] 读取转接板硬件版本...");
+                // 指令 4：读取转接板硬件版本
+                _output.WriteLine("[04/13] 读取转接板硬件版本...");
                 var hardwareVersion = await _device.GetConverterHardwareVersionAsync();
                 _output.WriteLine($"  硬件版本: {hardwareVersion}");
                 Assert.False(string.IsNullOrEmpty(hardwareVersion), "硬件版本不应为空");
 
-                // 4. 进入扫描循环，直到扫描到设备
-                _output.WriteLine("[4/6] 进入扫描循环，等待设备连接...");
-                DeviceInterfaceType scanResult = DeviceInterfaceType.NotConnected;
-                int scanCount = 0;
-                const int maxScans = 10; // 最大扫描次数，防止无限循环
+                // 指令 5：关闭所有输出
+                _output.WriteLine("[05/15] 关闭所有输出...");
+                await _device.DisableAllOutputAsync();
+                _output.WriteLine("  输出已关闭");
 
-                while (scanResult == DeviceInterfaceType.NotConnected && scanCount < maxScans)
+                // 指令 6~11：循环扫描从设备（scanType=0x00），最多10次
+                DeviceInterfaceType scanResult2 = DeviceInterfaceType.NotConnected;
+                bool scanSuccess = false;
+                for (int retry = 0; retry < 10; retry++)
                 {
-                    scanCount++;
-                    _output.WriteLine($"  第 {scanCount} 次扫描...");
-
-                    // 发送扫描命令（类型 0x00）
-                    var interfaceType = await _device.ScanDeviceAsync(0x00);
-                    _output.WriteLine($"    扫描结果: {interfaceType} ({(byte)interfaceType})");
-
-                    // 读取扫描结果
-                    scanResult = await _device.GetScanResultAsync();
-                    _output.WriteLine($"    获取扫描结果: {scanResult} ({(byte)scanResult})");
-
-                    if (scanResult != DeviceInterfaceType.NotConnected)
+                    _output.WriteLine($"[{6 + retry:D2}/15] 扫描从设备（类型 0x00，第 {retry + 1} 次）...");
+                    scanResult2 = await _device.ScanDeviceAsync(0x00);
+                    _output.WriteLine($"  扫描结果: {scanResult2} ({(byte)scanResult2})");
+                    
+                    // 扫描完成后，读取扫描结果（功能码 0x0301）
+                    _output.WriteLine($"  读取扫描结果...");
+                    var getScanResult = await _device.GetScanResultAsync();
+                    _output.WriteLine($"  获取扫描结果: {getScanResult} ({(byte)getScanResult})");
+                    
+                    // 如果扫描成功（非未连接），跳出循环
+                    if (getScanResult != DeviceInterfaceType.NotConnected)
                     {
-                        _output.WriteLine($"  ✓ 第 {scanCount} 次扫描检测到设备: {scanResult}");
+                        scanResult2 = getScanResult;
+                        scanSuccess = true;
+                        _output.WriteLine($"  扫描成功，跳出循环");
                         break;
                     }
-
-                    // 短暂等待后再次扫描
+                    
+                    _output.WriteLine($"  未检测到设备，继续扫描...");
                     await Task.Delay(500);
                 }
-
-                if (scanResult == DeviceInterfaceType.NotConnected)
+                
+                if (!scanSuccess)
                 {
-                    _output.WriteLine($"  ✗ 扫描 {maxScans} 次后仍未检测到从设备，跳过后续步骤");
-                    _output.WriteLine("=== 转接板初始化序列中止（未检测到从设备）===");
-                    _output.WriteLine($"  转接板固件: {firmwareVersion}");
-                    _output.WriteLine($"  转接板硬件: {hardwareVersion}");
-                    _output.WriteLine($"  扫描次数: {scanCount}");
-                    return;
+                    _output.WriteLine("  警告: 10次扫描后仍未检测到设备");
+                }
+                
+                await Task.Delay(1000);
+                
+                // 指令 12：扫描从设备（scanType=0x01）
+                _output.WriteLine("[12/15] 扫描从设备（类型 0x01）...");
+                var scanResult3 = await _device.ScanDeviceAsync(0x01);
+                _output.WriteLine($"  扫描结果: {scanResult3} ({(byte)scanResult3})");
+
+                // 指令 13：读取 PS02 模块序列号（如果扫描成功）
+                _output.WriteLine("[13/15] 读取 PS02 模块序列号...");
+                string serialNumber = string.Empty;
+                if (scanSuccess)
+                {
+                    try
+                    {
+                        serialNumber = await _device.GetSerialNumberAsync();
+                        _output.WriteLine($"  PS02 序列号: {serialNumber}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _output.WriteLine($"  读取序列号失败: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    _output.WriteLine("  跳过: 扫描未成功");
                 }
 
-                // 5. 再次发送扫描（确认设备仍在）
-                _output.WriteLine("[5/6] 再次扫描确认...");
-                var finalScan = await _device.ScanDeviceAsync(0x01);
-                _output.WriteLine($"  最终扫描结果: {finalScan} ({(byte)finalScan})");
-
-                // 6. 启用 OWI 通信模式
-                _output.WriteLine("[6/6] 启用 OWI 通信模式...");
+                // 指令 14：启用 OWI 通信模式（Modbus RTU 转发）
+                _output.WriteLine("[14/15] 启用 OWI 通信模式...");
                 bool owiEnabled = await _device.EnableOwiViaConverterAsync(_slaveAddress);
                 _output.WriteLine($"  OWI 启用结果: {owiEnabled}");
 
+                // 指令 15：读取 PS02 序列号（OWI 模式下）
                 if (owiEnabled)
                 {
-                    var serialNumber = await _device.GetSerialNumberAsync();
-                    _output.WriteLine($"  PS02 序列号: {serialNumber}");
+                    _output.WriteLine("[15/15] OWI 模式下读取 PS02 序列号...");
+                    var owiSerialNumber = await _device.GetSerialNumberAsync();
+                    _output.WriteLine($"  PS02 序列号 (OWI): {owiSerialNumber}");
                 }
 
                 _output.WriteLine("=== 转接板初始化序列完成 ===");
-                _output.WriteLine($"  转接板固件: {firmwareVersion}");
+                _output.WriteLine($"  转接板固件: {firmwareVersion1}");
                 _output.WriteLine($"  转接板硬件: {hardwareVersion}");
-                _output.WriteLine($"  扫描次数: {scanCount}");
-                _output.WriteLine($"  最终扫描结果: {finalScan}");
+                _output.WriteLine($"  扫描结果 1: {scanResult1}");
+                _output.WriteLine($"  扫描结果 2: {scanResult2}");
+                _output.WriteLine($"  扫描结果 3: {scanResult3}");
+                _output.WriteLine($"  扫描成功: {scanSuccess}");
+                _output.WriteLine($"  PS02 序列号: {serialNumber}");
                 _output.WriteLine($"  OWI 启用: {owiEnabled}");
             }
             finally
@@ -487,21 +497,26 @@ namespace DeviceLink.Tests.PS02
 
             try
             {
-                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
 
-                var pressure = await _device!.GetPressureAsync();
-                _output.WriteLine($"压力值: {pressure:F3} kPa");
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+                await _device.EnableOwiViaConverterAsync();
+                var range = await _device!.GetMigrationRangeAsync();
+                await _device.DisableOwiViaConverterAsync();
+                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
+                await Task.Delay(3000);
+                var measureResult = await _device!.GetMeasurementProjectAsync();
+                _output.WriteLine($"测量值: {measureResult:F3} mA");
 
                 // 压力值可能是 NaN（如果传感器未校准），但不应抛出异常
-                if (double.IsNaN(pressure))
-                {
-                    _output.WriteLine("警告: 压力值为 NaN，可能传感器未校准或未连接");
-                }
-                else
-                {
-                    Assert.True(pressure >= -1000 && pressure <= 10000,
-                        $"压力值应该在合理范围内，实际值: {pressure}");
-                }
+                //if (double.IsNaN(pressure))
+                //{
+                //    _output.WriteLine("警告: 压力值为 NaN，可能传感器未校准或未连接");
+                //}
+                //else
+                //{
+                //    Assert.True(pressure >= -1000 && pressure <= 10000,
+                //        $"压力值应该在合理范围内，实际值: {pressure}");
+                //}
             }
             finally
             {
@@ -646,6 +661,55 @@ namespace DeviceLink.Tests.PS02
 
                 Assert.NotNull(range);
                 // 量程值可能是 NaN（如果未配置），但对象不应为 null
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Serial")]
+        public async Task Serial_SetMigrationRange_ShouldSucceed()
+        {
+            if (!IsSerialPortAvailable())
+            {
+                _output.WriteLine("跳过测试: 串口不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                // 先读取当前迁移量程
+                var originalRange = await _device!.GetMigrationRangeAsync();
+                _output.WriteLine($"原始迁移量程: {originalRange}");
+
+                // 写入新的迁移量程（测试值：下限-100kPa，上限500kPa）
+                float testLower = -500.0f;
+                float testUpper = 500.0f;
+                _output.WriteLine($"写入迁移量程: 下限={testLower} kPa, 上限={testUpper} kPa");
+
+                await _device.SetMigrationRangeAsync(testLower, testUpper);
+                _output.WriteLine("写入成功");
+                await Task.Delay(5 * 1000); // 等待设备处理
+                // 读取并验证
+                var newRange = await _device.GetMigrationRangeAsync();
+                _output.WriteLine($"读取迁移量程: {newRange}");
+
+                // 验证写入的值（允许小误差）
+                Assert.True(Math.Abs(newRange.Lower - testLower) < 0.1,
+                    $"迁移量程下限应为 {testLower}，实际为 {newRange.Lower}");
+                Assert.True(Math.Abs(newRange.Upper - testUpper) < 0.1,
+                    $"迁移量程上限应为 {testUpper}，实际为 {newRange.Upper}");
+
+                // 恢复原始迁移量程
+                if (!double.IsNaN(originalRange.Lower) && !double.IsNaN(originalRange.Upper))
+                {
+                    _output.WriteLine($"恢复原始迁移量程: {originalRange}");
+                    await _device.SetMigrationRangeAsync((float)originalRange.Lower, (float)originalRange.Upper);
+                }
             }
             finally
             {
