@@ -372,7 +372,8 @@ namespace DeviceLink.Device.PS02
 
         /// <summary>
         /// 读取迁移量程（F40, 寄存器 0x513E-0x5141）
-        /// 返回下限和上限，均为 float32 大端浮点数，单位 kPa
+        /// 返回下限和上限，均为 float32 小端浮点数，单位 kPa
+        /// 返回值格式：[CPPI错误码0x00][从站地址][功能码0x28][字节数0x08][下限4字节][上限4字节]
         /// </summary>
         /// <param name="ct">取消令牌</param>
         /// <returns>量程信息</returns>
@@ -382,13 +383,18 @@ namespace DeviceLink.Device.PS02
                 Command.Read("40.20798.4"),
                 raw =>
                 {
-                    if (raw == null || raw.Length < 12) // 前缀(1) + 地址(1) + 功能码(1) + 字节数(1) + 数据(8)
+                    // 移除转接板添加的 0x00 前缀（CPPI 错误码）
+                    var normalized = NormalizeF40Response(raw);
+
+                    // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(8) = 11字节
+                    if (normalized == null || normalized.Length < 11)
                         return new PressureRange();
 
+                    // 偏移量：地址(0) + 功能码(1) + 字节数(2) = 数据从偏移3开始
                     return new PressureRange
                     {
-                        Lower = ParseFloat32BigEndian(raw, 4),
-                        Upper = ParseFloat32BigEndian(raw, 8)
+                        Lower = ParseFloat32LittleEndian(normalized, 3),
+                        Upper = ParseFloat32LittleEndian(normalized, 7)
                     };
                 },
                 ct);
@@ -463,17 +469,21 @@ namespace DeviceLink.Device.PS02
         // ═══════════════════════════════════════════════════════════
 
         /// <summary>
-        /// 写入迁移量程（F41, 寄存器 0x513E-0x5141）
-        /// 量程下限和上限均为 float32 大端浮点数，单位 kPa
+        /// 写入迁移量程（F41, 寄存器 0x513E-0x5142）
+        /// 量程下限和上限均为 float32 小端浮点数，单位 kPa
+        /// 寄存器布局：下限(2) + 上限(2) + 使能标志(1) = 5个寄存器
         /// </summary>
         /// <param name="lower">量程下限（kPa）</param>
         /// <param name="upper">量程上限（kPa）</param>
         /// <param name="ct">取消令牌</param>
         public async Task SetMigrationRangeAsync(float lower, float upper, CancellationToken ct = default)
         {
-            var data = new byte[8];
-            WriteFloat32BigEndian(data, 0, lower);
-            WriteFloat32BigEndian(data, 4, upper);
+            // 5个寄存器 = 10字节：下限(4) + 上限(4) + 使能标志(2)
+            var data = new byte[10];
+            WriteFloat32LittleEndian(data, 0, lower);   // 下限，小端模式
+            WriteFloat32LittleEndian(data, 4, upper);   // 上限，小端模式
+            data[8] = 0x00;                              // 使能标志高字节
+            data[9] = 0x01;                              // 使能标志低字节（0x0001 = 启用迁移）
 
             await WriteRegistersF41Async(PS02Registers.MigrationRangeLower, data, ct);
         }
@@ -593,8 +603,8 @@ namespace DeviceLink.Device.PS02
         //   0x0106 - 读取设备固件版本（返回 ASCII 字符串）
         //   0x0108 - 读取设备硬件版本（返回 ASCII 字符串）
         //   0x0210 - 设定输出项目（参数：项目代号 + 输出值类型）
-        //   0x0300 - 扫描从设备（返回接口类型）
-        //   0x0301 - 读取内部参数（返回参数值）
+        //   0x0300 - 扫描从设备（启动扫描，参数：控制字节 0x01=开始）
+        //   0x0301 - 获取扫描结果（返回接口类型：0=未连接, 1=OWI电流, 2=OWI电压, 3=485）
         //
         // 错误码定义：
         //   0x00 - 无错误
@@ -611,13 +621,14 @@ namespace DeviceLink.Device.PS02
         /// 扫描从设备（功能码 0x0300）
         /// 返回下游设备的接口类型
         /// </summary>
+        /// <param name="scanType">扫描类型：0x00=标准扫描, 0x01=详细扫描</param>
         /// <param name="ct">取消令牌</param>
         /// <returns>设备接口类型</returns>
-        public async Task<DeviceInterfaceType> ScanDeviceAsync(CancellationToken ct = default)
+        public async Task<DeviceInterfaceType> ScanDeviceAsync(byte scanType = 0x00, CancellationToken ct = default)
         {
-            // 构建 CPPI V3 帧：功能码 0x0300，数据 0x01
-            var frame = _converterFrameStrategy.BuildRawFrame(0x0300, new byte[] { 0x01 });
-            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 扫描从设备", frame);
+            // 构建 CPPI V3 帧：功能码 0x0300，数据 [scanType]
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0300, new byte[] { scanType });
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 扫描从设备 (类型:{scanType})", frame);
 
             var response = await SendRawFrameAsync(frame, ct);
 
@@ -697,13 +708,13 @@ namespace DeviceLink.Device.PS02
         /// 控制转接板的电流/电压输出
         /// </summary>
         /// <param name="project">输出项目代号</param>
-        /// <param name="valueType">输出值类型</param>
+        /// <param name="deviceCategory">测量设备类别：0=测量OWI模块输出，1=测量标准板输出</param>
         /// <param name="ct">取消令牌</param>
-        public async Task SetOutputProjectAsync(OutputProject project, OutputValueType valueType, CancellationToken ct = default)
+        public async Task SetOutputProjectAsync(OutputProject project, MeasurementDeviceCategory deviceCategory, CancellationToken ct = default)
         {
-            // 构建 CPPI V3 帧：功能码 0x0210，数据 [项目代号, 输出值类型]
-            var frame = _converterFrameStrategy.BuildRawFrame(0x0210, new byte[] { (byte)project, (byte)valueType });
-            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 设定输出项目 ({project}, {valueType})", frame);
+            // 构建 CPPI V3 帧：功能码 0x0210，数据 [项目代号, 测量设备类别]
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0210, new byte[] { (byte)project, (byte)deviceCategory });
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 设定输出项目 ({project}, {deviceCategory})", frame);
 
             var response = await SendRawFrameAsync(frame, ct);
             ParseConverterResponse(response, 0); // 验证无错误
@@ -715,7 +726,7 @@ namespace DeviceLink.Device.PS02
         /// <param name="ct">取消令牌</param>
         public async Task DisableAllOutputAsync(CancellationToken ct = default)
         {
-            await SetOutputProjectAsync(OutputProject.Off, OutputValueType.Zero, ct);
+            await SetOutputProjectAsync(OutputProject.Off, MeasurementDeviceCategory.OwiModule, ct);
         }
 
         /// <summary>
@@ -736,6 +747,49 @@ namespace DeviceLink.Device.PS02
 
             // 返回值在错误码之后的第一个字节
             return data[0];
+        }
+
+        /// <summary>
+        /// 获取扫描结果（功能码 0x0301）
+        /// 查询从设备扫描结果，返回连接的设备接口类型
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>设备接口类型（NotConnected, OwiCurrent, OwiVoltage, Rs485）</returns>
+        public async Task<DeviceInterfaceType> GetScanResultAsync(CancellationToken ct = default)
+        {
+            // 构建 CPPI V3 帧：功能码 0x0301，无数据
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0301);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 获取扫描结果", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+
+            // 使用帧策略解析 CPPI V3 帧
+            if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
+            {
+                throw new DeviceException($"转接板响应帧解析失败，数据: {BitConverter.ToString(response)}");
+            }
+
+            // 至少需要 1 字节错误码 + 1 字节扫描结果
+            if (frameData.Length < 2)
+            {
+                throw new DeviceException($"转接板响应数据长度不足: 期望至少 2 字节，实际 {frameData.Length} 字节");
+            }
+
+            // 检查错误码
+            byte errorCode = frameData[0];
+            if (errorCode != 0)
+            {
+                var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                    ? ((ConverterErrorCode)errorCode).ToString()
+                    : $"未知错误({errorCode})";
+                throw new DeviceException($"转接板返回错误: {errorName}");
+            }
+
+            // 解析扫描结果（错误码之后的第1个字节）
+            byte scanResult = frameData[1];
+            CommunicationLogger.LogInfo(Name, $"扫描结果: {scanResult} ({(DeviceInterfaceType)scanResult})");
+
+            return (DeviceInterfaceType)scanResult;
         }
 
         /// <summary>
@@ -844,9 +898,6 @@ namespace DeviceLink.Device.PS02
         /// </summary>
         private async Task<byte[]> SendRawFrameAsync(byte[] frame, CancellationToken ct)
         {
-            // 记录发送日志
-            CommunicationLogger.LogRaw(Name, ">>> 转接板指令", frame);
-
             // 直接使用传输层发送和接收（绕过 BuildFrame 的 Modbus CRC 添加）
             var transport = Pipeline.Transport;
             if (transport == null || !transport.IsOpen)
@@ -930,17 +981,11 @@ namespace DeviceLink.Device.PS02
         /// <returns>数据内容（不含错误码）</returns>
         private byte[] ParseConverterResponse(byte[] response, int expectedDataLength)
         {
-            // 调试日志：显示接收到的原始数据
-            CommunicationLogger.LogRaw(Name, "<<< 转接板响应原始数据", response);
-
             // 使用帧策略解析 CPPI V3 帧（原始模式，不剥离 Modbus CRC）
             if (!_converterFrameStrategy.TryParseRawFrame(response, out int frameLen, out byte[] frameData))
             {
                 throw new DeviceException($"转接板响应帧解析失败，数据: {BitConverter.ToString(response)}");
             }
-
-            // 调试日志：显示解析后的帧数据
-            CommunicationLogger.LogRaw(Name, $"<<< 解析结果: frameLen={frameLen}, dataLen={frameData.Length}", frameData);
 
             // 至少需要 1 字节错误码
             if (frameData.Length < 1)
@@ -980,6 +1025,411 @@ namespace DeviceLink.Device.PS02
             }
 
             return Array.Empty<byte>();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 通用指令 (0x01xx)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 读取转接板设备型号（功能码 0x0102）
+        /// 返回 ASCII 字符串，最大 16 字节
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>设备型号字符串</returns>
+        public async Task<string> GetConverterModelAsync(CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0102);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取设备型号", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 0);
+
+            return Encoding.ASCII.GetString(data).TrimEnd('\0');
+        }
+
+        /// <summary>
+        /// 读取转接板设备编号（功能码 0x0104）
+        /// 返回 ASCII 字符串，最大 16 字节
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>设备编号字符串</returns>
+        public async Task<string> GetConverterDeviceNumberAsync(CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0104);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取设备编号", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 0);
+
+            return Encoding.ASCII.GetString(data).TrimEnd('\0');
+        }
+
+        /// <summary>
+        /// 设置转接板设备编号（功能码 0x0105）
+        /// 写入 ASCII 字符串，最大 16 字节
+        /// </summary>
+        /// <param name="deviceNumber">设备编号字符串（最大 16 字节）</param>
+        /// <param name="ct">取消令牌</param>
+        public async Task SetConverterDeviceNumberAsync(string deviceNumber, CancellationToken ct = default)
+        {
+            if (string.IsNullOrEmpty(deviceNumber))
+                throw new ArgumentException("设备编号不能为空", nameof(deviceNumber));
+
+            var bytes = Encoding.ASCII.GetBytes(deviceNumber);
+            if (bytes.Length > 16)
+                throw new ArgumentException("设备编号不能超过 16 字节", nameof(deviceNumber));
+
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0105, bytes);
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 设置设备编号 ({deviceNumber})", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            ParseConverterResponse(response, 0); // 验证无错误
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 核心指令 (0x02xx)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 读取当前测量项目（功能码 0x0211）
+        /// 返回当前正在进行测量和输出的项目代号、原始值和最终值
+        /// 响应格式：1字节项目代号 + 4字节原始值(float32小端) + 4字节最终值(float32小端)
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>测量结果</returns>
+        public async Task<MeasurementResult> GetMeasurementProjectAsync(CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0211);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取当前测量项目", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 9); // 1 + 4 + 4 = 9 字节
+
+            return new MeasurementResult
+            {
+                Project = (MeasurementProject)data[0],
+                RawValue = BitConverter.ToSingle(data, 1),    // float32 小端，偏移 1
+                FinalValue = BitConverter.ToSingle(data, 5)   // float32 小端，偏移 5
+            };
+        }
+
+        /// <summary>
+        /// 关闭当前输出项目（功能码 0x0212）
+        /// 关闭指定的输出项目
+        /// </summary>
+        /// <param name="project">要关闭的项目代号</param>
+        /// <param name="ct">取消令牌</param>
+        public async Task CloseMeasurementProjectAsync(OutputProject project, CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0212, new byte[] { (byte)project });
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 关闭输出项目 ({project})", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            ParseConverterResponse(response, 0); // 验证无错误
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 校准相关 (0x0280-0x0282)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 读取校准数据份数（功能码 0x0282）
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>校准数据份数</returns>
+        public async Task<ushort> GetCalibrationCountAsync(CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0282);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取校准份数", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            var data = ParseConverterResponse(response, 2); // 2 字节
+
+            // 大端模式：高字节在前
+            return (ushort)((data[0] << 8) | data[1]);
+        }
+
+        /// <summary>
+        /// 读取校准数据（功能码 0x0281）
+        /// 读取指定索引的校准数据
+        /// </summary>
+        /// <param name="index">校准数据索引（1=最新，依次累加）</param>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>校准数据</returns>
+        public async Task<CalibrationData> ReadCalibrationDataAsync(ushort index, CancellationToken ct = default)
+        {
+            // 参数：索引（2字节大端）
+            var paramData = new byte[] { (byte)(index >> 8), (byte)(index & 0xFF) };
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0281, paramData);
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 读取校准数据 (索引:{index})", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+
+            // 解析响应帧
+            if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
+                throw new DeviceException($"转接板响应帧解析失败，数据: {BitConverter.ToString(response)}");
+
+            if (frameData.Length < 1)
+                throw new DeviceException("转接板响应数据为空");
+
+            byte errorCode = frameData[0];
+            if (errorCode != 0)
+            {
+                var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                    ? ((ConverterErrorCode)errorCode).ToString()
+                    : $"未知错误({errorCode})";
+                throw new DeviceException($"转接板返回错误: {errorName}");
+            }
+
+            // 校准数据在错误码之后
+            var data = new byte[frameData.Length - 1];
+            Array.Copy(frameData, 1, data, 0, data.Length);
+
+            return ParseCalibrationData(data);
+        }
+
+        /// <summary>
+        /// 写入校准数据（功能码 0x0280）
+        /// </summary>
+        /// <param name="calibrationData">校准数据</param>
+        /// <param name="ct">取消令牌</param>
+        public async Task WriteCalibrationDataAsync(CalibrationData calibrationData, CancellationToken ct = default)
+        {
+            if (calibrationData == null)
+                throw new ArgumentNullException(nameof(calibrationData));
+
+            var data = SerializeCalibrationData(calibrationData);
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0280, data);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 写入校准数据", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            ParseConverterResponse(response, 0); // 验证无错误
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 其他指令 (0x03xx-0x05xx)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 模块电源控制（功能码 0x0410）
+        /// 控制压力模块的供电
+        /// 注：扫描模式时不能关闭压力模块供电
+        /// </summary>
+        /// <param name="state">电源状态</param>
+        /// <param name="ct">取消令牌</param>
+        public async Task SetModulePowerAsync(ModulePowerState state, CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0410, new byte[] { (byte)state });
+            CommunicationLogger.LogRaw(Name, $">>> 转接板指令: 模块电源控制 ({state})", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            ParseConverterResponse(response, 0); // 验证无错误
+        }
+
+        /// <summary>
+        /// 发送心跳帧（功能码 0x0500）
+        /// 用于保持与转接板的通信连接
+        /// </summary>
+        /// <param name="ct">取消令牌</param>
+        public async Task SendHeartbeatAsync(CancellationToken ct = default)
+        {
+            var frame = _converterFrameStrategy.BuildRawFrame(0x0500);
+            CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 心跳", frame);
+
+            var response = await SendRawFrameAsync(frame, ct);
+            ParseConverterResponse(response, 0); // 验证无错误
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 校准数据序列化/反序列化
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 解析校准数据字节数组为 CalibrationData 对象
+        /// </summary>
+        /// <param name="data">校准数据字节数组（不含错误码）</param>
+        /// <returns>校准数据对象</returns>
+        private static CalibrationData ParseCalibrationData(byte[] data)
+        {
+            // 校准数据格式（文档定义）：
+            // 基准板 SN 号: 16 bytes
+            // 基准板校准日期 (年): 2 bytes (大端)
+            // 基准板校准日期 (月): 1 byte
+            // 基准板校准日期 (日): 1 byte
+            // 基准板校准值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+            // 校准日期 (年): 2 bytes (大端)
+            // 校准日期 (月): 1 byte
+            // 校准日期 (日): 1 byte
+            // 实际值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+            // 电压校准系数 (K, B): 8 bytes
+            // 电流校准系数 (K, B): 8 bytes
+            // CRC8: 1 byte
+            int expectedSize = 16 + 4 + 32 + 4 + 32 + 8 + 8 + 1;
+            if (data.Length < expectedSize)
+                throw new DeviceException($"校准数据长度不足: 期望 {expectedSize}，实际 {data.Length}");
+
+            int offset = 0;
+            var result = new CalibrationData();
+
+            // 基准板 SN 号 (16 bytes)
+            result.StandardBoardSn = Encoding.ASCII.GetString(data, offset, 16).TrimEnd('\0');
+            offset += 16;
+
+            // 基准板校准日期 (年 2 bytes 大端 + 月 1 byte + 日 1 byte)
+            int stdYear = (data[offset] << 8) | data[offset + 1];
+            int stdMonth = data[offset + 2];
+            int stdDay = data[offset + 3];
+            result.StandardBoardCalibrationDate = new DateTime(stdYear, stdMonth, stdDay);
+            offset += 4;
+
+            // 基准板校准值 - 电压 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                result.StandardVoltageValues[i] = BitConverter.ToSingle(data, offset);
+                offset += 4;
+            }
+
+            // 基准板校准值 - 电流 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                result.StandardCurrentValues[i] = BitConverter.ToSingle(data, offset);
+                offset += 4;
+            }
+
+            // 校准日期 (年 2 bytes 大端 + 月 1 byte + 日 1 byte)
+            int calYear = (data[offset] << 8) | data[offset + 1];
+            int calMonth = data[offset + 2];
+            int calDay = data[offset + 3];
+            result.CalibrationDate = new DateTime(calYear, calMonth, calDay);
+            offset += 4;
+
+            // 实际值 - 电压 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                result.ActualVoltageValues[i] = BitConverter.ToSingle(data, offset);
+                offset += 4;
+            }
+
+            // 实际值 - 电流 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                result.ActualCurrentValues[i] = BitConverter.ToSingle(data, offset);
+                offset += 4;
+            }
+
+            // 电压校准系数 K, B (2*4 bytes 小端 float32)
+            result.VoltageK = BitConverter.ToSingle(data, offset);
+            offset += 4;
+            result.VoltageB = BitConverter.ToSingle(data, offset);
+            offset += 4;
+
+            // 电流校准系数 K, B (2*4 bytes 小端 float32)
+            result.CurrentK = BitConverter.ToSingle(data, offset);
+            offset += 4;
+            result.CurrentB = BitConverter.ToSingle(data, offset);
+            offset += 4;
+
+            // 最后 1 字节 CRC8（跳过）
+
+            return result;
+        }
+
+        /// <summary>
+        /// 将 CalibrationData 对象序列化为字节数组
+        /// </summary>
+        /// <param name="calibrationData">校准数据对象</param>
+        /// <returns>字节数组</returns>
+        private static byte[] SerializeCalibrationData(CalibrationData calibrationData)
+        {
+            // 校准数据格式（文档定义）：
+            // 基准板 SN 号: 16 bytes
+            // 基准板校准日期 (年): 2 bytes (大端)
+            // 基准板校准日期 (月): 1 byte
+            // 基准板校准日期 (日): 1 byte
+            // 基准板校准值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+            // 校准日期 (年): 2 bytes (大端)
+            // 校准日期 (月): 1 byte
+            // 校准日期 (日): 1 byte
+            // 实际值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+            // 电压校准系数 (K, B): 8 bytes
+            // 电流校准系数 (K, B): 8 bytes
+            // CRC8: 1 byte (由转接板自动计算？文档中写 CRC8 上述所有数据同 CPPI V3 头)
+            int totalSize = 16 + 4 + 32 + 4 + 32 + 8 + 8 + 1;
+            var data = new byte[totalSize];
+            int offset = 0;
+
+            // 基准板 SN 号 (16 bytes)
+            var snBytes = Encoding.ASCII.GetBytes(calibrationData.StandardBoardSn ?? string.Empty);
+            Array.Copy(snBytes, 0, data, offset, Math.Min(snBytes.Length, 16));
+            offset += 16;
+
+            // 基准板校准日期 (年 2 bytes 大端 + 月 1 byte + 日 1 byte)
+            data[offset] = (byte)(calibrationData.StandardBoardCalibrationDate.Year >> 8);
+            data[offset + 1] = (byte)(calibrationData.StandardBoardCalibrationDate.Year & 0xFF);
+            data[offset + 2] = (byte)calibrationData.StandardBoardCalibrationDate.Month;
+            data[offset + 3] = (byte)calibrationData.StandardBoardCalibrationDate.Day;
+            offset += 4;
+
+            // 基准板校准值 - 电压 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                var bytes = BitConverter.GetBytes(calibrationData.StandardVoltageValues[i]);
+                Array.Copy(bytes, 0, data, offset, 4);
+                offset += 4;
+            }
+
+            // 基准板校准值 - 电流 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                var bytes = BitConverter.GetBytes(calibrationData.StandardCurrentValues[i]);
+                Array.Copy(bytes, 0, data, offset, 4);
+                offset += 4;
+            }
+
+            // 校准日期 (年 2 bytes 大端 + 月 1 byte + 日 1 byte)
+            data[offset] = (byte)(calibrationData.CalibrationDate.Year >> 8);
+            data[offset + 1] = (byte)(calibrationData.CalibrationDate.Year & 0xFF);
+            data[offset + 2] = (byte)calibrationData.CalibrationDate.Month;
+            data[offset + 3] = (byte)calibrationData.CalibrationDate.Day;
+            offset += 4;
+
+            // 实际值 - 电压 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                var bytes = BitConverter.GetBytes(calibrationData.ActualVoltageValues[i]);
+                Array.Copy(bytes, 0, data, offset, 4);
+                offset += 4;
+            }
+
+            // 实际值 - 电流 (4*4 bytes 小端 float32)
+            for (int i = 0; i < 4; i++)
+            {
+                var bytes = BitConverter.GetBytes(calibrationData.ActualCurrentValues[i]);
+                Array.Copy(bytes, 0, data, offset, 4);
+                offset += 4;
+            }
+
+            // 电压校准系数 K, B (2*4 bytes 小端 float32)
+            var vk = BitConverter.GetBytes(calibrationData.VoltageK);
+            Array.Copy(vk, 0, data, offset, 4);
+            offset += 4;
+            var vb = BitConverter.GetBytes(calibrationData.VoltageB);
+            Array.Copy(vb, 0, data, offset, 4);
+            offset += 4;
+
+            // 电流校准系数 K, B (2*4 bytes 小端 float32)
+            var ck = BitConverter.GetBytes(calibrationData.CurrentK);
+            Array.Copy(ck, 0, data, offset, 4);
+            offset += 4;
+            var cb = BitConverter.GetBytes(calibrationData.CurrentB);
+            Array.Copy(cb, 0, data, offset, 4);
+            offset += 4;
+
+            // CRC8 占位（文档说明 CRC8 同 CPPI V3 头，由 CPPI V3 帧的 CRC8 字段覆盖）
+            // data[offset] = 0; // 保留字节
+
+            return data;
         }
 
         #endregion 转接板指令
@@ -1029,7 +1479,32 @@ namespace DeviceLink.Device.PS02
 
             try
             {
-                return BitConverter.ToDouble(bytes, 0);
+                return (double)BitConverter.ToSingle(bytes, 0);
+            }
+            catch
+            {
+                return double.NaN;
+            }
+        }
+
+        /// <summary>
+        /// 从 Modbus 响应中解析 float32 小端浮点数
+        /// </summary>
+        /// <param name="raw">原始响应数据</param>
+        /// <param name="dataOffset">数据起始偏移</param>
+        /// <returns>浮点数值，解析失败返回 NaN</returns>
+        private static double ParseFloat32LittleEndian(byte[] raw, int dataOffset)
+        {
+            if (raw == null || raw.Length < dataOffset + 4)
+                return double.NaN;
+
+            // 小端模式：低字节在前（直接复制即可）
+            byte[] bytes = new byte[4];
+            Array.Copy(raw, dataOffset, bytes, 0, 4);
+
+            try
+            {
+                return (double)BitConverter.ToSingle(bytes, 0);
             }
             catch
             {
@@ -1048,6 +1523,16 @@ namespace DeviceLink.Device.PS02
             buffer[offset + 1] = bytes[2];
             buffer[offset + 2] = bytes[1];
             buffer[offset + 3] = bytes[0];
+        }
+
+        /// <summary>
+        /// 将 float32 小端浮点数写入字节数组
+        /// </summary>
+        private static void WriteFloat32LittleEndian(byte[] buffer, int offset, float value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+            // 小端模式：低字节在前（BitConverter 默认就是小端）
+            Array.Copy(bytes, 0, buffer, offset, 4);
         }
 
         /// <summary>

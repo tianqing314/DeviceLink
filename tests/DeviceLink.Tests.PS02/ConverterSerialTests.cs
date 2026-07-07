@@ -307,16 +307,16 @@ namespace DeviceLink.Tests.PS02
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
 
-                // 设置电流输出零点
-                await _device!.SetOutputProjectAsync(OutputProject.MaOut, OutputValueType.Zero);
-                _output.WriteLine("已设置电流输出零点");
+                // 设置电流输出 - 测量OWI模块输出
+                await _device!.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
+                _output.WriteLine("已设置电流输出 - 测量OWI模块输出");
 
                 // 等待一下
                 await Task.Delay(500);
 
-                // 设置电流输出满量程
-                await _device.SetOutputProjectAsync(OutputProject.MaOut, OutputValueType.FullScale);
-                _output.WriteLine("已设置电流输出满量程");
+                // 设置电流输出 - 测量标准板输出
+                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.StandardBoard);
+                _output.WriteLine("已设置电流输出 - 测量标准板输出");
 
                 // 等待一下
                 await Task.Delay(500);
@@ -347,16 +347,16 @@ namespace DeviceLink.Tests.PS02
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
 
-                // 设置电压输出零点
-                await _device!.SetOutputProjectAsync(OutputProject.VOut, OutputValueType.Zero);
-                _output.WriteLine("已设置电压输出零点");
+                // 设置电压输出 - 测量OWI模块输出
+                await _device!.SetOutputProjectAsync(OutputProject.VOut, MeasurementDeviceCategory.OwiModule);
+                _output.WriteLine("已设置电压输出 - 测量OWI模块输出");
 
                 // 等待一下
                 await Task.Delay(500);
 
-                // 设置电压输出满量程
-                await _device.SetOutputProjectAsync(OutputProject.VOut, OutputValueType.FullScale);
-                _output.WriteLine("已设置电压输出满量程");
+                // 设置电压输出 - 测量标准板输出
+                await _device.SetOutputProjectAsync(OutputProject.VOut, MeasurementDeviceCategory.StandardBoard);
+                _output.WriteLine("已设置电压输出 - 测量标准板输出");
 
                 // 等待一下
                 await Task.Delay(500);
