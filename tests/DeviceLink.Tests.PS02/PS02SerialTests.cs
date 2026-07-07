@@ -374,13 +374,16 @@ namespace DeviceLink.Tests.PS02
                 await _device.DisableAllOutputAsync();
                 _output.WriteLine("  输出已关闭");
 
-                // 指令 6~11：循环扫描从设备（scanType=0x00），最多10次
+                // 指令 6~11：循环扫描从设备，最多10次，扫描类型交替变化
                 DeviceInterfaceType scanResult2 = DeviceInterfaceType.NotConnected;
                 bool scanSuccess = false;
                 for (int retry = 0; retry < 10; retry++)
                 {
-                    _output.WriteLine($"[{6 + retry:D2}/15] 扫描从设备（类型 0x00，第 {retry + 1} 次）...");
-                    scanResult2 = await _device.ScanDeviceAsync(0x00);
+                    // 扫描类型交替变化：偶数次 0x00，奇数次 0x01
+                    byte scanType = (retry % 2 == 0) ? (byte)0x00 : (byte)0x01;
+                    
+                    _output.WriteLine($"[{6 + retry:D2}/15] 扫描从设备（类型 0x{scanType:X2}，第 {retry + 1} 次）...");
+                    scanResult2 = await _device.ScanDeviceAsync(scanType);
                     _output.WriteLine($"  扫描结果: {scanResult2} ({(byte)scanResult2})");
                     
                     // 扫描完成后，读取扫描结果（功能码 0x0301）
