@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="1bc3d66c-e0da-4481-8b09-a813c0d237db" name="gsl940@GSL940A 2026-07-03 15:42:48" runUser="CONST\gsl940" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-03T15:42:48.3299273+08:00" queuing="2026-07-03T15:42:48.3299283+08:00" start="2026-07-03T15:42:45.2941388+08:00" finish="2026-07-03T15:42:48.3741819+08:00" />
+  <TestSettings name="default" id="b548d1da-6739-4c5f-af1c-130854b6f6ce">
+    <Deployment runDeploymentRoot="gsl940_GSL940A_2026-07-03_15_42_48" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="8d745978-6fe2-4538-aac1-c3b4320e384b" testId="2a2cad3b-353e-0f0b-675d-108f46f17001" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadHardwareVersion_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0003354" startTime="2026-07-03T15:42:48.2797629+08:00" endTime="2026-07-03T15:42:48.2797630+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8d745978-6fe2-4538-aac1-c3b4320e384b">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 08 01 04 00 00 31 FF FF&#xD;
+实际: 55 03 23 01 00 36 22 11 08 01 04 00 00 31 FF FF</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="fa5a55e3-a559-49c9-ab62-af623db5ed23" testId="bd650601-60c3-b196-2791-679b7a280d74" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadParameter_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0002006" startTime="2026-07-03T15:42:48.2805953+08:00" endTime="2026-07-03T15:42:48.2805954+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fa5a55e3-a559-49c9-ab62-af623db5ed23">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 01 03 07 00 00 DB FF FF&#xD;
+实际: 55 03 23 01 00 36 22 11 01 03 07 00 00 DB FF FF</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="440d29ca-0546-4ab5-aefe-3f7bf0fda157" testId="2017317d-25e6-785e-689b-f5f4945a57a3" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadFirmwareVersion_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0114660" startTime="2026-07-03T15:42:48.2794766+08:00" endTime="2026-07-03T15:42:48.2794767+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="440d29ca-0546-4ab5-aefe-3f7bf0fda157">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 06 01 02 00 00 1E FF FF&#xD;
+实际: 55 03 23 01 00 36 22 11 06 01 02 00 00 1E FF FF</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a154a6ee-7ca9-43aa-9368-136e3ee9ec5b" testId="68cf545e-de0e-e29e-9f6f-de53a5d6ffce" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_WithData_ShouldHaveCorrectCrc16" computerName="GSL940A" duration="00:00:00.0149631" startTime="2026-07-03T15:42:48.2617417+08:00" endTime="2026-07-03T15:42:48.2617731+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a154a6ee-7ca9-43aa-9368-136e3ee9ec5b" />
+    <UnitTestResult executionId="6eb05cd7-fcd8-4fc7-a472-b5e5e3f1eeb5" testId="ff7ad0aa-a867-a47e-2c7e-bab7c00600c3" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SetOutputProject_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0001732" startTime="2026-07-03T15:42:48.2807986+08:00" endTime="2026-07-03T15:42:48.2807987+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6eb05cd7-fcd8-4fc7-a472-b5e5e3f1eeb5">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 10 02 05 02 00 61 00 00 0F 1D&#xD;
+实际: 55 03 23 01 00 36 22 11 10 02 05 02 00 61 00 00 0F 1D</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9e30fc17-f95b-4f42-89bc-9bc820b459db" testId="6c396934-44a9-e72b-0949-fc79583c128a" testName="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ValidResponse_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0013094" startTime="2026-07-03T15:42:48.2801497+08:00" endTime="2026-07-03T15:42:48.2801498+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9e30fc17-f95b-4f42-89bc-9bc820b459db" />
+    <UnitTestResult executionId="773d01bf-ee66-47c4-ab9f-401477ed2aa7" testId="419a3a8b-e13d-d7ab-2d97-2ead9a054259" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ScanDevice_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0001745" startTime="2026-07-03T15:42:48.2955999+08:00" endTime="2026-07-03T15:42:48.2955999+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="773d01bf-ee66-47c4-ab9f-401477ed2aa7">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 00 03 01 01 00 D1 01 D1 F1&#xD;
+实际: 55 03 23 01 00 36 22 11 00 03 01 01 00 D1 01 D1 F1</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="53caef53-46c0-4c9b-b698-7b31ad05da84" testId="652362d7-b167-b7fc-5275-116135052a82" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_NoData_ShouldHaveCorrectCrc16" computerName="GSL940A" duration="00:00:00.0001245" startTime="2026-07-03T15:42:48.2803459+08:00" endTime="2026-07-03T15:42:48.2803472+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="53caef53-46c0-4c9b-b698-7b31ad05da84" />
+    <UnitTestResult executionId="9b66ebd7-ac89-430c-8274-3c00a104c3e6" testId="fa46a425-b4a7-1855-0b62-07b247f07e8a" testName="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ScanDeviceResponse_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0029879" startTime="2026-07-03T15:42:48.2797962+08:00" endTime="2026-07-03T15:42:48.2797962+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9b66ebd7-ac89-430c-8274-3c00a104c3e6" />
+    <UnitTestResult executionId="9d0b4754-b755-4a51-be6c-6159226dbd31" testId="098016dc-c895-7cde-221a-00a993166906" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SequenceNumber_ShouldIncrement" computerName="GSL940A" duration="00:00:00.0001649" startTime="2026-07-03T15:42:48.2791015+08:00" endTime="2026-07-03T15:42:48.2791015+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9d0b4754-b755-4a51-be6c-6159226dbd31" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ValidResponse_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="6c396934-44a9-e72b-0949-fc79583c128a">
+      <Execution id="9e30fc17-f95b-4f42-89bc-9bc820b459db" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="TryParseFrame_ValidResponse_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_WithData_ShouldHaveCorrectCrc16" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="68cf545e-de0e-e29e-9f6f-de53a5d6ffce">
+      <Execution id="a154a6ee-7ca9-43aa-9368-136e3ee9ec5b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_WithData_ShouldHaveCorrectCrc16" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ScanDevice_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="419a3a8b-e13d-d7ab-2d97-2ead9a054259">
+      <Execution id="773d01bf-ee66-47c4-ab9f-401477ed2aa7" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ScanDevice_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadHardwareVersion_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2a2cad3b-353e-0f0b-675d-108f46f17001">
+      <Execution id="8d745978-6fe2-4538-aac1-c3b4320e384b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ReadHardwareVersion_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_NoData_ShouldHaveCorrectCrc16" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="652362d7-b167-b7fc-5275-116135052a82">
+      <Execution id="53caef53-46c0-4c9b-b698-7b31ad05da84" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_NoData_ShouldHaveCorrectCrc16" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ScanDeviceResponse_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="fa46a425-b4a7-1855-0b62-07b247f07e8a">
+      <Execution id="9b66ebd7-ac89-430c-8274-3c00a104c3e6" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="TryParseFrame_ScanDeviceResponse_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadFirmwareVersion_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2017317d-25e6-785e-689b-f5f4945a57a3">
+      <Execution id="440d29ca-0546-4ab5-aefe-3f7bf0fda157" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ReadFirmwareVersion_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadParameter_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="bd650601-60c3-b196-2791-679b7a280d74">
+      <Execution id="fa5a55e3-a559-49c9-ab62-af623db5ed23" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ReadParameter_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SetOutputProject_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="ff7ad0aa-a867-a47e-2c7e-bab7c00600c3">
+      <Execution id="6eb05cd7-fcd8-4fc7-a472-b5e5e3f1eeb5" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_SetOutputProject_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SequenceNumber_ShouldIncrement" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="098016dc-c895-7cde-221a-00a993166906">
+      <Execution id="9d0b4754-b755-4a51-be6c-6159226dbd31" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_SequenceNumber_ShouldIncrement" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="2a2cad3b-353e-0f0b-675d-108f46f17001" executionId="8d745978-6fe2-4538-aac1-c3b4320e384b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd650601-60c3-b196-2791-679b7a280d74" executionId="fa5a55e3-a559-49c9-ab62-af623db5ed23" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2017317d-25e6-785e-689b-f5f4945a57a3" executionId="440d29ca-0546-4ab5-aefe-3f7bf0fda157" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="68cf545e-de0e-e29e-9f6f-de53a5d6ffce" executionId="a154a6ee-7ca9-43aa-9368-136e3ee9ec5b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ff7ad0aa-a867-a47e-2c7e-bab7c00600c3" executionId="6eb05cd7-fcd8-4fc7-a472-b5e5e3f1eeb5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6c396934-44a9-e72b-0949-fc79583c128a" executionId="9e30fc17-f95b-4f42-89bc-9bc820b459db" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="419a3a8b-e13d-d7ab-2d97-2ead9a054259" executionId="773d01bf-ee66-47c4-ab9f-401477ed2aa7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="652362d7-b167-b7fc-5275-116135052a82" executionId="53caef53-46c0-4c9b-b698-7b31ad05da84" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa46a425-b4a7-1855-0b62-07b247f07e8a" executionId="9b66ebd7-ac89-430c-8274-3c00a104c3e6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="098016dc-c895-7cde-221a-00a993166906" executionId="9d0b4754-b755-4a51-be6c-6159226dbd31" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="10" executed="10" passed="10" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.91]   Discovering: DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.97]   Discovered:  DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.98]   Starting:    DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:01.11]   Finished:    DeviceLink.Tests.PS02&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

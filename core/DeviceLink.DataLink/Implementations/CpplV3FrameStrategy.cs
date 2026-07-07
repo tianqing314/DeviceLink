@@ -100,8 +100,22 @@ namespace DeviceLink.DataLink
                 modbusFrame = data;
             }
 
+            return BuildRawFrame(_sendFunctionCode, modbusFrame);
+        }
+
+        /// <summary>
+        /// 构建纯 CPPI V3 帧（不添加 Modbus CRC）
+        /// 用于转接板指令等非 Modbus 通信
+        /// </summary>
+        /// <param name="functionCode">功能码（小端）</param>
+        /// <param name="data">数据内容（可选，null 或空数组表示无数据）</param>
+        /// <returns>完整的 CPPI V3 帧</returns>
+        public byte[] BuildRawFrame(ushort functionCode, byte[]? data = null)
+        {
+            byte[] frameData = data ?? Array.Empty<byte>();
+
             // CPPI V3 帧：头部(13) + CRC8(1) + 数据(N) + CRC16(2) = 16 + N
-            int frameSize = MinFrameSize + modbusFrame.Length;
+            int frameSize = MinFrameSize + frameData.Length;
             var frame = new byte[frameSize];
 
             // 帧头
@@ -121,14 +135,14 @@ namespace DeviceLink.DataLink
             frame[7] = _sourceAddress[2];
 
             // 功能码（2B，小端）
-            frame[8] = (byte)(_sendFunctionCode & 0xFF);
-            frame[9] = (byte)((_sendFunctionCode >> 8) & 0xFF);
+            frame[8] = (byte)(functionCode & 0xFF);
+            frame[9] = (byte)((functionCode >> 8) & 0xFF);
 
             // 流水号
             frame[10] = _sequenceNumber++;
 
             // 数据长度（2B，小端）
-            ushort dataLen = (ushort)modbusFrame.Length;
+            ushort dataLen = (ushort)frameData.Length;
             frame[11] = (byte)(dataLen & 0xFF);
             frame[12] = (byte)((dataLen >> 8) & 0xFF);
 
@@ -136,10 +150,15 @@ namespace DeviceLink.DataLink
             frame[13] = CalculateCrc8(frame, Crc8Length);
 
             // 数据内容
-            Array.Copy(modbusFrame, 0, frame, HeaderSize + Crc8Size, modbusFrame.Length);
+            if (frameData.Length > 0)
+            {
+                Array.Copy(frameData, 0, frame, HeaderSize + Crc8Size, frameData.Length);
+            }
 
-            // 数据 CRC16（计算数据部分的CRC）
-            ushort dataCrc = CalculateCrc16(modbusFrame, 0, modbusFrame.Length);
+            // 数据 CRC16（无数据时为 0xFFFF）
+            ushort dataCrc = frameData.Length > 0
+                ? CalculateCrc16(frameData, 0, frameData.Length)
+                : (ushort)0xFFFF;
             frame[frameSize - 2] = (byte)(dataCrc & 0xFF);
             frame[frameSize - 1] = (byte)((dataCrc >> 8) & 0xFF);
 
@@ -211,6 +230,79 @@ namespace DeviceLink.DataLink
                 Array.Copy(accumulated, dataStart, frameData, 0, dataLen - 2);
             }
             else if (dataLen > 0)
+            {
+                int dataStart = headerPos + HeaderSize + Crc8Size;
+                frameData = new byte[dataLen];
+                Array.Copy(accumulated, dataStart, frameData, 0, dataLen);
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 解析原始 CPPI V3 帧（不剥离 Modbus CRC，适用于转接板指令等非 Modbus 通信）
+        /// </summary>
+        /// <param name="accumulated">累积数据缓冲区</param>
+        /// <param name="frameLength">解析出的帧总长度</param>
+        /// <param name="frameData">提取的完整数据内容（含错误码，不含 CRC）</param>
+        /// <returns>是否成功解析</returns>
+        public bool TryParseRawFrame(byte[] accumulated, out int frameLength, out byte[] frameData)
+        {
+            frameLength = 0;
+            frameData = Array.Empty<byte>();
+
+            if (accumulated == null || accumulated.Length < MinFrameSize)
+                return false;
+
+            // 查找帧头 0x55
+            int headerPos = -1;
+            for (int i = 0; i <= accumulated.Length - MinFrameSize; i++)
+            {
+                if (accumulated[i] == FrameHeader)
+                {
+                    headerPos = i;
+                    break;
+                }
+            }
+
+            if (headerPos < 0)
+                return false;
+
+            // 检查是否有足够的头部数据
+            if (accumulated.Length < headerPos + HeaderSize)
+                return false;
+
+            // 解析数据长度（小端）
+            ushort dataLen = (ushort)(accumulated[headerPos + 11] | (accumulated[headerPos + 12] << 8));
+
+            // 计算完整帧长度
+            int totalFrameLen = HeaderSize + Crc8Size + dataLen + Crc16Size;
+
+            // 检查是否有足够的数据
+            if (accumulated.Length < headerPos + totalFrameLen)
+                return false;
+
+            // 验证头部 CRC8
+            byte receivedCrc8 = accumulated[headerPos + HeaderSize];
+            byte calculatedCrc8 = CalculateCrc8(accumulated, Crc8Length, headerPos);
+            if (receivedCrc8 != calculatedCrc8)
+                return false;
+
+            // 验证数据 CRC16
+            if (dataLen > 0)
+            {
+                int dataStart = headerPos + HeaderSize + Crc8Size;
+                ushort receivedCrc16 = (ushort)(accumulated[headerPos + totalFrameLen - 2]
+                    | (accumulated[headerPos + totalFrameLen - 1] << 8));
+                ushort calculatedCrc16 = CalculateCrc16(accumulated, dataStart, dataLen);
+                if (receivedCrc16 != calculatedCrc16)
+                    return false;
+            }
+
+            // 提取完整数据内容（不剥离 CRC，直接返回所有数据字节）
+            frameLength = headerPos + totalFrameLen;
+
+            if (dataLen > 0)
             {
                 int dataStart = headerPos + HeaderSize + Crc8Size;
                 frameData = new byte[dataLen];

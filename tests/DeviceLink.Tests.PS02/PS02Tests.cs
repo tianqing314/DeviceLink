@@ -1,4 +1,6 @@
 using DeviceLink.DataLink;
+using DeviceLink.Device.PS02;
+using DeviceLink.DeviceBase;
 using DeviceLink.Tests.PS02.Helpers;
 using System;
 using System.Threading.Tasks;
@@ -127,20 +129,20 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         // TODO: F03 响应解析需要调试，可能是 ParseFloat32BigEndian 的偏移量问题
-        // [Fact]
+        [Fact]
         public async Task GetPressureAsync_ShouldReturnPressure()
         {
             var (ps02, settings) = CreateTestDevice();
 
-            SetupConverterSimulation(settings, modbusData =>
-            {
-                // F03 读压力: [地址][03][起始H][起始L][数量H][数量L]
-                if (modbusData.Length >= 6 && modbusData[1] == 0x03)
-                {
-                    return BuildPressureResponse(500.0f);
-                }
-                return null;
-            });
+            //SetupConverterSimulation(settings, modbusData =>
+            //{
+            //    // F03 读压力: [地址][03][起始H][起始L][数量H][数量L]
+            //    if (modbusData.Length >= 6 && modbusData[1] == 0x03)
+            //    {
+            //        return BuildPressureResponse(500.0f);
+            //    }
+            //    return null;
+            //});
 
             await ps02.OpenAsync();
             var pressure = await ps02.GetPressureAsync();
@@ -419,6 +421,259 @@ namespace DeviceLink.Tests.PS02
 
             Assert.NotNull(ps02);
             Assert.Equal("PS02", ps02.Name);
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 转接板直接指令测试 (CPPI V3 raw frame)
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 模拟转接板直接指令（非 Modbus）：接收 CPPI V3 帧 → 生成响应
+        /// </summary>
+        private void SetupRawConverterSimulation(CpplV3LoopbackSettings settings, Func<ushort, byte[], byte[]?> responseGenerator)
+        {
+            settings.Transport.OnSend += rawData =>
+            {
+                // CPPI V3 帧结构：[0x55][控制][目标3B][源3B][功能码2B LE][流水号][长度2B LE][CRC8][数据...][CRC16]
+                if (rawData.Length >= 10 && rawData[0] == 0x55)
+                {
+                    // 功能码在字节 8-9（小端）
+                    ushort funcCode = (ushort)(rawData[8] | (rawData[9] << 8));
+
+                    // 数据部分在 CRC8 之后
+                    int dataLen = rawData[11] | (rawData[12] << 8);
+                    int dataStart = 14; // 13字节头 + 1字节CRC8
+                    byte[] cmdData = dataLen > 0 && rawData.Length >= dataStart + dataLen
+                        ? new ArraySegment<byte>(rawData, dataStart, dataLen).ToArray()
+                        : Array.Empty<byte>();
+
+                    var responseData = responseGenerator(funcCode, cmdData);
+                    if (responseData != null)
+                    {
+                        var strategy = new CpplV3FrameStrategy();
+                        var responseFrame = strategy.BuildRawFrame(funcCode, responseData);
+                        settings.Transport.EnqueueReceive(responseFrame);
+                    }
+                }
+            };
+        }
+
+        [Fact]
+        public async Task GetConverterModelAsync_ShouldReturnModel()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            string expectedModel = "PS02-A10";
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0102)
+                {
+                    // 响应：错误码(1) + 字符串(N)
+                    var modelBytes = System.Text.Encoding.ASCII.GetBytes(expectedModel);
+                    var response = new byte[1 + modelBytes.Length];
+                    response[0] = 0x00; // 无错误
+                    Array.Copy(modelBytes, 0, response, 1, modelBytes.Length);
+                    return response;
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            var model = await ps02.GetConverterModelAsync();
+
+            Assert.Equal(expectedModel, model);
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            string expectedNumber = "SN20250001";
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0104)
+                {
+                    var bytes = System.Text.Encoding.ASCII.GetBytes(expectedNumber);
+                    var response = new byte[1 + bytes.Length];
+                    response[0] = 0x00;
+                    Array.Copy(bytes, 0, response, 1, bytes.Length);
+                    return response;
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            var number = await ps02.GetConverterDeviceNumberAsync();
+
+            Assert.Equal(expectedNumber, number);
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task SetConverterDeviceNumberAsync_ShouldSucceed()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            string newNumber = "SN20250002";
+
+            SetupRawConverterSimulation(settings, (funcCode, data) =>
+            {
+                if (funcCode == 0x0105)
+                {
+                    // 验证写入的数据
+                    var received = System.Text.Encoding.ASCII.GetString(data);
+                    Assert.Equal(newNumber, received);
+                    return new byte[] { 0x00 }; // 成功
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            await ps02.SetConverterDeviceNumberAsync(newNumber);
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task GetMeasurementProjectAsync_ShouldReturnResult()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0211)
+                {
+                    // 响应：错误码(1) + 项目代号(1) + 原始值(4) + 最终值(4) = 10 字节
+                    var response = new byte[10];
+                    response[0] = 0x00; // 无错误
+                    response[1] = 0x01; // 项目代号: Current
+
+                    // 原始值 12.34 (float32 小端)
+                    var rawBytes = BitConverter.GetBytes(12.34f);
+                    Array.Copy(rawBytes, 0, response, 2, 4);
+
+                    // 最终值 12.50 (float32 小端)
+                    var finalBytes = BitConverter.GetBytes(12.50f);
+                    Array.Copy(finalBytes, 0, response, 6, 4);
+
+                    return response;
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            var result = await ps02.GetMeasurementProjectAsync();
+
+            Assert.Equal(MeasurementProject.Current, result.Project);
+            Assert.True(Math.Abs(12.34f - result.RawValue) < 0.01f, $"原始值应为 12.34，实际 {result.RawValue}");
+            Assert.True(Math.Abs(12.50f - result.FinalValue) < 0.01f, $"最终值应为 12.50，实际 {result.FinalValue}");
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task CloseMeasurementProjectAsync_ShouldSucceed()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, data) =>
+            {
+                if (funcCode == 0x0212)
+                {
+                    // 验证项目代号
+                    Assert.Single(data);
+                    Assert.Equal((byte)OutputProject.MaOut, data[0]);
+                    return new byte[] { 0x00 }; // 成功
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            await ps02.CloseMeasurementProjectAsync(OutputProject.MaOut);
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task GetCalibrationCountAsync_ShouldReturnCount()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0282)
+                {
+                    // 响应：错误码(1) + 份数(2) = 3 字节
+                    return new byte[] { 0x00, 0x00, 0x05 }; // 5 份
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            var count = await ps02.GetCalibrationCountAsync();
+
+            Assert.Equal((ushort)5, count);
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task SetModulePowerAsync_ShouldSucceed()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, data) =>
+            {
+                if (funcCode == 0x0410)
+                {
+                    Assert.Single(data);
+                    Assert.Equal((byte)ModulePowerState.On, data[0]);
+                    return new byte[] { 0x00 }; // 成功
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            await ps02.SetModulePowerAsync(ModulePowerState.On);
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task SendHeartbeatAsync_ShouldSucceed()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0500)
+                {
+                    return new byte[] { 0x00 }; // 成功，无数据
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            await ps02.SendHeartbeatAsync();
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task ConverterError_ShouldThrowDeviceException()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0102)
+                {
+                    return new byte[] { 101 }; // 错误码: 无此指令
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+
+            await Assert.ThrowsAsync<DeviceException>(() =>
+                ps02.GetConverterModelAsync());
+
+            await ps02.CloseAsync();
         }
     }
 }

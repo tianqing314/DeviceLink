@@ -1,0 +1,766 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="4c83ef28-5964-46ad-ac68-aae0be99b3c8" name="gsl940@GSL940A 2026-07-07 12:11:50" runUser="CONST\gsl940" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-07T12:11:50.3584504+08:00" queuing="2026-07-07T12:11:50.3584508+08:00" start="2026-07-07T12:11:48.2127242+08:00" finish="2026-07-07T12:14:12.0405977+08:00" />
+  <TestSettings name="default" id="e3f45a1c-af8b-4db7-954a-b1363ca01926">
+    <Deployment runDeploymentRoot="gsl940_GSL940A_2026-07-07_12_11_50" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="38a80baa-8f21-420e-8779-672491e24f1d" testId="b5fbbab8-5d80-ffce-98e4-7ffd381c8f3f" testName="DeviceLink.Tests.PS02.PS02Tests.GetIdentificationAsync_ShouldReturnAllInfo" computerName="GSL940A" duration="00:00:00.0622796" startTime="2026-07-07T12:12:55.7233426+08:00" endTime="2026-07-07T12:12:55.7233429+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="38a80baa-8f21-420e-8779-672491e24f1d" />
+    <UnitTestResult executionId="05fe9811-589a-4643-bad7-626591f94b9d" testId="1d85191a-ecd6-1e76-be98-43a464d6335f" testName="DeviceLink.Tests.PS02.PS02Tests.GetMigrationRangeAsync_ShouldReturnRange" computerName="GSL940A" duration="00:00:00.0447828" startTime="2026-07-07T12:12:25.5357207+08:00" endTime="2026-07-07T12:12:25.5357210+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="05fe9811-589a-4643-bad7-626591f94b9d" />
+    <UnitTestResult executionId="8c97ac05-2887-4caa-a60f-fad60030c6c6" testId="6c396934-44a9-e72b-0949-fc79583c128a" testName="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ValidResponse_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0002780" startTime="2026-07-07T12:11:50.2926055+08:00" endTime="2026-07-07T12:11:50.2926056+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8c97ac05-2887-4caa-a60f-fad60030c6c6" />
+    <UnitTestResult executionId="e3e0a8e9-bb9d-49d6-a777-2431b4e5bcc5" testId="652362d7-b167-b7fc-5275-116135052a82" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_NoData_ShouldHaveCorrectCrc16" computerName="GSL940A" duration="00:00:00.0001174" startTime="2026-07-07T12:11:50.2926519+08:00" endTime="2026-07-07T12:11:50.2926520+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e3e0a8e9-bb9d-49d6-a777-2431b4e5bcc5" />
+    <UnitTestResult executionId="4f7f44d4-aef1-4997-838f-7b43da426ed5" testId="a16ca6a4-69fd-df95-1393-1ed88b477e36" testName="DeviceLink.Tests.PS02.PS02Tests.GetCalibrationCountAsync_ShouldReturnCount" computerName="GSL940A" duration="00:00:15.0373051" startTime="2026-07-07T12:14:11.9673138+08:00" endTime="2026-07-07T12:14:11.9673141+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4f7f44d4-aef1-4997-838f-7b43da426ed5">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetCalibrationCountAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1146&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.GetCalibrationCountAsync_ShouldReturnCount() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 608&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3066df88-5006-4e3e-a055-227f2234de8c" testId="f14213ef-efe7-3412-4a98-c05fe11aa3ee" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed" computerName="GSL940A" duration="00:00:30.8323746" startTime="2026-07-07T12:12:22.5872131+08:00" endTime="2026-07-07T12:12:22.5872134+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3066df88-5006-4e3e-a055-227f2234de8c">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+启用 OWI 通信模式结果: False&#xD;
+禁用 OWI 通信模式结果: False&#xD;
+设备已关闭</StdOut>
+        <ErrorInfo>
+          <Message>启用 OWI 通信模式应该成功&#xD;
+Expected: True&#xD;
+Actual:   False</Message>
+          <StackTrace>   at DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\ConverterSerialTests.cs:line 479&#xD;
+   at DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\ConverterSerialTests.cs:line 496&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="113a482f-5358-4f55-ab64-13cb319ff295" testId="24c50c1e-75cd-63de-07ad-7c5a1d6ff14e" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_SequenceNumber_ShouldIncrement" computerName="GSL940A" duration="00:00:00.0001487" startTime="2026-07-07T12:11:50.2890220+08:00" endTime="2026-07-07T12:11:50.2890220+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="113a482f-5358-4f55-ab64-13cb319ff295" />
+    <UnitTestResult executionId="8cc23ada-2d3e-44e0-abc6-d65a0949ba20" testId="32f36806-1f0d-afed-49b8-63fa7d3d8edc" testName="DeviceLink.Tests.PS02.PS02Tests.SetConverterDeviceNumberAsync_ShouldSucceed" computerName="GSL940A" duration="00:00:15.0440244" startTime="2026-07-07T12:13:40.8627304+08:00" endTime="2026-07-07T12:13:40.8627307+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8cc23ada-2d3e-44e0-abc6-d65a0949ba20">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SetConverterDeviceNumberAsync(String deviceNumber, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1086&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.SetConverterDeviceNumberAsync_ShouldSucceed() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 530&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="88189399-f73b-4f10-a57b-e225ebc9e742" testId="cfb9c40d-4c07-9351-926c-6cb214345f4f" testName="DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel" computerName="GSL940A" duration="00:00:15.0723407" startTime="2026-07-07T12:12:05.3116868+08:00" endTime="2026-07-07T12:12:05.3116871+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="88189399-f73b-4f10-a57b-e225ebc9e742">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetConverterModelAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1045&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 479&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="37f3997d-5f2f-47bd-a7b1-c420aaceb1fb" testId="419a3a8b-e13d-d7ab-2d97-2ead9a054259" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ScanDevice_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0002127" startTime="2026-07-07T12:11:50.2928220+08:00" endTime="2026-07-07T12:11:50.2928220+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="37f3997d-5f2f-47bd-a7b1-c420aaceb1fb">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 00 03 01 01 00 D1 01 D1 F1&#xD;
+实际: 55 03 23 01 00 36 22 11 00 03 01 01 00 D1 01 D1 F1</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2b085412-2300-4e29-9452-21a5c3cfca54" testId="63b8e137-cc10-a089-3dc6-8caf422a913c" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_InvalidCrc16_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001506" startTime="2026-07-07T12:11:50.2906836+08:00" endTime="2026-07-07T12:11:50.2906836+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2b085412-2300-4e29-9452-21a5c3cfca54" />
+    <UnitTestResult executionId="8451347d-d707-4214-8455-2bb9d4536309" testId="01d947d2-4434-ca97-44e9-b792118db024" testName="DeviceLink.Tests.PS02.PS02Tests.GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber" computerName="GSL940A" duration="00:00:15.0160979" startTime="2026-07-07T12:12:40.5528458+08:00" endTime="2026-07-07T12:12:40.5528465+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8451347d-d707-4214-8455-2bb9d4536309">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetConverterDeviceNumberAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1062&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 505&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1feb070d-bcc3-48c0-9eea-f486e752db56" testId="56820444-5393-16ed-26e0-504f8866be18" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainTargetAddress" computerName="GSL940A" duration="00:00:00.0001113" startTime="2026-07-07T12:11:50.2906486+08:00" endTime="2026-07-07T12:11:50.2906486+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1feb070d-bcc3-48c0-9eea-f486e752db56" />
+    <UnitTestResult executionId="7738810d-f994-4b23-aecc-e3c4791c3de4" testId="2929c0c0-8c1b-6b7e-16e5-5a2108c9e4e2" testName="DeviceLink.Tests.PS02.PS02Tests.CloseMeasurementProjectAsync_ShouldSucceed" computerName="GSL940A" duration="00:00:15.0258015" startTime="2026-07-07T12:13:25.8157711+08:00" endTime="2026-07-07T12:13:25.8157713+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7738810d-f994-4b23-aecc-e3c4791c3de4">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.CloseMeasurementProjectAsync(OutputProject project, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1128&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.CloseMeasurementProjectAsync_ShouldSucceed() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 588&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="17845cc6-e593-4cf7-8e05-2f82fbb94f19" testId="68cf545e-de0e-e29e-9f6f-de53a5d6ffce" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_WithData_ShouldHaveCorrectCrc16" computerName="GSL940A" duration="00:00:00.0032776" startTime="2026-07-07T12:11:50.2246017+08:00" endTime="2026-07-07T12:11:50.2246018+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="17845cc6-e593-4cf7-8e05-2f82fbb94f19" />
+    <UnitTestResult executionId="5a7b12b1-8fd6-4aa8-aa7e-44e4b2eec10b" testId="b1ea172b-dcce-3431-e9bc-08cd065fdce7" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_SetOutputProject_VOut_ShouldSucceed" computerName="GSL940A" duration="00:00:01.2934890" startTime="2026-07-07T12:11:51.6011849+08:00" endTime="2026-07-07T12:11:51.6011851+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5a7b12b1-8fd6-4aa8-aa7e-44e4b2eec10b">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+已设置电压输出零点&#xD;
+已设置电压输出满量程&#xD;
+已关闭输出&#xD;
+电压输出测试通过&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2f12d3a4-136c-4b93-aa69-98aae40ccedc" testId="5b7f78f9-dfd1-541a-429b-70cfb5ac774f" testName="DeviceLink.Tests.PS02.PS02Tests.ConverterError_ShouldThrowDeviceException" computerName="GSL940A" duration="00:00:15.0440480" startTime="2026-07-07T12:12:55.6609733+08:00" endTime="2026-07-07T12:12:55.6609737+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2f12d3a4-136c-4b93-aa69-98aae40ccedc" />
+    <UnitTestResult executionId="d06b00cc-7a7a-4c67-b089-88a709137b7f" testId="b8fc77e0-c481-8d12-b1ce-31ffa6848b11" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_DataLength_ShouldMatchModbusWithCRC" computerName="GSL940A" duration="00:00:00.0000926" startTime="2026-07-07T12:11:50.2906154+08:00" endTime="2026-07-07T12:11:50.2906154+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d06b00cc-7a7a-4c67-b089-88a709137b7f" />
+    <UnitTestResult executionId="f1482d40-d68c-4f7a-ac4b-3af6fa67b622" testId="bc520cf3-74e5-7b58-d11a-55cd996c025a" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_WithCustomAddresses_ShouldUseProvidedValues" computerName="GSL940A" duration="00:00:00.0050111" startTime="2026-07-07T12:11:50.2198606+08:00" endTime="2026-07-07T12:11:50.2199087+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f1482d40-d68c-4f7a-ac4b-3af6fa67b622" />
+    <UnitTestResult executionId="175cbd12-f594-4df0-adea-7e819503baff" testId="ae12722d-dc57-59b1-7c18-0e44459d04de" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldHaveCorrectTotalLength" computerName="GSL940A" duration="00:00:00.0000972" startTime="2026-07-07T12:11:50.2893583+08:00" endTime="2026-07-07T12:11:50.2893583+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="175cbd12-f594-4df0-adea-7e819503baff" />
+    <UnitTestResult executionId="840353c1-8fab-4f00-a99f-fe9b64c95599" testId="2fb004e2-650c-f116-f61c-487f59911977" testName="DeviceLink.Tests.PS02.PS02Tests.Constructor_WithDefaultConfig_ShouldSucceed" computerName="GSL940A" duration="00:00:00.0005544" startTime="2026-07-07T12:13:10.7877194+08:00" endTime="2026-07-07T12:13:10.7877195+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="840353c1-8fab-4f00-a99f-fe9b64c95599" />
+    <UnitTestResult executionId="7b02cafb-fb2f-417a-a35c-8ec6b4fc85ad" testId="4d4fe33d-9d73-5fff-2118-66e9bcef46c6" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_GetHardwareVersion_ShouldReturnNonEmpty" computerName="GSL940A" duration="00:00:00.1103841" startTime="2026-07-07T12:12:23.1164556+08:00" endTime="2026-07-07T12:12:23.1164559+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7b02cafb-fb2f-417a-a35c-8ec6b4fc85ad">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+转接板硬件版本: A20-98 V00.01&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="3e4a6a11-5e56-4aa0-8a24-6956976d23ee" testId="6df1f0fe-beed-ca59-b1c4-2eb1ebeae7ed" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_NullData_ShouldThrowArgumentNullException" computerName="GSL940A" duration="00:00:00.0004819" startTime="2026-07-07T12:11:50.2892713+08:00" endTime="2026-07-07T12:11:50.2892713+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3e4a6a11-5e56-4aa0-8a24-6956976d23ee" />
+    <UnitTestResult executionId="a42d9068-2f58-4f36-bd64-b4b4c248fa06" testId="d5601e52-b09f-5005-8a8c-33e5c2ca9815" testName="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_EnableOwiResponse_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0046380" startTime="2026-07-07T12:11:50.2235235+08:00" endTime="2026-07-07T12:11:50.2235236+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a42d9068-2f58-4f36-bd64-b4b4c248fa06" />
+    <UnitTestResult executionId="b79cadef-4ec3-4286-ba3a-a9d3935c1f19" testId="2017317d-25e6-785e-689b-f5f4945a57a3" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadFirmwareVersion_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0164594" startTime="2026-07-07T12:11:50.2911011+08:00" endTime="2026-07-07T12:11:50.2911012+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b79cadef-4ec3-4286-ba3a-a9d3935c1f19">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 06 01 02 00 00 1E FF FF&#xD;
+实际: 55 03 23 01 00 36 22 11 06 01 02 00 00 1E FF FF</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9bbeb4d3-45aa-453c-b2b1-51e0dfa51af2" testId="fa46a425-b4a7-1855-0b62-07b247f07e8a" testName="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ScanDeviceResponse_ShouldParseCorrectly" computerName="GSL940A" duration="00:00:00.0006552" startTime="2026-07-07T12:11:50.2914097+08:00" endTime="2026-07-07T12:11:50.2914098+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9bbeb4d3-45aa-453c-b2b1-51e0dfa51af2" />
+    <UnitTestResult executionId="58804272-e126-4b44-98c2-de4e9334eab7" testId="88798e95-f743-0f0e-2efd-d1e7df1724ec" testName="DeviceLink.Tests.PS02.PS02Tests.GetPressureTypeAsync_ShouldReturnType" computerName="GSL940A" duration="00:00:00.0319261" startTime="2026-07-07T12:12:55.7717517+08:00" endTime="2026-07-07T12:12:55.7717520+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="58804272-e126-4b44-98c2-de4e9334eab7" />
+    <UnitTestResult executionId="19e4e666-adb8-447f-98b6-979f750169cc" testId="c0b04036-8bed-86cd-3088-e84064c19b32" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainFunctionCode" computerName="GSL940A" duration="00:00:00.0001048" startTime="2026-07-07T12:11:50.2907422+08:00" endTime="2026-07-07T12:11:50.2907422+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="19e4e666-adb8-447f-98b6-979f750169cc" />
+    <UnitTestResult executionId="0aae7441-ba20-4ad1-aa13-ab4502cb8daa" testId="73745b59-f8cf-b348-0793-4bf5b35cb029" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_SetOutputProject_MaOut_ShouldSucceed" computerName="GSL940A" duration="00:00:01.2864770" startTime="2026-07-07T12:12:24.7147093+08:00" endTime="2026-07-07T12:12:24.7147103+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0aae7441-ba20-4ad1-aa13-ab4502cb8daa">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+已设置电流输出零点&#xD;
+已设置电流输出满量程&#xD;
+已关闭输出&#xD;
+电流输出测试通过&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="22e05dfb-cc37-42a6-8c5d-5edbb3b499c8" testId="e0d5205f-eadf-dcfd-60d3-00d437f9c6f4" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainSourceAddress" computerName="GSL940A" duration="00:00:00.0001162" startTime="2026-07-07T12:11:50.2892990+08:00" endTime="2026-07-07T12:11:50.2892991+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="22e05dfb-cc37-42a6-8c5d-5edbb3b499c8" />
+    <UnitTestResult executionId="7c1d9159-b214-43f0-8e54-1950711205bf" testId="dc5c49aa-01ff-f60d-cca1-e8677fe37801" testName="DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_ShouldReturnPressure" computerName="GSL940A" duration="00:00:05.0885643" startTime="2026-07-07T12:12:25.4903234+08:00" endTime="2026-07-07T12:12:25.4903236+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7c1d9159-b214-43f0-8e54-1950711205bf">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.Session.SessionException : 请求失败: 接收超时或未收到有效数据&#xD;
+---- DeviceLink.DataLink.FrameTimeoutException : 接收超时或未收到有效数据</Message>
+          <StackTrace>   at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs:line 98&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendAsync(Command command, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 154&#xD;
+   at DeviceLink.DeviceBase.DeviceBase.SendForResultAsync[T](Command command, Func`2 decoder, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DeviceBase\DeviceBase.cs:line 431&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetPressureAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 297&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_ShouldReturnPressure() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 148&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at DeviceLink.DataLink.DirectDataLink.SendAndReceiveFrameAsync(Byte[] frameData, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs:line 141&#xD;
+   at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs:line 83</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="6238c00f-bb26-41cc-8b2e-068d2002c85a" testId="195e9a01-baab-965c-25cc-b921f9d35e39" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_EnableOwi_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0005713" startTime="2026-07-07T12:11:50.2927869+08:00" endTime="2026-07-07T12:11:50.2927870+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6238c00f-bb26-41cc-8b2e-068d2002c85a">
+      <Output>
+        <StdOut>期望: 55 03 26 01 00 36 22 11 00 04 0D 0B 00 A8 01 29 80 00 00 01 02 00 01 25 26 53 24&#xD;
+实际: 55 03 26 01 00 36 22 11 00 04 0D 0B 00 A8 01 29 80 00 00 01 02 00 01 25 26 53 24&#xD;
+Modbus RTU: 01 29 80 00 00 01 02 00 01 25 26</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2fc6c123-06b5-4133-bd23-5a514591064f" testId="89a7c726-ca6d-d7b4-43d4-8056c070d198" testName="DeviceLink.Tests.PS02.PS02Tests.SendHeartbeatAsync_ShouldSucceed" computerName="GSL940A" duration="00:00:15.0140339" startTime="2026-07-07T12:13:10.7874978+08:00" endTime="2026-07-07T12:13:10.7874980+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2fc6c123-06b5-4133-bd23-5a514591064f">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendHeartbeatAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1240&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.SendHeartbeatAsync_ShouldSucceed() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 650&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="10364f3a-0f95-4f68-bb93-446728af0608" testId="b518883d-c17f-dfde-4636-43ef1c4ab6dd" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_DisableAllOutput_ShouldSucceed" computerName="GSL940A" duration="00:00:00.0763823" startTime="2026-07-07T12:12:24.7917675+08:00" endTime="2026-07-07T12:12:24.7917768+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="10364f3a-0f95-4f68-bb93-446728af0608">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+已发送关闭所有输出指令&#xD;
+输出控制测试通过&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e70ed4a4-953e-41c8-910d-c22105bea07a" testId="b75b211e-37b3-d17b-2ffc-f81e26a7f64e" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_ReadParameter_ShouldReturnValidValue" computerName="GSL940A" duration="00:00:00.1554256" startTime="2026-07-07T12:12:22.7417754+08:00" endTime="2026-07-07T12:12:22.7417756+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e70ed4a4-953e-41c8-910d-c22105bea07a">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+参数 #0 = 0x01 (1)&#xD;
+参数 #1 = 0x01 (1)&#xD;
+参数读取测试通过&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="56e711a4-fea6-4d5a-b79c-fc2b7dae92ea" testId="f18b8abc-4315-6112-fa31-2efa8c00dc56" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ControlField_ShouldBe0x03" computerName="GSL940A" duration="00:00:00.0000878" startTime="2026-07-07T12:11:50.2905679+08:00" endTime="2026-07-07T12:11:50.2905679+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="56e711a4-fea6-4d5a-b79c-fc2b7dae92ea" />
+    <UnitTestResult executionId="1b40e25b-e53f-447f-b3a5-8539b906c5e3" testId="3e30df0c-96d1-99fa-b2bf-0fdb9da63016" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_FullSequence_ShouldSucceed" computerName="GSL940A" duration="00:00:00.3112230" startTime="2026-07-07T12:12:23.4277839+08:00" endTime="2026-07-07T12:12:23.4277842+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1b40e25b-e53f-447f-b3a5-8539b906c5e3">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+=== 开始转接板综合测试 ===&#xD;
+[1/5] 固件版本: A20-98 V00.00.00.07&#xD;
+[2/5] 硬件版本: A20-98 V00.01&#xD;
+[3/5] 扫描结果: NotConnected&#xD;
+[4/5] 参数 #0 = 0x00&#xD;
+[5/5] 已关闭所有输出&#xD;
+=== 转接板综合测试完成 ===&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="85a129df-08a5-4c1d-9bcb-aacdda27d325" testId="0f3987ae-03b4-4a4c-fbe4-a25908020e32" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildParse_RoundTrip_ShouldPreserveData" computerName="GSL940A" duration="00:00:00.0025580" startTime="2026-07-07T12:11:50.2245061+08:00" endTime="2026-07-07T12:11:50.2245062+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="85a129df-08a5-4c1d-9bcb-aacdda27d325" />
+    <UnitTestResult executionId="a7c95c2c-d760-4f06-8481-f0d0ee5b3bc8" testId="3c873980-36d6-ba19-b1a5-83bea62df9ca" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_TooShort_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001803" startTime="2026-07-07T12:11:50.2245436+08:00" endTime="2026-07-07T12:11:50.2245436+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a7c95c2c-d760-4f06-8481-f0d0ee5b3bc8" />
+    <UnitTestResult executionId="57c0127f-1be0-4471-8df3-8d783212ac6f" testId="435ff7a0-a30b-b4c9-64fd-b0b839e73459" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_InvalidCrc8_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0001053" startTime="2026-07-07T12:11:50.2894151+08:00" endTime="2026-07-07T12:11:50.2894152+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="57c0127f-1be0-4471-8df3-8d783212ac6f" />
+    <UnitTestResult executionId="fff011b3-3953-4cb0-b990-2593d32d94fc" testId="276a1477-d794-8484-1d2b-4d9795a64b18" testName="DeviceLink.Tests.PS02.PS02Tests.GetModuleTypeAsync_ShouldReturnType" computerName="GSL940A" duration="00:00:00.0645652" startTime="2026-07-07T12:12:40.6169031+08:00" endTime="2026-07-07T12:12:40.6169033+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fff011b3-3953-4cb0-b990-2593d32d94fc" />
+    <UnitTestResult executionId="d42084a7-708d-47ea-9c6c-b4705746a1af" testId="bd650601-60c3-b196-2791-679b7a280d74" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadParameter_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0001937" startTime="2026-07-07T12:11:50.2927169+08:00" endTime="2026-07-07T12:11:50.2927170+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d42084a7-708d-47ea-9c6c-b4705746a1af">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 01 03 07 00 00 DB FF FF&#xD;
+实际: 55 03 23 01 00 36 22 11 01 03 07 00 00 DB FF FF</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="1387f40d-38fc-4dd5-9613-de895b5745ee" testId="ff7ad0aa-a867-a47e-2c7e-bab7c00600c3" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SetOutputProject_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0001770" startTime="2026-07-07T12:11:50.2927513+08:00" endTime="2026-07-07T12:11:50.2927513+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1387f40d-38fc-4dd5-9613-de895b5745ee">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 10 02 05 02 00 61 00 00 0F 1D&#xD;
+实际: 55 03 23 01 00 36 22 11 10 02 05 02 00 61 00 00 0F 1D</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="00db51c7-4c68-4210-af30-cff86a4e1fca" testId="cfcdd11a-f5d8-aeb3-d003-afc89975e5ca" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainHeader0x55" computerName="GSL940A" duration="00:00:00.0000882" startTime="2026-07-07T12:11:50.2893839+08:00" endTime="2026-07-07T12:11:50.2893839+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="00db51c7-4c68-4210-af30-cff86a4e1fca" />
+    <UnitTestResult executionId="c47c254d-58c7-48bd-8802-36b646415a33" testId="2b9d1fa9-c26d-5654-7674-b26d98339a59" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_NoHeader_ShouldReturnFalse" computerName="GSL940A" duration="00:00:00.0000954" startTime="2026-07-07T12:11:50.2893250+08:00" endTime="2026-07-07T12:11:50.2893250+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c47c254d-58c7-48bd-8802-36b646415a33" />
+    <UnitTestResult executionId="5306c394-6722-43d0-8da0-73ccce802fb4" testId="3704c466-a18c-fc63-e597-cc9c8f24da57" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_ValidFrame_ShouldReturnTrue" computerName="GSL940A" duration="00:00:00.0001633" startTime="2026-07-07T12:11:50.2907127+08:00" endTime="2026-07-07T12:11:50.2907128+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5306c394-6722-43d0-8da0-73ccce802fb4" />
+    <UnitTestResult executionId="08154b0b-77a1-477c-b4f5-1d9d4ffc4226" testId="17f397d6-e99b-1e59-db80-f65bd41aa79b" testName="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.Name_ShouldReturnCpplV3" computerName="GSL940A" duration="00:00:00.0009981" startTime="2026-07-07T12:11:50.2245736+08:00" endTime="2026-07-07T12:11:50.2245737+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="08154b0b-77a1-477c-b4f5-1d9d4ffc4226" />
+    <UnitTestResult executionId="d102f5fa-83c2-45ff-a26f-2a99ce7d7a1b" testId="cf5257af-73d6-787f-8ae5-0fa5357f2a0b" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_GetFirmwareVersion_ShouldReturnNonEmpty" computerName="GSL940A" duration="00:00:00.1492872" startTime="2026-07-07T12:11:51.7530367+08:00" endTime="2026-07-07T12:11:51.7530435+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d102f5fa-83c2-45ff-a26f-2a99ce7d7a1b">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+转接板固件版本: A20-98 V00.00.00.07&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f66e918d-cc0f-471e-b787-933f5e61e9a1" testId="3471258e-3ab1-3229-1999-d76cebda10d4" testName="DeviceLink.Tests.PS02.PS02Tests.GetPrecisionAsync_ShouldReturnPrecision" computerName="GSL940A" duration="00:00:00.0162946" startTime="2026-07-07T12:12:55.7397204+08:00" endTime="2026-07-07T12:12:55.7397207+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f66e918d-cc0f-471e-b787-933f5e61e9a1" />
+    <UnitTestResult executionId="b586ae80-e2f9-4a7c-b5a4-daaf07aebc22" testId="098016dc-c895-7cde-221a-00a993166906" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SequenceNumber_ShouldIncrement" computerName="GSL940A" duration="00:00:00.0001395" startTime="2026-07-07T12:11:50.2892321+08:00" endTime="2026-07-07T12:11:50.2892322+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b586ae80-e2f9-4a7c-b5a4-daaf07aebc22" />
+    <UnitTestResult executionId="015123db-e570-446e-8324-72341623fccb" testId="dd303077-300b-622e-292c-fe4305616808" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_ConnectAndDisconnect_ShouldSucceed" computerName="GSL940A" duration="00:00:00.0979328" startTime="2026-07-07T12:11:50.3035845+08:00" endTime="2026-07-07T12:11:50.3035848+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="015123db-e570-446e-8324-72341623fccb">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+连接测试通过&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f5344cc9-bc85-47d1-9652-55425d4f6c24" testId="a7c13fd0-267b-f027-5e87-6c2bf8da2f0f" testName="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_ScanDevice_ShouldReturnInterfaceType" computerName="GSL940A" duration="00:00:00.2641398" startTime="2026-07-07T12:12:23.0061232+08:00" endTime="2026-07-07T12:12:23.0061234+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f5344cc9-bc85-47d1-9652-55425d4f6c24">
+      <Output>
+        <StdOut>串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+设备已成功打开&#xD;
+扫描结果 - 接口类型: NotConnected (0)&#xD;
+接口描述: 未连接设备&#xD;
+设备已关闭</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="69c10189-ab0c-4e18-8dcf-cccbb2dfd3d7" testId="a27545b3-bf9e-5f19-4ce2-1a12f0c72e3d" testName="DeviceLink.Tests.PS02.PS02Tests.SetModulePowerAsync_ShouldSucceed" computerName="GSL940A" duration="00:00:15.0111127" startTime="2026-07-07T12:13:56.9266999+08:00" endTime="2026-07-07T12:13:56.9267001+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="69c10189-ab0c-4e18-8dcf-cccbb2dfd3d7">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SetModulePowerAsync(ModulePowerState state, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1226&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.SetModulePowerAsync_ShouldSucceed() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 631&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="f12aa494-14ff-497a-90bf-b26fba04eea2" testId="2a2cad3b-353e-0f0b-675d-108f46f17001" testName="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadHardwareVersion_ShouldMatchDocumentSample" computerName="GSL940A" duration="00:00:00.0002148" startTime="2026-07-07T12:11:50.2913547+08:00" endTime="2026-07-07T12:11:50.2913548+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f12aa494-14ff-497a-90bf-b26fba04eea2">
+      <Output>
+        <StdOut>期望: 55 03 23 01 00 36 22 11 08 01 04 00 00 31 FF FF&#xD;
+实际: 55 03 23 01 00 36 22 11 08 01 04 00 00 31 FF FF</StdOut>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="4b434570-a5e1-417d-b968-e752f1d4b875" testId="c23e3320-ca14-6a67-fc78-059a5cbde885" testName="DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_TransportTimeout_ShouldThrow" computerName="GSL940A" duration="00:00:01.0508045" startTime="2026-07-07T12:13:41.9171939+08:00" endTime="2026-07-07T12:13:41.9171942+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4b434570-a5e1-417d-b968-e752f1d4b875">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure&#xD;
+Expected: typeof(System.Threading.Tasks.TaskCanceledException)&#xD;
+Actual:   typeof(System.OperationCanceledException): The operation was canceled.&#xD;
+---- System.OperationCanceledException : The operation was canceled.</Message>
+          <StackTrace>   at System.Threading.CancellationToken.ThrowOperationCanceledException()&#xD;
+   at DeviceLink.DataLink.DirectDataLink.ReceiveLoopAsync(CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs:line 210&#xD;
+   at DeviceLink.DataLink.DirectDataLink.SendAndReceiveFrameAsync(Byte[] frameData, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs:line 122&#xD;
+   at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs:line 83&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendAsync(Command command, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 154&#xD;
+   at DeviceLink.DeviceBase.DeviceBase.SendForResultAsync[T](Command command, Func`2 decoder, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DeviceBase\DeviceBase.cs:line 431&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetPressureAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 297&#xD;
+----- Inner Stack Trace -----&#xD;
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()&#xD;
+   at DeviceLink.DataLink.DirectDataLink.ReceiveLoopAsync(CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs:line 210&#xD;
+   at DeviceLink.DataLink.DirectDataLink.SendAndReceiveFrameAsync(Byte[] frameData, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs:line 122&#xD;
+   at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs:line 83&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendAsync(Command command, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 154&#xD;
+   at DeviceLink.DeviceBase.DeviceBase.SendForResultAsync[T](Command command, Func`2 decoder, CancellationToken ct) in g:\DeviceLink\core\DeviceLink.DeviceBase\DeviceBase.cs:line 431&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetPressureAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 297</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="ec9dca2a-3162-4614-a5d8-b07f32ec38e9" testId="780bae86-4665-bc62-c90e-f330fe78055c" testName="DeviceLink.Tests.PS02.PS02Tests.Constructor_WithSettings_ShouldSucceed" computerName="GSL940A" duration="00:00:00.0001744" startTime="2026-07-07T12:12:55.7719632+08:00" endTime="2026-07-07T12:12:55.7719634+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ec9dca2a-3162-4614-a5d8-b07f32ec38e9" />
+    <UnitTestResult executionId="f33c2ebb-1863-4a2c-b333-cbc3700d918c" testId="6e9b3d5e-cc9a-d336-9f60-e1696dd73504" testName="DeviceLink.Tests.PS02.PS02Tests.GetMeasurementProjectAsync_ShouldReturnResult" computerName="GSL940A" duration="00:00:15.0105994" startTime="2026-07-07T12:12:20.3940584+08:00" endTime="2026-07-07T12:12:20.3940586+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f33c2ebb-1863-4a2c-b333-cbc3700d918c">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetMeasurementProjectAsync(CancellationToken ct) in g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1106&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.GetMeasurementProjectAsync_ShouldReturnResult() in g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 562&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="152a41d9-549e-4f34-95a8-2f29e674c75b" testId="ef3cb433-eebc-26b1-1f51-2183838c5828" testName="DeviceLink.Tests.PS02.PS02Tests.GetSerialNumberAsync_ShouldReturnSerialNumber" computerName="GSL940A" duration="00:00:00.0773841" startTime="2026-07-07T12:12:05.3788535+08:00" endTime="2026-07-07T12:12:05.3788538+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="152a41d9-549e-4f34-95a8-2f29e674c75b" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadFirmwareVersion_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2017317d-25e6-785e-689b-f5f4945a57a3">
+      <Execution id="b79cadef-4ec3-4286-ba3a-a9d3935c1f19" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ReadFirmwareVersion_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_DisableAllOutput_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="b518883d-c17f-dfde-4636-43ef1c4ab6dd">
+      <Execution id="10364f3a-0f95-4f68-bb93-446728af0608" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_DisableAllOutput_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ControlField_ShouldBe0x03" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="f18b8abc-4315-6112-fa31-2efa8c00dc56">
+      <Execution id="56e711a4-fea6-4d5a-b79c-fc2b7dae92ea" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_ControlField_ShouldBe0x03" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldHaveCorrectTotalLength" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="ae12722d-dc57-59b1-7c18-0e44459d04de">
+      <Execution id="175cbd12-f594-4df0-adea-7e819503baff" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_ShouldHaveCorrectTotalLength" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_NullData_ShouldThrowArgumentNullException" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="6df1f0fe-beed-ca59-b1c4-2eb1ebeae7ed">
+      <Execution id="3e4a6a11-5e56-4aa0-8a24-6956976d23ee" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_NullData_ShouldThrowArgumentNullException" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.SetModulePowerAsync_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="a27545b3-bf9e-5f19-4ce2-1a12f0c72e3d">
+      <Execution id="69c10189-ab0c-4e18-8dcf-cccbb2dfd3d7" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="SetModulePowerAsync_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="01d947d2-4434-ca97-44e9-b792118db024">
+      <Execution id="8451347d-d707-4214-8455-2bb9d4536309" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_EnableOwiResponse_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="d5601e52-b09f-5005-8a8c-33e5c2ca9815">
+      <Execution id="a42d9068-2f58-4f36-bd64-b4b4c248fa06" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="TryParseFrame_EnableOwiResponse_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_ShouldReturnPressure" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="dc5c49aa-01ff-f60d-cca1-e8677fe37801">
+      <Execution id="7c1d9159-b214-43f0-8e54-1950711205bf" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetPressureAsync_ShouldReturnPressure" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ScanDeviceResponse_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="fa46a425-b4a7-1855-0b62-07b247f07e8a">
+      <Execution id="9bbeb4d3-45aa-453c-b2b1-51e0dfa51af2" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="TryParseFrame_ScanDeviceResponse_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_TransportTimeout_ShouldThrow" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="c23e3320-ca14-6a67-fc78-059a5cbde885">
+      <Execution id="4b434570-a5e1-417d-b968-e752f1d4b875" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetPressureAsync_TransportTimeout_ShouldThrow" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadHardwareVersion_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2a2cad3b-353e-0f0b-675d-108f46f17001">
+      <Execution id="f12aa494-14ff-497a-90bf-b26fba04eea2" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ReadHardwareVersion_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_WithData_ShouldHaveCorrectCrc16" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="68cf545e-de0e-e29e-9f6f-de53a5d6ffce">
+      <Execution id="17845cc6-e593-4cf7-8e05-2f82fbb94f19" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_WithData_ShouldHaveCorrectCrc16" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_ScanDevice_ShouldReturnInterfaceType" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="a7c13fd0-267b-f027-5e87-6c2bf8da2f0f">
+      <Execution id="f5344cc9-bc85-47d1-9652-55425d4f6c24" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_ScanDevice_ShouldReturnInterfaceType" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_ConnectAndDisconnect_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="dd303077-300b-622e-292c-fe4305616808">
+      <Execution id="015123db-e570-446e-8324-72341623fccb" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_ConnectAndDisconnect_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_ReadParameter_ShouldReturnValidValue" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="b75b211e-37b3-d17b-2ffc-f81e26a7f64e">
+      <Execution id="e70ed4a4-953e-41c8-910d-c22105bea07a" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_ReadParameter_ShouldReturnValidValue" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetPressureTypeAsync_ShouldReturnType" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="88798e95-f743-0f0e-2efd-d1e7df1724ec">
+      <Execution id="58804272-e126-4b44-98c2-de4e9334eab7" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetPressureTypeAsync_ShouldReturnType" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetCalibrationCountAsync_ShouldReturnCount" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="a16ca6a4-69fd-df95-1393-1ed88b477e36">
+      <Execution id="4f7f44d4-aef1-4997-838f-7b43da426ed5" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetCalibrationCountAsync_ShouldReturnCount" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_WithCustomAddresses_ShouldUseProvidedValues" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="bc520cf3-74e5-7b58-d11a-55cd996c025a">
+      <Execution id="f1482d40-d68c-4f7a-ac4b-3af6fa67b622" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_WithCustomAddresses_ShouldUseProvidedValues" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.ConverterError_ShouldThrowDeviceException" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="5b7f78f9-dfd1-541a-429b-70cfb5ac774f">
+      <Execution id="2f12d3a4-136c-4b93-aa69-98aae40ccedc" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="ConverterError_ShouldThrowDeviceException" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetMigrationRangeAsync_ShouldReturnRange" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="1d85191a-ecd6-1e76-be98-43a464d6335f">
+      <Execution id="05fe9811-589a-4643-bad7-626591f94b9d" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetMigrationRangeAsync_ShouldReturnRange" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SequenceNumber_ShouldIncrement" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="098016dc-c895-7cde-221a-00a993166906">
+      <Execution id="b586ae80-e2f9-4a7c-b5a4-daaf07aebc22" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_SequenceNumber_ShouldIncrement" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.TryParseFrame_ValidResponse_ShouldParseCorrectly" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="6c396934-44a9-e72b-0949-fc79583c128a">
+      <Execution id="8c97ac05-2887-4caa-a60f-fad60030c6c6" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="TryParseFrame_ValidResponse_ShouldParseCorrectly" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_SetOutputProject_VOut_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="b1ea172b-dcce-3431-e9bc-08cd065fdce7">
+      <Execution id="5a7b12b1-8fd6-4aa8-aa7e-44e4b2eec10b" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_SetOutputProject_VOut_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ReadParameter_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="bd650601-60c3-b196-2791-679b7a280d74">
+      <Execution id="d42084a7-708d-47ea-9c6c-b4705746a1af" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ReadParameter_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_NoData_ShouldHaveCorrectCrc16" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="652362d7-b167-b7fc-5275-116135052a82">
+      <Execution id="e3e0a8e9-bb9d-49d6-a777-2431b4e5bcc5" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_NoData_ShouldHaveCorrectCrc16" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_InvalidCrc16_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="63b8e137-cc10-a089-3dc6-8caf422a913c">
+      <Execution id="2b085412-2300-4e29-9452-21a5c3cfca54" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="TryParseFrame_InvalidCrc16_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.SendHeartbeatAsync_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="89a7c726-ca6d-d7b4-43d4-8056c070d198">
+      <Execution id="2fc6c123-06b5-4133-bd23-5a514591064f" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="SendHeartbeatAsync_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainSourceAddress" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="e0d5205f-eadf-dcfd-60d3-00d437f9c6f4">
+      <Execution id="22e05dfb-cc37-42a6-8c5d-5edbb3b499c8" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_ShouldContainSourceAddress" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.SetConverterDeviceNumberAsync_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="32f36806-1f0d-afed-49b8-63fa7d3d8edc">
+      <Execution id="8cc23ada-2d3e-44e0-abc6-d65a0949ba20" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="SetConverterDeviceNumberAsync_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.Constructor_WithSettings_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="780bae86-4665-bc62-c90e-f330fe78055c">
+      <Execution id="ec9dca2a-3162-4614-a5d8-b07f32ec38e9" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="Constructor_WithSettings_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainHeader0x55" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="cfcdd11a-f5d8-aeb3-d003-afc89975e5ca">
+      <Execution id="00db51c7-4c68-4210-af30-cff86a4e1fca" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_ShouldContainHeader0x55" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_InvalidCrc8_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="435ff7a0-a30b-b4c9-64fd-b0b839e73459">
+      <Execution id="57c0127f-1be0-4471-8df3-8d783212ac6f" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="TryParseFrame_InvalidCrc8_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_DataLength_ShouldMatchModbusWithCRC" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="b8fc77e0-c481-8d12-b1ce-31ffa6848b11">
+      <Execution id="d06b00cc-7a7a-4c67-b089-88a709137b7f" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_DataLength_ShouldMatchModbusWithCRC" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildParse_RoundTrip_ShouldPreserveData" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="0f3987ae-03b4-4a4c-fbe4-a25908020e32">
+      <Execution id="85a129df-08a5-4c1d-9bcb-aacdda27d325" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildParse_RoundTrip_ShouldPreserveData" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_ValidFrame_ShouldReturnTrue" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="3704c466-a18c-fc63-e597-cc9c8f24da57">
+      <Execution id="5306c394-6722-43d0-8da0-73ccce802fb4" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="TryParseFrame_ValidFrame_ShouldReturnTrue" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_NoHeader_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2b9d1fa9-c26d-5654-7674-b26d98339a59">
+      <Execution id="c47c254d-58c7-48bd-8802-36b646415a33" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="TryParseFrame_NoHeader_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetPrecisionAsync_ShouldReturnPrecision" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="3471258e-3ab1-3229-1999-d76cebda10d4">
+      <Execution id="f66e918d-cc0f-471e-b787-933f5e61e9a1" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetPrecisionAsync_ShouldReturnPrecision" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetSerialNumberAsync_ShouldReturnSerialNumber" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="ef3cb433-eebc-26b1-1f51-2183838c5828">
+      <Execution id="152a41d9-549e-4f34-95a8-2f29e674c75b" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetSerialNumberAsync_ShouldReturnSerialNumber" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_EnableOwi_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="195e9a01-baab-965c-25cc-b921f9d35e39">
+      <Execution id="6238c00f-bb26-41cc-8b2e-068d2002c85a" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_EnableOwi_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_FullSequence_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="3e30df0c-96d1-99fa-b2bf-0fdb9da63016">
+      <Execution id="1b40e25b-e53f-447f-b3a5-8539b906c5e3" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_FullSequence_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_GetFirmwareVersion_ShouldReturnNonEmpty" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="cf5257af-73d6-787f-8ae5-0fa5357f2a0b">
+      <Execution id="d102f5fa-83c2-45ff-a26f-2a99ce7d7a1b" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_GetFirmwareVersion_ShouldReturnNonEmpty" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_SetOutputProject_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="ff7ad0aa-a867-a47e-2c7e-bab7c00600c3">
+      <Execution id="1387f40d-38fc-4dd5-9613-de895b5745ee" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_SetOutputProject_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="f14213ef-efe7-3412-4a98-c05fe11aa3ee">
+      <Execution id="3066df88-5006-4e3e-a055-227f2234de8c" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_EnableOwiViaConverter_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetMeasurementProjectAsync_ShouldReturnResult" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="6e9b3d5e-cc9a-d336-9f60-e1696dd73504">
+      <Execution id="f33c2ebb-1863-4a2c-b333-cbc3700d918c" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetMeasurementProjectAsync_ShouldReturnResult" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_SequenceNumber_ShouldIncrement" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="24c50c1e-75cd-63de-07ad-7c5a1d6ff14e">
+      <Execution id="113a482f-5358-4f55-ab64-13cb319ff295" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_SequenceNumber_ShouldIncrement" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetIdentificationAsync_ShouldReturnAllInfo" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="b5fbbab8-5d80-ffce-98e4-7ffd381c8f3f">
+      <Execution id="38a80baa-8f21-420e-8779-672491e24f1d" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetIdentificationAsync_ShouldReturnAllInfo" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterCommandTests.BuildRawFrame_ScanDevice_ShouldMatchDocumentSample" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="419a3a8b-e13d-d7ab-2d97-2ead9a054259">
+      <Execution id="37f3997d-5f2f-47bd-a7b1-c420aaceb1fb" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterCommandTests" name="BuildRawFrame_ScanDevice_ShouldMatchDocumentSample" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_SetOutputProject_MaOut_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="73745b59-f8cf-b348-0793-4bf5b35cb029">
+      <Execution id="0aae7441-ba20-4ad1-aa13-ab4502cb8daa" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_SetOutputProject_MaOut_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="cfb9c40d-4c07-9351-926c-6cb214345f4f">
+      <Execution id="88189399-f73b-4f10-a57b-e225ebc9e742" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetConverterModelAsync_ShouldReturnModel" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.Name_ShouldReturnCpplV3" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="17f397d6-e99b-1e59-db80-f65bd41aa79b">
+      <Execution id="08154b0b-77a1-477c-b4f5-1d9d4ffc4226" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="Name_ShouldReturnCpplV3" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.TryParseFrame_TooShort_ShouldReturnFalse" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="3c873980-36d6-ba19-b1a5-83bea62df9ca">
+      <Execution id="a7c95c2c-d760-4f06-8481-f0d0ee5b3bc8" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="TryParseFrame_TooShort_ShouldReturnFalse" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainFunctionCode" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="c0b04036-8bed-86cd-3088-e84064c19b32">
+      <Execution id="19e4e666-adb8-447f-98b6-979f750169cc" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_ShouldContainFunctionCode" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.CloseMeasurementProjectAsync_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2929c0c0-8c1b-6b7e-16e5-5a2108c9e4e2">
+      <Execution id="7738810d-f994-4b23-aecc-e3c4791c3de4" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="CloseMeasurementProjectAsync_ShouldSucceed" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests.BuildFrame_ShouldContainTargetAddress" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="56820444-5393-16ed-26e0-504f8866be18">
+      <Execution id="1feb070d-bcc3-48c0-9eea-f486e752db56" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.CpplV3FrameStrategyTests" name="BuildFrame_ShouldContainTargetAddress" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetModuleTypeAsync_ShouldReturnType" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="276a1477-d794-8484-1d2b-4d9795a64b18">
+      <Execution id="fff011b3-3953-4cb0-b990-2593d32d94fc" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetModuleTypeAsync_ShouldReturnType" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.ConverterSerialTests.Converter_GetHardwareVersion_ShouldReturnNonEmpty" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="4d4fe33d-9d73-5fff-2118-66e9bcef46c6">
+      <Execution id="7b02cafb-fb2f-417a-a35c-8ec6b4fc85ad" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.ConverterSerialTests" name="Converter_GetHardwareVersion_ShouldReturnNonEmpty" />
+    </UnitTest>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.Constructor_WithDefaultConfig_ShouldSucceed" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="2fb004e2-650c-f116-f61c-487f59911977">
+      <Execution id="840353c1-8fab-4f00-a99f-fe9b64c95599" />
+      <TestMethod codeBase="g:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="Constructor_WithDefaultConfig_ShouldSucceed" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="b5fbbab8-5d80-ffce-98e4-7ffd381c8f3f" executionId="38a80baa-8f21-420e-8779-672491e24f1d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1d85191a-ecd6-1e76-be98-43a464d6335f" executionId="05fe9811-589a-4643-bad7-626591f94b9d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6c396934-44a9-e72b-0949-fc79583c128a" executionId="8c97ac05-2887-4caa-a60f-fad60030c6c6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="652362d7-b167-b7fc-5275-116135052a82" executionId="e3e0a8e9-bb9d-49d6-a777-2431b4e5bcc5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a16ca6a4-69fd-df95-1393-1ed88b477e36" executionId="4f7f44d4-aef1-4997-838f-7b43da426ed5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f14213ef-efe7-3412-4a98-c05fe11aa3ee" executionId="3066df88-5006-4e3e-a055-227f2234de8c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="24c50c1e-75cd-63de-07ad-7c5a1d6ff14e" executionId="113a482f-5358-4f55-ab64-13cb319ff295" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="32f36806-1f0d-afed-49b8-63fa7d3d8edc" executionId="8cc23ada-2d3e-44e0-abc6-d65a0949ba20" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cfb9c40d-4c07-9351-926c-6cb214345f4f" executionId="88189399-f73b-4f10-a57b-e225ebc9e742" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="419a3a8b-e13d-d7ab-2d97-2ead9a054259" executionId="37f3997d-5f2f-47bd-a7b1-c420aaceb1fb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="63b8e137-cc10-a089-3dc6-8caf422a913c" executionId="2b085412-2300-4e29-9452-21a5c3cfca54" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="01d947d2-4434-ca97-44e9-b792118db024" executionId="8451347d-d707-4214-8455-2bb9d4536309" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="56820444-5393-16ed-26e0-504f8866be18" executionId="1feb070d-bcc3-48c0-9eea-f486e752db56" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2929c0c0-8c1b-6b7e-16e5-5a2108c9e4e2" executionId="7738810d-f994-4b23-aecc-e3c4791c3de4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="68cf545e-de0e-e29e-9f6f-de53a5d6ffce" executionId="17845cc6-e593-4cf7-8e05-2f82fbb94f19" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b1ea172b-dcce-3431-e9bc-08cd065fdce7" executionId="5a7b12b1-8fd6-4aa8-aa7e-44e4b2eec10b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b7f78f9-dfd1-541a-429b-70cfb5ac774f" executionId="2f12d3a4-136c-4b93-aa69-98aae40ccedc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b8fc77e0-c481-8d12-b1ce-31ffa6848b11" executionId="d06b00cc-7a7a-4c67-b089-88a709137b7f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bc520cf3-74e5-7b58-d11a-55cd996c025a" executionId="f1482d40-d68c-4f7a-ac4b-3af6fa67b622" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ae12722d-dc57-59b1-7c18-0e44459d04de" executionId="175cbd12-f594-4df0-adea-7e819503baff" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2fb004e2-650c-f116-f61c-487f59911977" executionId="840353c1-8fab-4f00-a99f-fe9b64c95599" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4d4fe33d-9d73-5fff-2118-66e9bcef46c6" executionId="7b02cafb-fb2f-417a-a35c-8ec6b4fc85ad" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6df1f0fe-beed-ca59-b1c4-2eb1ebeae7ed" executionId="3e4a6a11-5e56-4aa0-8a24-6956976d23ee" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d5601e52-b09f-5005-8a8c-33e5c2ca9815" executionId="a42d9068-2f58-4f36-bd64-b4b4c248fa06" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2017317d-25e6-785e-689b-f5f4945a57a3" executionId="b79cadef-4ec3-4286-ba3a-a9d3935c1f19" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="fa46a425-b4a7-1855-0b62-07b247f07e8a" executionId="9bbeb4d3-45aa-453c-b2b1-51e0dfa51af2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="88798e95-f743-0f0e-2efd-d1e7df1724ec" executionId="58804272-e126-4b44-98c2-de4e9334eab7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c0b04036-8bed-86cd-3088-e84064c19b32" executionId="19e4e666-adb8-447f-98b6-979f750169cc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="73745b59-f8cf-b348-0793-4bf5b35cb029" executionId="0aae7441-ba20-4ad1-aa13-ab4502cb8daa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e0d5205f-eadf-dcfd-60d3-00d437f9c6f4" executionId="22e05dfb-cc37-42a6-8c5d-5edbb3b499c8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dc5c49aa-01ff-f60d-cca1-e8677fe37801" executionId="7c1d9159-b214-43f0-8e54-1950711205bf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="195e9a01-baab-965c-25cc-b921f9d35e39" executionId="6238c00f-bb26-41cc-8b2e-068d2002c85a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="89a7c726-ca6d-d7b4-43d4-8056c070d198" executionId="2fc6c123-06b5-4133-bd23-5a514591064f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b518883d-c17f-dfde-4636-43ef1c4ab6dd" executionId="10364f3a-0f95-4f68-bb93-446728af0608" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b75b211e-37b3-d17b-2ffc-f81e26a7f64e" executionId="e70ed4a4-953e-41c8-910d-c22105bea07a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f18b8abc-4315-6112-fa31-2efa8c00dc56" executionId="56e711a4-fea6-4d5a-b79c-fc2b7dae92ea" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3e30df0c-96d1-99fa-b2bf-0fdb9da63016" executionId="1b40e25b-e53f-447f-b3a5-8539b906c5e3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0f3987ae-03b4-4a4c-fbe4-a25908020e32" executionId="85a129df-08a5-4c1d-9bcb-aacdda27d325" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3c873980-36d6-ba19-b1a5-83bea62df9ca" executionId="a7c95c2c-d760-4f06-8481-f0d0ee5b3bc8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="435ff7a0-a30b-b4c9-64fd-b0b839e73459" executionId="57c0127f-1be0-4471-8df3-8d783212ac6f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="276a1477-d794-8484-1d2b-4d9795a64b18" executionId="fff011b3-3953-4cb0-b990-2593d32d94fc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bd650601-60c3-b196-2791-679b7a280d74" executionId="d42084a7-708d-47ea-9c6c-b4705746a1af" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ff7ad0aa-a867-a47e-2c7e-bab7c00600c3" executionId="1387f40d-38fc-4dd5-9613-de895b5745ee" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cfcdd11a-f5d8-aeb3-d003-afc89975e5ca" executionId="00db51c7-4c68-4210-af30-cff86a4e1fca" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2b9d1fa9-c26d-5654-7674-b26d98339a59" executionId="c47c254d-58c7-48bd-8802-36b646415a33" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3704c466-a18c-fc63-e597-cc9c8f24da57" executionId="5306c394-6722-43d0-8da0-73ccce802fb4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="17f397d6-e99b-1e59-db80-f65bd41aa79b" executionId="08154b0b-77a1-477c-b4f5-1d9d4ffc4226" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cf5257af-73d6-787f-8ae5-0fa5357f2a0b" executionId="d102f5fa-83c2-45ff-a26f-2a99ce7d7a1b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3471258e-3ab1-3229-1999-d76cebda10d4" executionId="f66e918d-cc0f-471e-b787-933f5e61e9a1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="098016dc-c895-7cde-221a-00a993166906" executionId="b586ae80-e2f9-4a7c-b5a4-daaf07aebc22" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dd303077-300b-622e-292c-fe4305616808" executionId="015123db-e570-446e-8324-72341623fccb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a7c13fd0-267b-f027-5e87-6c2bf8da2f0f" executionId="f5344cc9-bc85-47d1-9652-55425d4f6c24" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a27545b3-bf9e-5f19-4ce2-1a12f0c72e3d" executionId="69c10189-ab0c-4e18-8dcf-cccbb2dfd3d7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2a2cad3b-353e-0f0b-675d-108f46f17001" executionId="f12aa494-14ff-497a-90bf-b26fba04eea2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c23e3320-ca14-6a67-fc78-059a5cbde885" executionId="4b434570-a5e1-417d-b968-e752f1d4b875" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="780bae86-4665-bc62-c90e-f330fe78055c" executionId="ec9dca2a-3162-4614-a5d8-b07f32ec38e9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6e9b3d5e-cc9a-d336-9f60-e1696dd73504" executionId="f33c2ebb-1863-4a2c-b333-cbc3700d918c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ef3cb433-eebc-26b1-1f51-2183838c5828" executionId="152a41d9-549e-4f34-95a8-2f29e674c75b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="58" executed="58" passed="47" failed="11" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.63]   Discovering: DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.69]   Discovered:  DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.70]   Starting:    DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:15.86]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:00:15.86]       Stack Trace:&#xD;
+[xUnit.net 00:00:15.87]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:00:15.87]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:00:15.87]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1045,0): at DeviceLink.Device.PS02.PS02Base.GetConverterModelAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:00:15.87]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(479,0): at DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel()&#xD;
+[xUnit.net 00:00:15.87]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:30.95]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:00:30.95]       Stack Trace:&#xD;
+[xUnit.net 00:00:30.95]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:00:30.95]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:00:30.95]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1106,0): at DeviceLink.Device.PS02.PS02Base.GetMeasurementProjectAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:00:30.95]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(562,0): at DeviceLink.Tests.PS02.PS02Tests.GetMeasurementProjectAsync_ShouldReturnResult()&#xD;
+[xUnit.net 00:00:30.95]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:33.14]       启用 OWI 通信模式应该成功&#xD;
+[xUnit.net 00:00:33.14]       Expected: True&#xD;
+[xUnit.net 00:00:33.14]       Actual:   False&#xD;
+[xUnit.net 00:00:33.14]       Stack Trace:&#xD;
+[xUnit.net 00:00:33.14]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\ConverterSerialTests.cs(479,0): at DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed()&#xD;
+[xUnit.net 00:00:33.14]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\ConverterSerialTests.cs(496,0): at DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed()&#xD;
+[xUnit.net 00:00:33.14]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:33.14]       Output:&#xD;
+[xUnit.net 00:00:33.14]         串口配置: COM101, 9600bps, 从站地址: 1&#xD;
+[xUnit.net 00:00:33.14]         设备已成功打开&#xD;
+[xUnit.net 00:00:33.14]         启用 OWI 通信模式结果: False&#xD;
+[xUnit.net 00:00:33.14]         禁用 OWI 通信模式结果: False&#xD;
+[xUnit.net 00:00:33.14]         设备已关闭&#xD;
+[xUnit.net 00:00:36.05]       DeviceLink.Session.SessionException : 请求失败: 接收超时或未收到有效数据&#xD;
+[xUnit.net 00:00:36.05]       ---- DeviceLink.DataLink.FrameTimeoutException : 接收超时或未收到有效数据&#xD;
+[xUnit.net 00:00:36.05]       Stack Trace:&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs(98,0): at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct)&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(154,0): at DeviceLink.Device.PS02.PS02Base.SendAsync(Command command, CancellationToken ct)&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\core\DeviceLink.DeviceBase\DeviceBase.cs(431,0): at DeviceLink.DeviceBase.DeviceBase.SendForResultAsync[T](Command command, Func`2 decoder, CancellationToken ct)&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(297,0): at DeviceLink.Device.PS02.PS02Base.GetPressureAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(148,0): at DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_ShouldReturnPressure()&#xD;
+[xUnit.net 00:00:36.05]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:36.05]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs(141,0): at DeviceLink.DataLink.DirectDataLink.SendAndReceiveFrameAsync(Byte[] frameData, CancellationToken ct)&#xD;
+[xUnit.net 00:00:36.05]         g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs(83,0): at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct)&#xD;
+[xUnit.net 00:00:51.11]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:00:51.11]       Stack Trace:&#xD;
+[xUnit.net 00:00:51.11]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:00:51.11]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:00:51.11]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1062,0): at DeviceLink.Device.PS02.PS02Base.GetConverterDeviceNumberAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:00:51.11]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(505,0): at DeviceLink.Tests.PS02.PS02Tests.GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber()&#xD;
+[xUnit.net 00:00:51.11]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:01:21.34]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:01:21.34]       Stack Trace:&#xD;
+[xUnit.net 00:01:21.34]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:01:21.34]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:01:21.34]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1240,0): at DeviceLink.Device.PS02.PS02Base.SendHeartbeatAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:01:21.34]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(650,0): at DeviceLink.Tests.PS02.PS02Tests.SendHeartbeatAsync_ShouldSucceed()&#xD;
+[xUnit.net 00:01:21.34]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:01:36.37]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:01:36.37]       Stack Trace:&#xD;
+[xUnit.net 00:01:36.37]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:01:36.37]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:01:36.37]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1128,0): at DeviceLink.Device.PS02.PS02Base.CloseMeasurementProjectAsync(OutputProject project, CancellationToken ct)&#xD;
+[xUnit.net 00:01:36.37]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(588,0): at DeviceLink.Tests.PS02.PS02Tests.CloseMeasurementProjectAsync_ShouldSucceed()&#xD;
+[xUnit.net 00:01:36.37]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:01:51.42]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:01:51.42]       Stack Trace:&#xD;
+[xUnit.net 00:01:51.42]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:01:51.42]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:01:51.42]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1086,0): at DeviceLink.Device.PS02.PS02Base.SetConverterDeviceNumberAsync(String deviceNumber, CancellationToken ct)&#xD;
+[xUnit.net 00:01:51.42]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(530,0): at DeviceLink.Tests.PS02.PS02Tests.SetConverterDeviceNumberAsync_ShouldSucceed()&#xD;
+[xUnit.net 00:01:51.42]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:01:52.47]       Assert.Throws() Failure&#xD;
+[xUnit.net 00:01:52.47]       Expected: typeof(System.Threading.Tasks.TaskCanceledException)&#xD;
+[xUnit.net 00:01:52.47]       Actual:   typeof(System.OperationCanceledException): The operation was canceled.&#xD;
+[xUnit.net 00:01:52.47]       ---- System.OperationCanceledException : The operation was canceled.&#xD;
+[xUnit.net 00:01:52.47]       Stack Trace:&#xD;
+[xUnit.net 00:01:52.47]            at System.Threading.CancellationToken.ThrowOperationCanceledException()&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs(210,0): at DeviceLink.DataLink.DirectDataLink.ReceiveLoopAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs(122,0): at DeviceLink.DataLink.DirectDataLink.SendAndReceiveFrameAsync(Byte[] frameData, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs(83,0): at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(154,0): at DeviceLink.Device.PS02.PS02Base.SendAsync(Command command, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.DeviceBase\DeviceBase.cs(431,0): at DeviceLink.DeviceBase.DeviceBase.SendForResultAsync[T](Command command, Func`2 decoder, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(297,0): at DeviceLink.Device.PS02.PS02Base.GetPressureAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:01:52.47]            at System.Threading.CancellationToken.ThrowOperationCanceledException()&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs(210,0): at DeviceLink.DataLink.DirectDataLink.ReceiveLoopAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.DataLink\Implementations\DirectDataLink.cs(122,0): at DeviceLink.DataLink.DirectDataLink.SendAndReceiveFrameAsync(Byte[] frameData, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.Session\Implementations\DirectSession.cs(83,0): at DeviceLink.Session.DirectSession.SendAndReceiveAsync(Byte[] request, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(154,0): at DeviceLink.Device.PS02.PS02Base.SendAsync(Command command, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\core\DeviceLink.DeviceBase\DeviceBase.cs(431,0): at DeviceLink.DeviceBase.DeviceBase.SendForResultAsync[T](Command command, Func`2 decoder, CancellationToken ct)&#xD;
+[xUnit.net 00:01:52.47]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(297,0): at DeviceLink.Device.PS02.PS02Base.GetPressureAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:02:07.48]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:02:07.48]       Stack Trace:&#xD;
+[xUnit.net 00:02:07.48]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:02:07.48]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:02:07.48]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1226,0): at DeviceLink.Device.PS02.PS02Base.SetModulePowerAsync(ModulePowerState state, CancellationToken ct)&#xD;
+[xUnit.net 00:02:07.48]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(631,0): at DeviceLink.Tests.PS02.PS02Tests.SetModulePowerAsync_ShouldSucceed()&#xD;
+[xUnit.net 00:02:07.48]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:02:22.52]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:02:22.52]       Stack Trace:&#xD;
+[xUnit.net 00:02:22.52]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:02:22.52]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:02:22.52]         g:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1146,0): at DeviceLink.Device.PS02.PS02Base.GetCalibrationCountAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:02:22.52]         g:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(608,0): at DeviceLink.Tests.PS02.PS02Tests.GetCalibrationCountAsync_ShouldReturnCount()&#xD;
+[xUnit.net 00:02:22.52]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:02:22.53]   Finished:    DeviceLink.Tests.PS02&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:12:05.3062302+08:00">
+        <Text>[xUnit.net 00:00:15.86]     DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:12:20.3929870+08:00">
+        <Text>[xUnit.net 00:00:30.95]     DeviceLink.Tests.PS02.PS02Tests.GetMeasurementProjectAsync_ShouldReturnResult [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:12:22.5865024+08:00">
+        <Text>[xUnit.net 00:00:33.14]     DeviceLink.Tests.PS02.ConverterSerialTests.Converter_EnableOwiViaConverter_ShouldSucceed [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:12:25.4896506+08:00">
+        <Text>[xUnit.net 00:00:36.05]     DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_ShouldReturnPressure [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:12:40.5525298+08:00">
+        <Text>[xUnit.net 00:00:51.11]     DeviceLink.Tests.PS02.PS02Tests.GetConverterDeviceNumberAsync_ShouldReturnDeviceNumber [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:13:10.7872479+08:00">
+        <Text>[xUnit.net 00:01:21.34]     DeviceLink.Tests.PS02.PS02Tests.SendHeartbeatAsync_ShouldSucceed [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:13:25.8154390+08:00">
+        <Text>[xUnit.net 00:01:36.37]     DeviceLink.Tests.PS02.PS02Tests.CloseMeasurementProjectAsync_ShouldSucceed [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:13:40.8620408+08:00">
+        <Text>[xUnit.net 00:01:51.42]     DeviceLink.Tests.PS02.PS02Tests.SetConverterDeviceNumberAsync_ShouldSucceed [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:13:41.9128520+08:00">
+        <Text>[xUnit.net 00:01:52.47]     DeviceLink.Tests.PS02.PS02Tests.GetPressureAsync_TransportTimeout_ShouldThrow [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:13:56.9260855+08:00">
+        <Text>[xUnit.net 00:02:07.48]     DeviceLink.Tests.PS02.PS02Tests.SetModulePowerAsync_ShouldSucceed [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:14:11.9660331+08:00">
+        <Text>[xUnit.net 00:02:22.52]     DeviceLink.Tests.PS02.PS02Tests.GetCalibrationCountAsync_ShouldReturnCount [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

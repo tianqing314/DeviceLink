@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="00731f77-9034-49db-8441-2f98a73b86ca" name="gsl940@GSL940A 2026-07-07 12:16:06" runUser="CONST\gsl940" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-07T12:16:06.8477523+08:00" queuing="2026-07-07T12:16:06.8477529+08:00" start="2026-07-07T12:15:49.4061548+08:00" finish="2026-07-07T12:16:06.8545616+08:00" />
+  <TestSettings name="default" id="7d532d48-2f44-4532-99ff-5f7b34f11023">
+    <Deployment runDeploymentRoot="gsl940_GSL940A_2026-07-07_12_16_06" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="87a23544-d258-4829-9f3b-e8077045539b" testId="cfb9c40d-4c07-9351-926c-6cb214345f4f" testName="DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel" computerName="GSL940A" duration="00:00:15.0477421" startTime="2026-07-07T12:16:06.7407348+08:00" endTime="2026-07-07T12:16:06.7407578+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="87a23544-d258-4829-9f3b-e8077045539b">
+      <Output>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应超时</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct) in G:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 960&#xD;
+   at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct) in G:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 913&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetConverterModelAsync(CancellationToken ct) in G:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1045&#xD;
+   at DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel() in G:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs:line 479&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel" storage="g:\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="cfb9c40d-4c07-9351-926c-6cb214345f4f">
+      <Execution id="87a23544-d258-4829-9f3b-e8077045539b" />
+      <TestMethod codeBase="G:\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02Tests" name="GetConverterModelAsync_ShouldReturnModel" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="cfb9c40d-4c07-9351-926c-6cb214345f4f" executionId="87a23544-d258-4829-9f3b-e8077045539b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.90]   Discovering: DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.98]   Discovered:  DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.98]   Starting:    DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:16.14]       DeviceLink.DeviceBase.DeviceException : 转接板响应超时&#xD;
+[xUnit.net 00:00:16.14]       Stack Trace:&#xD;
+[xUnit.net 00:00:16.14]         G:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(960,0): at DeviceLink.Device.PS02.PS02Base.ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)&#xD;
+[xUnit.net 00:00:16.14]         G:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(913,0): at DeviceLink.Device.PS02.PS02Base.SendRawFrameAsync(Byte[] frame, CancellationToken ct)&#xD;
+[xUnit.net 00:00:16.14]         G:\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1045,0): at DeviceLink.Device.PS02.PS02Base.GetConverterModelAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:00:16.14]         G:\DeviceLink\tests\DeviceLink.Tests.PS02\PS02Tests.cs(479,0): at DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel()&#xD;
+[xUnit.net 00:00:16.14]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:16.15]   Finished:    DeviceLink.Tests.PS02&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-07T12:16:06.7359419+08:00">
+        <Text>[xUnit.net 00:00:16.14]     DeviceLink.Tests.PS02.PS02Tests.GetConverterModelAsync_ShouldReturnModel [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

@@ -344,7 +344,7 @@ namespace DeviceLink.Tests.PS02
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
 
-                _output.WriteLine("=== 开始转接板初始化序列（15步） ===");
+                _output.WriteLine("=== 开始转接板初始化序列（14步） ===");
 
                 // 指令 1：扫描从设备（scanType=0x01）
                 _output.WriteLine("[01/13] 扫描从设备（类型 0x01）...");
@@ -374,23 +374,23 @@ namespace DeviceLink.Tests.PS02
                 await _device.DisableAllOutputAsync();
                 _output.WriteLine("  输出已关闭");
 
-                // 指令 6~11：循环扫描从设备，最多10次，扫描类型交替变化
+                // 指令 6~10：循环扫描从设备，最多5次，扫描类型交替变化
                 DeviceInterfaceType scanResult2 = DeviceInterfaceType.NotConnected;
                 bool scanSuccess = false;
-                for (int retry = 0; retry < 10; retry++)
+                for (int retry = 0; retry < 5; retry++)
                 {
                     // 扫描类型交替变化：偶数次 0x00，奇数次 0x01
                     byte scanType = (retry % 2 == 0) ? (byte)0x00 : (byte)0x01;
-                    
+
                     _output.WriteLine($"[{6 + retry:D2}/15] 扫描从设备（类型 0x{scanType:X2}，第 {retry + 1} 次）...");
                     scanResult2 = await _device.ScanDeviceAsync(scanType);
                     _output.WriteLine($"  扫描结果: {scanResult2} ({(byte)scanResult2})");
-                    
+
                     // 扫描完成后，读取扫描结果（功能码 0x0301）
                     _output.WriteLine($"  读取扫描结果...");
                     var getScanResult = await _device.GetScanResultAsync();
                     _output.WriteLine($"  获取扫描结果: {getScanResult} ({(byte)getScanResult})");
-                    
+
                     // 如果扫描成功（非未连接），跳出循环
                     if (getScanResult != DeviceInterfaceType.NotConnected)
                     {
@@ -399,25 +399,25 @@ namespace DeviceLink.Tests.PS02
                         _output.WriteLine($"  扫描成功，跳出循环");
                         break;
                     }
-                    
+
                     _output.WriteLine($"  未检测到设备，继续扫描...");
-                    await Task.Delay(500);
+                    await Task.Delay(1000);
                 }
-                
+
                 if (!scanSuccess)
                 {
-                    _output.WriteLine("  警告: 10次扫描后仍未检测到设备");
+                    _output.WriteLine("  警告: 5次扫描后仍未检测到设备");
                 }
-                
+
                 await Task.Delay(1000);
-                
-                // 指令 12：扫描从设备（scanType=0x01）
-                _output.WriteLine("[12/15] 扫描从设备（类型 0x01）...");
+
+                // 指令 11：扫描从设备（scanType=0x01）
+                _output.WriteLine("[11/14] 扫描从设备（类型 0x01）...");
                 var scanResult3 = await _device.ScanDeviceAsync(0x01);
                 _output.WriteLine($"  扫描结果: {scanResult3} ({(byte)scanResult3})");
 
-                // 指令 13：读取 PS02 模块序列号（如果扫描成功）
-                _output.WriteLine("[13/15] 读取 PS02 模块序列号...");
+                // 指令 12：读取 PS02 模块序列号（如果扫描成功）
+                _output.WriteLine("[12/14] 读取 PS02 模块序列号...");
                 string serialNumber = string.Empty;
                 if (scanSuccess)
                 {
@@ -436,15 +436,15 @@ namespace DeviceLink.Tests.PS02
                     _output.WriteLine("  跳过: 扫描未成功");
                 }
 
-                // 指令 14：启用 OWI 通信模式（Modbus RTU 转发）
-                _output.WriteLine("[14/15] 启用 OWI 通信模式...");
+                // 指令 13：启用 OWI 通信模式（Modbus RTU 转发）
+                _output.WriteLine("[13/14] 启用 OWI 通信模式...");
                 bool owiEnabled = await _device.EnableOwiViaConverterAsync(_slaveAddress);
                 _output.WriteLine($"  OWI 启用结果: {owiEnabled}");
 
-                // 指令 15：读取 PS02 序列号（OWI 模式下）
+                // 指令 14：读取 PS02 序列号（OWI 模式下）
                 if (owiEnabled)
                 {
-                    _output.WriteLine("[15/15] OWI 模式下读取 PS02 序列号...");
+                    _output.WriteLine("[14/14] OWI 模式下读取 PS02 序列号...");
                     var owiSerialNumber = await _device.GetSerialNumberAsync();
                     _output.WriteLine($"  PS02 序列号 (OWI): {owiSerialNumber}");
                 }
