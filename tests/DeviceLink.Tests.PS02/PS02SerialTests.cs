@@ -415,27 +415,6 @@ namespace DeviceLink.Tests.PS02
                 _output.WriteLine("[11/14] 扫描从设备（类型 0x01）...");
                 var scanResult3 = await _device.ScanDeviceAsync(0x01);
                 _output.WriteLine($"  扫描结果: {scanResult3} ({(byte)scanResult3})");
-
-                // 指令 12：读取 PS02 模块序列号（如果扫描成功）
-                _output.WriteLine("[12/14] 读取 PS02 模块序列号...");
-                string serialNumber = string.Empty;
-                if (scanSuccess)
-                {
-                    try
-                    {
-                        serialNumber = await _device.GetSerialNumberAsync();
-                        _output.WriteLine($"  PS02 序列号: {serialNumber}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _output.WriteLine($"  读取序列号失败: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    _output.WriteLine("  跳过: 扫描未成功");
-                }
-
                 // 指令 13：启用 OWI 通信模式（Modbus RTU 转发）
                 _output.WriteLine("[13/14] 启用 OWI 通信模式...");
                 bool owiEnabled = await _device.EnableOwiViaConverterAsync(_slaveAddress);
@@ -456,7 +435,7 @@ namespace DeviceLink.Tests.PS02
                 _output.WriteLine($"  扫描结果 2: {scanResult2}");
                 _output.WriteLine($"  扫描结果 3: {scanResult3}");
                 _output.WriteLine($"  扫描成功: {scanSuccess}");
-                _output.WriteLine($"  PS02 序列号: {serialNumber}");
+                //_output.WriteLine($"  PS02 序列号: {serialNumber}");
                 _output.WriteLine($"  OWI 启用: {owiEnabled}");
             }
             finally
@@ -609,6 +588,64 @@ namespace DeviceLink.Tests.PS02
                 // 验证压力类型是已知值
                 Assert.True(Enum.IsDefined(typeof(PressureType), type),
                     $"压力类型应该是已知值，实际值: {type}");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Serial")]
+        public async Task Serial_SetPressureType_ShouldSucceed()
+        {
+            if (!IsSerialPortAvailable())
+            {
+                _output.WriteLine("跳过测试: 串口不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                // 读取当前压力类型
+                var originalType = await _device!.GetPressureTypeAsync();
+                _output.WriteLine($"原始压力类型: {originalType} ({(ushort)originalType})");
+
+                // 设置为表压
+                _output.WriteLine("设置压力类型为表压(Gauge)...");
+                await _device.SetPressureTypeAsync(PressureType.Gauge);
+                await Task.Delay(3000); // 等待设备处理
+                var gaugeType = await _device.GetPressureTypeAsync();
+                _output.WriteLine($"读取压力类型: {gaugeType} ({(ushort)gaugeType})");
+                Assert.Equal(PressureType.Gauge, gaugeType);
+
+                // 设置为绝压
+                _output.WriteLine("设置压力类型为绝压(Absolute)...");
+                await _device.SetPressureTypeAsync(PressureType.Absolute);
+                await Task.Delay(3000); // 等待设备处理
+                var absoluteType = await _device.GetPressureTypeAsync();
+                _output.WriteLine($"读取压力类型: {absoluteType} ({(ushort)absoluteType})");
+                Assert.Equal(PressureType.Absolute, absoluteType);
+
+                // 设置为差压
+                _output.WriteLine("设置压力类型为差压(Differential)...");
+                await _device.SetPressureTypeAsync(PressureType.Differential);
+                await Task.Delay(3000); // 等待设备处理
+                var differentialType = await _device.GetPressureTypeAsync();
+
+                _output.WriteLine($"读取压力类型: {differentialType} ({(ushort)differentialType})");
+                Assert.Equal(PressureType.Differential, differentialType);
+
+                // 恢复原始压力类型
+                if (originalType != differentialType)
+                {
+                    _output.WriteLine($"恢复原始压力类型: {originalType}");
+                    await _device.SetPressureTypeAsync(originalType);
+                }
+
+                _output.WriteLine("压力类型设置测试通过");
             }
             finally
             {

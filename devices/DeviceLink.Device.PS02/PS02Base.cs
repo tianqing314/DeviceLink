@@ -371,6 +371,21 @@ namespace DeviceLink.Device.PS02
         }
 
         /// <summary>
+        /// 设置压力类型（F41, 寄存器 0x5137）
+        /// 0=表压(Gauge), 2=绝压(Absolute), 3=差压(Differential)
+        /// </summary>
+        /// <param name="pressureType">压力类型</param>
+        /// <param name="ct">取消令牌</param>
+        public async Task SetPressureTypeAsync(PressureType pressureType, CancellationToken ct = default)
+        {
+            // 寄存器 0x5137，2字节大端模式
+            var data = new byte[2];
+            data[0] = (byte)((ushort)pressureType >> 8);    // 高字节
+            data[1] = (byte)((ushort)pressureType & 0xFF);  // 低字节
+            await WriteRegistersF41Async(PS02Registers.PressureType, data, ct);
+        }
+
+        /// <summary>
         /// 读取迁移量程（F40, 寄存器 0x513E-0x5141）
         /// 返回下限和上限，均为 float32 小端浮点数，单位 kPa
         /// 返回值格式：[CPPI错误码0x00][从站地址][功能码0x28][字节数0x08][下限4字节][上限4字节]
