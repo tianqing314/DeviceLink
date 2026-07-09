@@ -200,8 +200,9 @@ namespace DeviceLink.Tests.ZQWL
         public async Task BNRC16_GetOutputAsync_ShouldReturnCorrectState()
         {
             var mockSession = new Mock<ISession>();
-            // data[4]=channel, data[5]=state(0x01=开)
-            var response = new byte[] { 0x01, 0x72, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00 };
+            // 响应格式：data[0]=channel, data[1]=state
+            // raw[0]=addr(0x01), raw[1]=func(0x72), raw[2]=channel(0x01), raw[3]=state(0x01)
+            var response = new byte[] { 0x01, 0x72, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             mockSession.Setup(s => s.SendAndReceiveAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
                        .ReturnsAsync(response);
 
@@ -215,7 +216,8 @@ namespace DeviceLink.Tests.ZQWL
         public async Task BNRC16_GetOutputAsync_ChannelOff_ShouldReturnFalse()
         {
             var mockSession = new Mock<ISession>();
-            var response = new byte[] { 0x01, 0x72, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            // 响应格式：data[0]=channel, data[1]=state
+            var response = new byte[] { 0x01, 0x72, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             mockSession.Setup(s => s.SendAndReceiveAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
                        .ReturnsAsync(response);
 

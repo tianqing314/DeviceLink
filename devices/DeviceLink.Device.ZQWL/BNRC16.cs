@@ -136,10 +136,11 @@ namespace DeviceLink.Device.ZQWL
                 Command.Read($"GetOutput.{channel}"),
                 raw =>
                 {
-                    if (raw.Length >= 10)
+                    if (raw.Length >= 4)
                     {
-                        // 响应格式：data[4]=channel, data[5]=state
-                        return raw[5] == 0x01;
+                        // 响应格式：data[0]=channel, data[1]=state
+                        // raw[0]=addr, raw[1]=func, raw[2]=channel, raw[3]=state
+                        return raw[3] == 0x01;
                     }
                     return false;
                 },
