@@ -325,11 +325,14 @@ namespace DeviceLink.Tests.ZQWL
         }
 
         [Fact]
-        public async Task BNRC32_IsExistAsync_VersionContainsBN_ShouldReturnTrue()
+        public async Task BNRC32_IsExistAsync_VersionContainsBNRC32_ShouldReturnTrue()
         {
             var mockSession = new Mock<ISession>();
-            var response = new byte[] { 0x01, 0x66, 0x00, 0x00,
-                                        0x42, 0x4E, 0x2D, 0x33, 0x32, 0x2D, 0x56, 0x32, 0x00 };
+            // 版本号格式：1BNRC32
+            // ExtractVersion 从 raw[2] 开始读取 8 字节
+            // raw[2..9] = "1BNRC32\0"
+            var response = new byte[] { 0x01, 0x66,
+                                        0x31, 0x42, 0x4E, 0x52, 0x43, 0x33, 0x32, 0x00 };
             mockSession.Setup(s => s.SendAndReceiveAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
                        .ReturnsAsync(response);
 
@@ -338,16 +341,31 @@ namespace DeviceLink.Tests.ZQWL
         }
 
         [Fact]
-        public async Task BNRC32_IsExistAsync_VersionContainsIO_ShouldReturnTrue()
+        public async Task BNRC32_IsExistAsync_VersionContainsBN_ShouldReturnFalse()
         {
             var mockSession = new Mock<ISession>();
+            // 版本号格式：BN-32-V2（不包含 BNRC32）
+            var response = new byte[] { 0x01, 0x66, 0x00, 0x00,
+                                        0x42, 0x4E, 0x2D, 0x33, 0x32, 0x2D, 0x56, 0x32, 0x00 };
+            mockSession.Setup(s => s.SendAndReceiveAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(response);
+
+            var device = new BNRC32(mockSession.Object, address: 1);
+            Assert.False(await device.IsExistAsync());
+        }
+
+        [Fact]
+        public async Task BNRC32_IsExistAsync_VersionContainsIO_ShouldReturnFalse()
+        {
+            var mockSession = new Mock<ISession>();
+            // 版本号格式：IO-32-00（不包含 BNRC32）
             var response = new byte[] { 0x01, 0x66, 0x00, 0x00,
                                         0x49, 0x4F, 0x2D, 0x33, 0x32, 0x2D, 0x30, 0x30, 0x00 };
             mockSession.Setup(s => s.SendAndReceiveAsync(It.IsAny<byte[]>(), It.IsAny<CancellationToken>()))
                        .ReturnsAsync(response);
 
             var device = new BNRC32(mockSession.Object, address: 1);
-            Assert.True(await device.IsExistAsync());
+            Assert.False(await device.IsExistAsync());
         }
 
         [Fact]

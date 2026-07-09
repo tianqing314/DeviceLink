@@ -1,7 +1,5 @@
-using DeviceLink.Device.ZQWL;
-using System;
 using System.Net;
-using System.Threading.Tasks;
+using DeviceLink.Device.ZQWL;
 using Xunit;
 
 namespace DeviceLink.Tests.ZQWL
@@ -29,7 +27,7 @@ namespace DeviceLink.Tests.ZQWL
         public BNRC16NetworkTests()
         {
             // 从环境变量读取配置
-            _ipAddress = Environment.GetEnvironmentVariable("BNRC16_IP") ?? "192.168.45.103";
+            _ipAddress = Environment.GetEnvironmentVariable("BNRC16_IP") ?? "192.168.45.101";
             _port = int.TryParse(Environment.GetEnvironmentVariable("BNRC16_PORT"), out int port) ? port : 1030;
             _address = 1; // 默认设备地址
         }

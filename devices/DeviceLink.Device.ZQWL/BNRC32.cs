@@ -183,15 +183,22 @@ namespace DeviceLink.Device.ZQWL
         }
 
         /// <summary>
-        /// 检查设备是否存在
+        /// 检查设备是否存在（通过读取版本号判断）
+        /// 版本号示例：1BNRC32、BN-32-V2
         /// </summary>
+        /// <param name="ct">取消令牌</param>
+        /// <returns>true 表示设备存在且为 BNRC32 型号</returns>
         public async Task<bool> IsExistAsync(CancellationToken ct = default)
         {
             try
             {
                 var version = await GetVersionAsync(ct);
-                return !string.IsNullOrEmpty(version) &&
-                       (version.Contains("IO") || version.Contains("BN"));
+                if (string.IsNullOrEmpty(version))
+                    return false;
+
+                // 检查是否为 BNRC32 型号
+                // 版本号格式：1BNRC32 或包含 BNRC32 的字符串
+                return version.Contains("BNRC32");
             }
             catch
             {
