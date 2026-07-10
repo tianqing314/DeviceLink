@@ -1,8 +1,6 @@
 using DeviceLink.Device.ConST171A;
 using DeviceLink.DeviceBase;
 using DeviceLink.Transport;
-using System;
-using System.Threading.Tasks;
 using Xunit;
 
 using ConST171ADevice = DeviceLink.Device.ConST171A.ConST171Base;
@@ -93,7 +91,7 @@ namespace DeviceLink.Tests.ConST171A
                 Assert.NotNull(id);
                 Assert.NotEmpty(id.Manufacturer);
                 Assert.NotEmpty(id.Model);
-                
+
                 Console.WriteLine($"设备标识: {id.Manufacturer}, {id.Model}, {id.SerialNumber}");
             }
             finally
@@ -126,7 +124,7 @@ namespace DeviceLink.Tests.ConST171A
                 Assert.False(double.IsNaN(result.VacuumValue), "真空值应有效");
                 Assert.NotEmpty(result.PositiveUnit);
                 Assert.NotEmpty(result.VacuumUnit);
-                
+
                 Console.WriteLine($"正压: {result.PositiveValue} {result.PositiveUnit}");
                 Console.WriteLine($"真空: {result.VacuumValue} {result.VacuumUnit}");
             }
@@ -158,7 +156,7 @@ namespace DeviceLink.Tests.ConST171A
                 Assert.False(double.IsNaN(result.Value));
                 Assert.NotNull(result.Unit);
                 Assert.NotEmpty(result.Unit);
-                
+
                 Console.WriteLine($"正压值: {result.Value} {result.Unit}");
             }
             finally
@@ -189,7 +187,7 @@ namespace DeviceLink.Tests.ConST171A
                 Assert.False(double.IsNaN(result.Value));
                 Assert.NotNull(result.Unit);
                 Assert.NotEmpty(result.Unit);
-                
+
                 Console.WriteLine($"真空值: {result.Value} {result.Unit}");
             }
             finally
@@ -222,7 +220,7 @@ namespace DeviceLink.Tests.ConST171A
                 Assert.NotEmpty(pressureUnit);
                 Assert.NotNull(vacuumUnit);
                 Assert.NotEmpty(vacuumUnit);
-                
+
                 Console.WriteLine($"正压单位: {pressureUnit}");
                 Console.WriteLine($"真空单位: {vacuumUnit}");
             }
@@ -254,7 +252,7 @@ namespace DeviceLink.Tests.ConST171A
                 Assert.NotNull(range);
                 Assert.True(range.IsValid, "压力范围应有效");
                 Assert.True(range.Max >= range.Min, "上限应大于等于下限");
-                
+
                 Console.WriteLine($"压力范围: {range.Min} - {range.Max}");
             }
             finally
@@ -284,7 +282,7 @@ namespace DeviceLink.Tests.ConST171A
                 // Assert
                 Assert.NotNull(serialNumber);
                 Assert.NotEmpty(serialNumber);
-                
+
                 Console.WriteLine($"设备序列号: {serialNumber}");
             }
             finally
@@ -314,7 +312,7 @@ namespace DeviceLink.Tests.ConST171A
                 // Assert
                 Assert.NotNull(model);
                 Assert.NotEmpty(model);
-                
+
                 Console.WriteLine($"设备型号: {model}");
             }
             finally

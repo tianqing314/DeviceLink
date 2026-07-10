@@ -38,7 +38,7 @@ namespace DeviceLink.Protocol
         /// <inheritdoc/>
         public string ProtocolName => "ZQWL";
 
-        /// <summary>设备地址</summary>
+        /// <summary>设备地址/// </summary>
         public byte Address => _address;
 
         /// <inheritdoc/>

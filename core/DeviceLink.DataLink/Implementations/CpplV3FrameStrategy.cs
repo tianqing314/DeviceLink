@@ -25,13 +25,13 @@ namespace DeviceLink.DataLink
         private const int Crc16Size = 2;
         private const int MinFrameSize = HeaderSize + Crc8Size + Crc16Size; // 16字节（无数据时）
 
-        /// <summary>帧头到数据长度的固定字节数（用于CRC8计算）</summary>
+        /// <summary>帧头到数据长度的固定字节数（用于CRC8计算）/// </summary>
         private const int Crc8Length = 13;
 
-        /// <summary>默认目标地址（转换板）：26 01 00 (小端)</summary>
+        /// <summary>默认目标地址（转换板）：26 01 00 (小端)/// </summary>
         private static readonly byte[] DefaultTargetAddress = new byte[] { 0x26, 0x01, 0x00 };
 
-        /// <summary>默认源地址（PC）：36 22 11 (小端)</summary>
+        /// <summary>默认源地址（PC）：36 22 11 (小端)/// </summary>
         private static readonly byte[] DefaultSourceAddress = new byte[] { 0x36, 0x22, 0x11 };
 
         private readonly byte[] _targetAddress;

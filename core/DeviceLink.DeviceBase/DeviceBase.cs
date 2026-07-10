@@ -1,13 +1,10 @@
-using System;
-using System.IO.Ports;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using DeviceLink.DataLink;
 using DeviceLink.Pipeline;
 using DeviceLink.Protocol;
 using DeviceLink.Session;
 using DeviceLink.Transport;
+using System.IO.Ports;
+using System.Net;
 
 namespace DeviceLink.DeviceBase
 {
@@ -26,16 +23,16 @@ namespace DeviceLink.DeviceBase
     /// </summary>
     public abstract class DeviceBase : IDisposable
     {
-        /// <summary>通信管道（封装完整的 OSI 链路）</summary>
+        /// <summary>通信管道（封装完整的 OSI 链路）/// </summary>
         protected CommunicationPipeline Pipeline { get; }
 
-        /// <summary>会话层（从 Pipeline 中提取）</summary>
+        /// <summary>会话层（从 Pipeline 中提取）/// </summary>
         protected ISession Session => Pipeline.Session;
 
-        /// <summary>协议编解码器</summary>
+        /// <summary>协议编解码器/// </summary>
         protected IProtocolCodec Codec { get; }
 
-        /// <summary>设备名称，如 "DPSEX"、"DPG"</summary>
+        /// <summary>设备名称，如 "DPSEX"、"DPG"/// </summary>
         public string Name { get; set; }
 
         /// <summary>
@@ -349,17 +346,17 @@ namespace DeviceLink.DeviceBase
             ConstructDefaultInfo();
         }
 
-        /// <summary>设备是否已连接</summary>
+        /// <summary>设备是否已连接/// </summary>
         public bool IsOpen => Session.IsOpen;
 
-        /// <summary>打开设备连接</summary>
+        /// <summary>打开设备连接/// </summary>
         public virtual async Task OpenAsync(CancellationToken ct = default)
         {
             await Session.OpenAsync(ct);
             CommunicationLogger.LogInfo(Name, "设备已打开");
         }
 
-        /// <summary>关闭设备连接</summary>
+        /// <summary>关闭设备连接/// </summary>
         public virtual async Task CloseAsync()
         {
             await Session.CloseAsync();

@@ -110,7 +110,8 @@ protected override void ConstructDefaultInfo() { base.ConstructDefaultInfo(); Na
 ```
 
 ### 方法实现规范
-- 一行表达式体风格
+- **必须使用程序块主体（block body）**：所有 public 方法使用 `async Task MethodAsync(...) { ... }` 块语法，禁止使用 `=>` 表达式体
+- **所有 `if` 语句必须添加大括号 `{ }`**，即使是单行也禁止省略
 - XML 注释：`/// <summary>中文描述 —— 指令原文</summary>`
 - 查询用 `SendForResultAsync<T>(Command.Read(...), parser, ct)`
 - 设置用 `SendNonQueryAsync(Command.Write(...), ct)`

@@ -31,7 +31,7 @@ namespace DeviceLink.Transport
             _logger = logger;
         }
 
-        /// <summary>发送时触发，参数为发送的字节数据</summary>
+        /// <summary>发送时触发，参数为发送的字节数据/// </summary>
         public event Action<byte[]>? OnSend;
 
         /// <inheritdoc/>

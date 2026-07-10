@@ -1,8 +1,6 @@
 using DeviceLink.Device.ConST171A;
 using DeviceLink.DeviceBase;
-using System;
 using System.IO.Ports;
-using System.Threading.Tasks;
 using Xunit;
 
 using ConST171ADevice = DeviceLink.Device.ConST171A.ConST171Base;
@@ -34,7 +32,7 @@ namespace DeviceLink.Tests.ConST171A
             return new DeviceLink.Device.ConST171A.ConST171Base(TestPortName, TestBaudRate, TestDataBits, TestStopBits, TestParity);
         }
 
-        /// <summary>使用 SerialPortSettings 创建设备（参考对比用）</summary>
+        /// <summary>使用 SerialPortSettings 创建设备（参考对比用）/// </summary>
         private ConST171ADevice CreateDeviceWithSettings()
         {
             var settings = new SerialPortSettings(TestPortName, TestBaudRate, TestDataBits, TestStopBits, TestParity)
