@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
-    <RootNamespace>DeviceLink.Device.ZQWL</RootNamespace>
-    <AssemblyName>DeviceLink.Device.ZQWL</AssemblyName>
+    <RootNamespace>DeviceLink.Device.ConST685</RootNamespace>
+    <AssemblyName>DeviceLink.Device.ConST685</AssemblyName>
     <LangVersion>10</LangVersion>
     <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -11,10 +11,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../core/DeviceLink.Session/DeviceLink.Session.csproj" />
+    <ProjectReference Include="../../core/DeviceLink.Protocol/DeviceLink.Protocol.csproj" />
     <ProjectReference Include="../../core/DeviceLink.DeviceBase/DeviceLink.DeviceBase.csproj" />
   </ItemGroup>
 

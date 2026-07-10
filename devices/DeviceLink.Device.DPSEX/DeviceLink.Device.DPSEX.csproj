@@ -5,7 +5,7 @@
     <RootNamespace>DeviceLink.Device.DPSEX</RootNamespace>
     <AssemblyName>DeviceLink.Device.DPSEX</AssemblyName>
     <LangVersion>10</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

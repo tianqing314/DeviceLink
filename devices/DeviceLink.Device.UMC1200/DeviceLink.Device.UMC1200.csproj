@@ -5,7 +5,7 @@
     <RootNamespace>DeviceLink.Device.UMC1200</RootNamespace>
     <AssemblyName>DeviceLink.Device.UMC1200</AssemblyName>
     <LangVersion>10</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

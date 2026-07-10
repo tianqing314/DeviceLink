@@ -5,7 +5,7 @@
     <RootNamespace>DeviceLink.Device.ConST860</RootNamespace>
     <AssemblyName>DeviceLink.Device.ConST860</AssemblyName>
     <LangVersion>10</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

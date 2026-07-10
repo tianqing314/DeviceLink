@@ -5,7 +5,7 @@
     <RootNamespace>DeviceLink.Device.PS02</RootNamespace>
     <AssemblyName>DeviceLink.Device.PS02</AssemblyName>
     <LangVersion>10</LangVersion>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
