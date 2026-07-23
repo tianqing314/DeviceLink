@@ -741,7 +741,7 @@ namespace DeviceLink.Tests.PS02
 
                 // 写入新的迁移量程（测试值：下限-100kPa，上限500kPa）
                 float testLower = 0.0f;
-                float testUpper = 100.0f;
+                float testUpper = 500.0f;
                 _output.WriteLine($"写入迁移量程: 下限={testLower} kPa, 上限={testUpper} kPa");
 
                 await _device.SetMigrationRangeAsync(testLower, testUpper);

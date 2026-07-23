@@ -321,6 +321,52 @@ namespace DeviceLink.Tests.PS02
             await ps02.CloseAsync();
         }
 
+        [Fact]
+        public async Task GetMigrationRangeAsync_ShouldRetryOnInvalidResponse()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            int callCount = 0;
+            SetupConverterSimulation(settings, modbusData =>
+            {
+                if (modbusData.Length >= 6 && modbusData[1] == 0x28)
+                {
+                    callCount++;
+                    if (callCount == 1)
+                    {
+                        // 第一次返回错误响应：功能码 0x29（非0x28），7字节
+                        // 模拟设备返回OWI残留响应
+                        return new byte[] { 0x00, 0x01, 0x29, 0x80, 0x00, 0x00, 0x01 };
+                    }
+
+                    // 第二次返回正确响应
+                    var response = new byte[12];
+                    response[0] = 0x00;
+                    response[1] = 0x01;
+                    response[2] = 0x28;
+                    response[3] = 0x08;
+
+                    byte[] lowerBytes = BitConverter.GetBytes(-100.0f);
+                    Array.Copy(lowerBytes, 0, response, 4, 4);
+
+                    byte[] upperBytes = BitConverter.GetBytes(500.0f);
+                    Array.Copy(upperBytes, 0, response, 8, 4);
+
+                    return response;
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            var range = await ps02.GetMigrationRangeAsync();
+
+            Assert.NotNull(range);
+            Assert.InRange(range.Lower, -100.01, -99.99);
+            Assert.InRange(range.Upper, 499.99, 500.01);
+            Assert.Equal(2, callCount); // 验证确实重试了
+            await ps02.CloseAsync();
+        }
+
         // ═══════════════════════════════════════════════════════════
         // 设备标识读取测试
         // ═══════════════════════════════════════════════════════════

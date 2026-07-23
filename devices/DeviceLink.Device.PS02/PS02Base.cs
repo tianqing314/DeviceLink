@@ -494,7 +494,18 @@ public class PS02Base : DeviceBase.DeviceBase
                         // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(8) = 11字节
                         if (normalized == null || normalized.Length < 11)
                         {
-                            return new PressureRange();
+                            var actualLen = normalized?.Length ?? 0;
+                            CommunicationLogger.LogInfo(Name,
+                                $"GetMigrationRangeAsync 响应无效: 长度={actualLen}（期望≥11），原始数据={BitConverter.ToString(raw)}");
+                            throw new DeviceException($"F40响应无效: 长度={actualLen}，期望≥11");
+                        }
+
+                        // 验证功能码：F40 响应功能码应为 0x28
+                        if (normalized[1] != 0x28)
+                        {
+                            CommunicationLogger.LogInfo(Name,
+                                $"GetMigrationRangeAsync 功能码错误: 0x{normalized[1]:X2}（期望0x28），原始数据={BitConverter.ToString(raw)}");
+                            throw new DeviceException($"F40功能码错误: 0x{normalized[1]:X2}，期望0x28");
                         }
 
                         // 偏移量：地址(0) + 功能码(1) + 字节数(2) = 数据从偏移3开始
@@ -511,6 +522,11 @@ public class PS02Base : DeviceBase.DeviceBase
                 CommunicationLogger.LogInfo(Name, $"GetMigrationRangeAsync 超时，第 {attempt}/{maxRetries} 次重试...");
                 await Task.Delay(retryDelayMs, ct);
             }
+            catch (DeviceException) when (attempt < maxRetries)
+            {
+                CommunicationLogger.LogInfo(Name, $"GetMigrationRangeAsync 响应异常，第 {attempt}/{maxRetries} 次重试...");
+                await Task.Delay(retryDelayMs, ct);
+            }
         }
 
         // 最后一次尝试，让异常自然抛出
@@ -521,7 +537,11 @@ public class PS02Base : DeviceBase.DeviceBase
                 var normalized = NormalizeF40Response(raw);
                 if (normalized == null || normalized.Length < 11)
                 {
-                    return new PressureRange();
+                    throw new DeviceException($"F40响应无效: 长度={normalized?.Length ?? 0}，期望≥11");
+                }
+                if (normalized[1] != 0x28)
+                {
+                    throw new DeviceException($"F40功能码错误: 0x{normalized[1]:X2}，期望0x28");
                 }
                 return new PressureRange
                 {
