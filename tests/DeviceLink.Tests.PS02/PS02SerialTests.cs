@@ -1,9 +1,6 @@
 using DeviceLink.Device.PS02;
 using DeviceLink.DeviceBase;
-using System;
 using System.IO.Ports;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -346,9 +343,16 @@ namespace DeviceLink.Tests.PS02
 
                 _output.WriteLine("=== 开始转接板初始化序列（14步） ===");
 
-                // 指令 1：扫描从设备（scanType=0x01）
-                _output.WriteLine("[01/13] 扫描从设备（类型 0x01）...");
-                var scanResult1 = await _device!.ScanDeviceAsync(0x01);
+                // 指令 1：停止之前的扫描（scanType=0x01）
+                _output.WriteLine("[01/13] 停止之前的扫描...");
+                await _device!.ScanDeviceAsync(0x01);
+                _output.WriteLine("  已发送停止扫描指令");
+
+                // 等待转接板响应
+                await Task.Delay(100);
+
+                // 0x0301：获取扫描结果（此时应该是NotConnected）
+                var scanResult1 = await _device.GetScanResultAsync();
                 _output.WriteLine($"  扫描结果: {scanResult1} ({(byte)scanResult1})");
 
                 // 指令 2：读取转接板固件版本（第一次）
@@ -374,46 +378,52 @@ namespace DeviceLink.Tests.PS02
                 await _device.DisableAllOutputAsync();
                 _output.WriteLine("  输出已关闭");
 
-                // 指令 6~10：循环扫描从设备，最多5次，扫描类型交替变化
+                // 指令 6~7：发送扫描指令并轮询扫描结果
+                // 流程：0x0300（扫描从设备）→ 多次轮询 0x0301（获取扫描结果）
                 DeviceInterfaceType scanResult2 = DeviceInterfaceType.NotConnected;
                 bool scanSuccess = false;
-                for (int retry = 0; retry < 5; retry++)
+
+                // 0x0300：发送扫描从设备指令（只发送一次，让转接板持续扫描）
+                _output.WriteLine("[06/14] 发送扫描从设备指令...");
+                await _device.ScanDeviceAsync(0x00);
+                _output.WriteLine("  已发送扫描指令，开始轮询扫描结果...");
+
+                // 轮询扫描结果，最多等待10秒（每200ms查询一次）
+                for (int poll = 0; poll < 50; poll++)
                 {
-                    // 扫描类型交替变化：偶数次 0x00，奇数次 0x01
-                    byte scanType = (retry % 2 == 0) ? (byte)0x00 : (byte)0x01;
+                    // 等待一段时间让转接板完成扫描
+                    await Task.Delay(200);
 
-                    _output.WriteLine($"[{6 + retry:D2}/15] 扫描从设备（类型 0x{scanType:X2}，第 {retry + 1} 次）...");
-                    scanResult2 = await _device.ScanDeviceAsync(scanType);
-                    _output.WriteLine($"  扫描结果: {scanResult2} ({(byte)scanResult2})");
+                    // 0x0301：获取扫描结果
+                    scanResult2 = await _device.GetScanResultAsync();
+                    _output.WriteLine($"  [轮询 {poll + 1}/50] 扫描结果: {scanResult2} ({(byte)scanResult2})");
 
-                    // 扫描完成后，读取扫描结果（功能码 0x0301）
-                    _output.WriteLine($"  读取扫描结果...");
-                    var getScanResult = await _device.GetScanResultAsync();
-                    _output.WriteLine($"  获取扫描结果: {getScanResult} ({(byte)getScanResult})");
-
-                    // 如果扫描成功（非未连接），跳出循环
-                    if (getScanResult != DeviceInterfaceType.NotConnected)
+                    // 如果扫描成功（非未连接），跳出轮询
+                    if (scanResult2 != DeviceInterfaceType.NotConnected)
                     {
-                        scanResult2 = getScanResult;
                         scanSuccess = true;
-                        _output.WriteLine($"  扫描成功，跳出循环");
+                        _output.WriteLine($"  扫描成功，跳出轮询");
                         break;
                     }
-
-                    _output.WriteLine($"  未检测到设备，继续扫描...");
-                    await Task.Delay(1000);
                 }
 
                 if (!scanSuccess)
                 {
-                    _output.WriteLine("  警告: 5次扫描后仍未检测到设备");
+                    _output.WriteLine("  警告: 10秒轮询后仍未检测到设备");
                 }
 
                 await Task.Delay(1000);
 
-                // 指令 11：扫描从设备（scanType=0x01）
-                _output.WriteLine("[11/14] 扫描从设备（类型 0x01）...");
-                var scanResult3 = await _device.ScanDeviceAsync(0x01);
+                // 指令 11：停止扫描（scanType=0x01）
+                _output.WriteLine("[11/14] 停止扫描...");
+                await _device.ScanDeviceAsync(0x01);
+                _output.WriteLine("  已发送停止扫描指令");
+
+                // 等待转接板响应
+                await Task.Delay(100);
+
+                // 0x0301：获取扫描结果
+                var scanResult3 = await _device.GetScanResultAsync();
                 _output.WriteLine($"  扫描结果: {scanResult3} ({(byte)scanResult3})");
                 // 指令 13：启用 OWI 通信模式（Modbus RTU 转发）
                 _output.WriteLine("[13/14] 启用 OWI 通信模式...");
@@ -464,7 +474,7 @@ namespace DeviceLink.Tests.PS02
         }
 
         // ═══════════════════════════════════════════════════════════
-        // 压力读取测试
+        // 电流读取测试
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
@@ -481,8 +491,11 @@ namespace DeviceLink.Tests.PS02
             {
 
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+                await _device.DisableOwiViaConverterAsync();
                 await _device.EnableOwiViaConverterAsync();
                 var range = await _device!.GetMigrationRangeAsync();
+
+                var pressure = await _device.GetPressureAsync();
                 await _device.DisableOwiViaConverterAsync();
                 await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
                 await Task.Delay(3000);
@@ -721,14 +734,14 @@ namespace DeviceLink.Tests.PS02
             try
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
-
+                await _device.EnableOwiViaConverterAsync();
                 // 先读取当前迁移量程
                 var originalRange = await _device!.GetMigrationRangeAsync();
                 _output.WriteLine($"原始迁移量程: {originalRange}");
 
                 // 写入新的迁移量程（测试值：下限-100kPa，上限500kPa）
-                float testLower = -500.0f;
-                float testUpper = 500.0f;
+                float testLower = 0.0f;
+                float testUpper = 100.0f;
                 _output.WriteLine($"写入迁移量程: 下限={testLower} kPa, 上限={testUpper} kPa");
 
                 await _device.SetMigrationRangeAsync(testLower, testUpper);
@@ -737,7 +750,7 @@ namespace DeviceLink.Tests.PS02
                 // 读取并验证
                 var newRange = await _device.GetMigrationRangeAsync();
                 _output.WriteLine($"读取迁移量程: {newRange}");
-
+                await _device.DisableOwiViaConverterAsync();
                 // 验证写入的值（允许小误差）
                 Assert.True(Math.Abs(newRange.Lower - testLower) < 0.1,
                     $"迁移量程下限应为 {testLower}，实际为 {newRange.Lower}");

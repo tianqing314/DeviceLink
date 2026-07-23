@@ -477,20 +477,52 @@ public class PS02Base : DeviceBase.DeviceBase
     /// </returns>
     public async Task<PressureRange> GetMigrationRangeAsync(CancellationToken ct = default)
     {
+        const int maxRetries = 3;
+        const int retryDelayMs = 500;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                return await SendForResultAsync(
+                    Command.Read("40.20798.4"),
+                    raw =>
+                    {
+                        // 移除转接板添加的 0x00 前缀（CPPI 错误码）
+                        var normalized = NormalizeF40Response(raw);
+
+                        // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(8) = 11字节
+                        if (normalized == null || normalized.Length < 11)
+                        {
+                            return new PressureRange();
+                        }
+
+                        // 偏移量：地址(0) + 功能码(1) + 字节数(2) = 数据从偏移3开始
+                        return new PressureRange
+                        {
+                            Lower = ParseFloat32LittleEndian(normalized, 3),
+                            Upper = ParseFloat32LittleEndian(normalized, 7)
+                        };
+                    },
+                    ct);
+            }
+            catch (FrameTimeoutException) when (attempt < maxRetries)
+            {
+                CommunicationLogger.LogInfo(Name, $"GetMigrationRangeAsync 超时，第 {attempt}/{maxRetries} 次重试...");
+                await Task.Delay(retryDelayMs, ct);
+            }
+        }
+
+        // 最后一次尝试，让异常自然抛出
         return await SendForResultAsync(
             Command.Read("40.20798.4"),
             raw =>
             {
-                // 移除转接板添加的 0x00 前缀（CPPI 错误码）
                 var normalized = NormalizeF40Response(raw);
-
-                // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(8) = 11字节
                 if (normalized == null || normalized.Length < 11)
                 {
                     return new PressureRange();
                 }
-
-                // 偏移量：地址(0) + 功能码(1) + 字节数(2) = 数据从偏移3开始
                 return new PressureRange
                 {
                     Lower = ParseFloat32LittleEndian(normalized, 3),
@@ -604,8 +636,8 @@ public class PS02Base : DeviceBase.DeviceBase
         var data = new byte[10];
         WriteFloat32LittleEndian(data, 0, lower);   // 下限，小端模式
         WriteFloat32LittleEndian(data, 4, upper);   // 上限，小端模式
-        data[8] = 0x00;                              // 使能标志高字节
-        data[9] = 0x01;                              // 使能标志低字节（0x0001 = 启用迁移）
+        data[8] = 0x00;                           // 使能标志高字节
+        data[9] = 0x01;                           // 使能标志低字节（0x0001 = 启用迁移）
 
         await WriteRegistersF41Async(PS02Registers.MigrationRangeLower, data, ct);
     }
@@ -812,14 +844,16 @@ public class PS02Base : DeviceBase.DeviceBase
             throw new DeviceException($"转接板返回错误: {errorName}");
         }
 
-        // 如果有接口类型数据（frameData > 1 字节），返回接口类型
+        // 根据文档，0x0300扫描从设备的返回参数是"无"
+        // 如果有接口类型数据（frameData > 1 字节），返回接口类型（兼容旧固件）
         if (frameData.Length > 1)
         {
             return (DeviceInterfaceType)frameData[1];
         }
 
         // 如果只有错误码（frameData == 1 字节），返回 NotConnected
-        CommunicationLogger.LogInfo(Name, "扫描响应只有错误码，假设未连接设备");
+        // 这是正常行为，因为0x0300不返回扫描结果
+        CommunicationLogger.LogInfo(Name, "扫描指令已发送，需通过0x0301获取扫描结果");
         return DeviceInterfaceType.NotConnected;
     }
 
@@ -1054,6 +1088,8 @@ public class PS02Base : DeviceBase.DeviceBase
         {
             await SendModbusForwardAsync(modbusFrame, ct);
             CommunicationLogger.LogInfo(Name, "OWI 通信模式已启用");
+            // 等待设备完成模式切换
+            await Task.Delay(200, ct);
             return true;
         }
         catch (DeviceException ex)
@@ -1086,6 +1122,8 @@ public class PS02Base : DeviceBase.DeviceBase
         {
             await SendModbusForwardAsync(modbusFrame, ct);
             CommunicationLogger.LogInfo(Name, "OWI 通信模式已禁用");
+            // 等待设备完成模式切换
+            await Task.Delay(200, ct);
             return true;
         }
         catch (DeviceException ex)

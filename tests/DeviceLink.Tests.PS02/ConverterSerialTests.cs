@@ -239,7 +239,15 @@ namespace DeviceLink.Tests.PS02
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
 
-                var interfaceType = await _device!.ScanDeviceAsync();
+                // 0x0300：扫描从设备（参数0=开始扫描）
+                await _device!.ScanDeviceAsync(0x00);
+                _output.WriteLine("已发送扫描指令");
+                
+                // 等待转接板完成扫描
+                await Task.Delay(200);
+                
+                // 0x0301：获取扫描结果
+                var interfaceType = await _device.GetScanResultAsync();
                 _output.WriteLine($"扫描结果 - 接口类型: {interfaceType} ({(byte)interfaceType})");
 
                 // 扫描应该返回一个有效的接口类型
@@ -436,7 +444,14 @@ namespace DeviceLink.Tests.PS02
                 _output.WriteLine($"[2/5] 硬件版本: {hardwareVersion}");
 
                 // 3. 扫描从设备
-                var interfaceType = await _device.ScanDeviceAsync();
+                await _device.ScanDeviceAsync(0x00);
+                _output.WriteLine("[3/5] 已发送扫描指令");
+                
+                // 等待转接板完成扫描
+                await Task.Delay(200);
+                
+                // 0x0301：获取扫描结果
+                var interfaceType = await _device.GetScanResultAsync();
                 _output.WriteLine($"[3/5] 扫描结果: {interfaceType}");
 
                 // 4. 读取参数

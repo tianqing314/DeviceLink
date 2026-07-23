@@ -298,15 +298,13 @@ namespace DeviceLink.Tests.PS02
                     response[2] = 0x28;
                     response[3] = 0x08; // 8 字节
 
-                    // 下限 -100.0 (float32 大端: C2C80000)
+                    // 下限 -100.0 (float32 小端)
                     byte[] lowerBytes = BitConverter.GetBytes(-100.0f);
-                    response[4] = lowerBytes[3]; response[5] = lowerBytes[2];
-                    response[6] = lowerBytes[1]; response[7] = lowerBytes[0];
+                    Array.Copy(lowerBytes, 0, response, 4, 4);
 
-                    // 上限 500.0 (float32 大端: 43FA0000)
+                    // 上限 500.0 (float32 小端)
                     byte[] upperBytes = BitConverter.GetBytes(500.0f);
-                    response[8] = upperBytes[3]; response[9] = upperBytes[2];
-                    response[10] = upperBytes[1]; response[11] = upperBytes[0];
+                    Array.Copy(upperBytes, 0, response, 8, 4);
 
                     return response;
                 }
@@ -316,8 +314,10 @@ namespace DeviceLink.Tests.PS02
             await ps02.OpenAsync();
             var range = await ps02.GetMigrationRangeAsync();
 
-            // 范围可能因为解析问题为NaN，但不应抛出异常
+            // 验证小端字节序解析正确
             Assert.NotNull(range);
+            Assert.InRange(range.Lower, -100.01, -99.99);
+            Assert.InRange(range.Upper, 499.99, 500.01);
             await ps02.CloseAsync();
         }
 
