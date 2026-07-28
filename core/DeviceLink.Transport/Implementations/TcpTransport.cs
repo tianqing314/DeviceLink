@@ -13,6 +13,7 @@ namespace DeviceLink.Transport
     {
         private TcpClient? _client;
         private NetworkStream? _stream;
+        private volatile bool _isConnected;
         private readonly TcpOptions _options;
         private readonly ILogger<TcpTransport>? _logger;
 
@@ -48,7 +49,7 @@ namespace DeviceLink.Transport
         public string Name => $"{_options.Host}:{_options.Port}";
 
         /// <inheritdoc/>
-        public bool IsOpen => _client?.Connected ?? false;
+        public bool IsOpen => _isConnected;
 
         /// <inheritdoc/>
         public async Task ConnectAsync(CancellationToken ct = default)
@@ -59,6 +60,7 @@ namespace DeviceLink.Transport
             {
                 _client = new TcpClient
                 {
+                    NoDelay = true,  // 禁用 Nagle 算法，确保小数据包立即发送
                     ReceiveBufferSize = _options.ReadBufferSize > 0 ? _options.ReadBufferSize : 8192,
                     SendBufferSize = _options.WriteBufferSize > 0 ? _options.WriteBufferSize : 4096,
                     ReceiveTimeout = 0,
@@ -80,6 +82,7 @@ namespace DeviceLink.Transport
                 }
 
                 _stream = _client.GetStream();
+                _isConnected = true;
                 _logger?.LogInformation("TCP {Name} 已连接", Name);
             }
             catch (Exception ex) when (ex is not TransportTimeoutException)
@@ -92,6 +95,7 @@ namespace DeviceLink.Transport
         /// <inheritdoc/>
         public Task CloseAsync()
         {
+            _isConnected = false;
             if (_stream != null)
             {
                 try { _stream.Close(); } catch { }
@@ -111,21 +115,58 @@ namespace DeviceLink.Transport
         /// <inheritdoc/>
         public async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken ct = default)
         {
-            if (_client == null || !_client.Connected || _stream == null)
+            if (_client == null || !_isConnected || _stream == null)
                 return 0;
 
             try
             {
+                // 先检查是否有数据可用
                 int available = Math.Min(_client.Available, count);
-                if (available == 0)
-                    return 0;
+                if (available > 0)
+                {
+                    int read = await _stream.ReadAsync(buffer, offset, available, ct);
+                    _logger?.LogDebug("从TCP {Name} 读取了 {Count} 字节", Name, read);
+                    return read;
+                }
 
-                int read = await _stream.ReadAsync(buffer, offset, available, ct);
-                _logger?.LogDebug("从TCP {Name} 读取了 {Count} 字节", Name, read);
-                return read;
+                // 没有数据时：短暂等待（最多50ms）等待数据到达，避免轮询竞态
+                try
+                {
+                    using var readCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                    readCts.CancelAfter(50);
+                    int read = await _stream.ReadAsync(buffer, offset, 1, readCts.Token);
+                    if (read > 0)
+                    {
+                        // 读完第1字节后，立即读取剩余可用数据
+                        int remaining = Math.Min(_client.Available, count - 1);
+                        if (remaining > 0)
+                        {
+                            int more = await _stream.ReadAsync(buffer, offset + 1, remaining, ct);
+                            return read + more;
+                        }
+                        return read;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // 内部50ms超时或外部取消——让 ReceiveRawFrameAsync 的循环自行处理
+                }
+
+                return 0;
+            }
+            catch (OperationCanceledException)
+            {
+                // CancellationToken 取消，直接向上传播（不包装）
+                throw;
+            }
+            catch (IOException)
+            {
+                _isConnected = false;
+                throw new TransportException($"TCP {Name} 连接已断开");
             }
             catch (Exception ex)
             {
+                _isConnected = false;
                 _logger?.LogError(ex, "从TCP {Name} 读取数据失败", Name);
                 throw new TransportException($"从TCP {Name} 读取数据失败: {ex.Message}", ex);
             }
@@ -134,8 +175,10 @@ namespace DeviceLink.Transport
         /// <inheritdoc/>
         public async Task WriteAsync(byte[] data, int offset, int count, CancellationToken ct = default)
         {
-            if (_stream == null || _client?.Connected != true)
-                return;
+            if (_stream == null)
+                throw new TransportException($"TCP {Name} 写入失败: 网络流未初始化");
+            if (!_isConnected)
+                throw new TransportException($"TCP {Name} 写入失败: 连接已断开");
 
             try
             {
@@ -143,8 +186,14 @@ namespace DeviceLink.Transport
                 await _stream.FlushAsync(ct);
                 _logger?.LogDebug("向TCP {Name} 写入了 {Count} 字节", Name, count);
             }
+            catch (IOException)
+            {
+                _isConnected = false;
+                throw new TransportException($"TCP {Name} 连接已断开");
+            }
             catch (Exception ex)
             {
+                _isConnected = false;
                 _logger?.LogError(ex, "向TCP {Name} 写入数据失败", Name);
                 throw new TransportException($"向TCP {Name} 写入数据失败: {ex.Message}", ex);
             }

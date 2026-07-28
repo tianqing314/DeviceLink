@@ -29,10 +29,13 @@ public class PS02Base : DeviceBase.DeviceBase
 {
     private readonly ModbusRtuCodec _codec;
     private readonly byte _slaveAddress;
+    /// <summary>
+    /// CPPI V3 帧策略（目标地址 0x000123，与转换板通讯）。
+    /// </summary>
     private readonly CpplV3FrameStrategy _cppiV3FrameStrategy;
 
     /// <summary>
-    /// 转接板专用帧策略（目标地址 0x000123）
+    /// 转接板专用帧策略 —— 与 _cppiV3FrameStrategy 共用同一地址，仅流水号独立。
     /// </summary>
     private readonly CpplV3FrameStrategy _converterFrameStrategy;
 
@@ -63,11 +66,14 @@ public class PS02Base : DeviceBase.DeviceBase
         StopBits stopBits = StopBits.One, Parity parity = Parity.None, byte slaveAddress = 1)
         : base(serialPortName, baudRate, dataBits, stopBits, parity,
             new ModbusRtuCodec(slaveAddress),
-            new CpplV3FrameStrategy())
+            CreateCppiV3Strategy())
     {
         _codec = (ModbusRtuCodec)Codec;
         _slaveAddress = slaveAddress;
-        _cppiV3FrameStrategy = new CpplV3FrameStrategy();
+        _cppiV3FrameStrategy = CreateCppiV3Strategy();
+
+        // 转接板专用帧策略：与 DataLink 同地址，流水号从 0x01 开始
+        _converterFrameStrategy = CreateCppiV3Strategy(initialSequenceNumber: 0x01);
     }
 
     /// <summary>
@@ -80,11 +86,14 @@ public class PS02Base : DeviceBase.DeviceBase
     /// Modbus从站地址（默认1）
     /// </param>
     public PS02Base(string serialPortName, byte slaveAddress = 1)
-        : base(serialPortName, new ModbusRtuCodec(slaveAddress), new CpplV3FrameStrategy())
+        : base(serialPortName, new ModbusRtuCodec(slaveAddress), CreateCppiV3Strategy())
     {
         _codec = (ModbusRtuCodec)Codec;
         _slaveAddress = slaveAddress;
-        _cppiV3FrameStrategy = new CpplV3FrameStrategy();
+        _cppiV3FrameStrategy = CreateCppiV3Strategy();
+
+        // 转接板专用帧策略：与 DataLink 同地址，流水号从 0x01 开始
+        _converterFrameStrategy = CreateCppiV3Strategy(initialSequenceNumber: 0x01);
     }
 
     /// <summary>
@@ -100,11 +109,14 @@ public class PS02Base : DeviceBase.DeviceBase
     /// Modbus从站地址（默认1）
     /// </param>
     public PS02Base(IPAddress ipAddress, int port, byte slaveAddress = 1)
-        : base(ipAddress, port, new ModbusRtuCodec(slaveAddress), new CpplV3FrameStrategy())
+        : base(ipAddress, port, new ModbusRtuCodec(slaveAddress), CreateCppiV3Strategy())
     {
         _codec = (ModbusRtuCodec)Codec;
         _slaveAddress = slaveAddress;
-        _cppiV3FrameStrategy = new CpplV3FrameStrategy();
+        _cppiV3FrameStrategy = CreateCppiV3Strategy();
+
+        // 转接板专用帧策略：与 DataLink 同地址，流水号从 0x01 开始
+        _converterFrameStrategy = CreateCppiV3Strategy(initialSequenceNumber: 0x01);
     }
 
     /// <summary>
@@ -117,17 +129,14 @@ public class PS02Base : DeviceBase.DeviceBase
     /// Modbus从站地址（默认1）
     /// </param>
     public PS02Base(DeviceCommSettings settings, byte slaveAddress = 1)
-        : base(settings, new ModbusRtuCodec(slaveAddress), new CpplV3FrameStrategy())
+        : base(settings, new ModbusRtuCodec(slaveAddress), CreateCppiV3Strategy())
     {
         _codec = (ModbusRtuCodec)Codec;
         _slaveAddress = slaveAddress;
-        _cppiV3FrameStrategy = new CpplV3FrameStrategy();
+        _cppiV3FrameStrategy = CreateCppiV3Strategy();
 
-        // 转接板专用帧策略：目标地址 0x000123，源地址 0x112236，流水号从 0x01 开始
-        _converterFrameStrategy = new CpplV3FrameStrategy(
-            targetAddress: new byte[] { 0x23, 0x01, 0x00 },
-            sourceAddress: new byte[] { 0x36, 0x22, 0x11 },
-            initialSequenceNumber: 0x01);
+        // 转接板专用帧策略：与 DataLink 同地址，流水号从 0x01 开始
+        _converterFrameStrategy = CreateCppiV3Strategy(initialSequenceNumber: 0x01);
     }
 
     /// <summary>
@@ -137,6 +146,17 @@ public class PS02Base : DeviceBase.DeviceBase
     {
         base.ConstructDefaultInfo();
         Name = "PS02";
+    }
+
+    /// <summary>
+    /// 创建 CPPI V3 帧策略（目标地址 0x000123，源地址 0x112236）。
+    /// </summary>
+    private static CpplV3FrameStrategy CreateCppiV3Strategy(byte initialSequenceNumber = 0x10)
+    {
+        return new CpplV3FrameStrategy(
+            targetAddress: new byte[] { 0x23, 0x01, 0x00 },
+            sourceAddress: new byte[] { 0x36, 0x22, 0x11 },
+            initialSequenceNumber: initialSequenceNumber);
     }
 
     #endregion 构造函数

@@ -1,94 +1,80 @@
 using DeviceLink.Device.PS02;
-using DeviceLink.DeviceBase;
-using System.IO.Ports;
+using DeviceLink.Transport;
+using System.Net;
+using System.Net.Sockets;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace DeviceLink.Tests.PS02
 {
     /// <summary>
-    /// PS02 设备串口通信测试
+    /// PS02 设备网口(TCP)通信测试
     ///
-    /// 使用真实串口连接 PS02 设备进行测试。
+    /// 使用网络连接 PS02 设备（通过转换板）进行测试。
     /// 需要实际硬件连接才能运行。
     ///
     /// 使用方法：
-    /// 1. 连接 PS02 设备到串口（如 COM3）
-    /// 2. 设置环境变量 PS02_SERIAL_PORT 指定串口号（可选，默认 COM3）
-    /// 3. 运行测试：dotnet test --filter "Category=Serial"
+    /// 1. 确保 PS02 设备可通过网络访问（转换板 TCP 端口）
+    /// 2. 设置环境变量 PS02_TCP_HOST 指定 IP 地址（可选，默认 127.0.0.1）
+    /// 3. 设置环境变量 PS02_TCP_PORT 指定端口号（可选，默认 10001）
+    /// 4. 运行测试：dotnet test --filter "Category=Tcp"
     ///
     /// 注意：这些测试需要实际设备连接，可能因设备状态而失败。
     /// </summary>
-    public class PS02SerialTests : IDisposable
+    public class PS02TcpTests : IDisposable
     {
         private readonly ITestOutputHelper _output;
-        private readonly string _portName;
-        private readonly int _baudRate;
+        private readonly string _host;
+        private readonly int _port;
         private readonly byte _slaveAddress;
         private PS02Base? _device;
         private bool _disposed = false;
 
-        public PS02SerialTests(ITestOutputHelper output)
+        public PS02TcpTests(ITestOutputHelper output)
         {
             _output = output;
 
-            // 从环境变量读取串口配置，默认 COM3
-            _portName = Environment.GetEnvironmentVariable("PS02_SERIAL_PORT") ?? "COM101";
-            _baudRate = int.TryParse(Environment.GetEnvironmentVariable("PS02_BAUD_RATE"), out var baud) ? baud : 9600;
+            // 从环境变量读取 TCP 配置，默认 127.0.0.1:10001
+            _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.41.243";
+            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1030;
             _slaveAddress = byte.TryParse(Environment.GetEnvironmentVariable("PS02_SLAVE_ADDRESS"), out var addr) ? addr : (byte)1;
 
-            _output.WriteLine($"串口配置: {_portName}, {_baudRate}bps, 从站地址: {_slaveAddress}");
+            _output.WriteLine($"TCP 配置: {_host}:{_port}, 从站地址: {_slaveAddress}");
         }
 
         /// <summary>
-        /// 检查串口是否可用
+        /// 检查 TCP 连接是否可用
         /// </summary>
-        private bool IsSerialPortAvailable()
+        private bool IsTcpAvailable()
         {
             try
             {
-                // 检查串口是否存在
-                string[] ports = SerialPort.GetPortNames();
-                if (Array.IndexOf(ports, _portName) < 0)
+                using var tcp = new TcpClient();
+                var result = tcp.BeginConnect(_host, _port, null, null);
+                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(3));
+                if (!success)
                 {
-                    _output.WriteLine($"串口 {_portName} 不存在，可用串口: {string.Join(", ", ports)}");
+                    _output.WriteLine($"TCP 连接 {_host}:{_port} 超时");
                     return false;
                 }
-
-                // 尝试打开串口（短暂打开测试）
-                using var port = new SerialPort(_portName, _baudRate);
-                port.Open();
-                port.Close();
+                tcp.EndConnect(result);
+                _output.WriteLine($"TCP 连接 {_host}:{_port} 成功");
                 return true;
             }
             catch (Exception ex)
             {
-                _output.WriteLine($"串口 {_portName} 不可用: {ex.Message}");
+                _output.WriteLine($"TCP 连接 {_host}:{_port} 不可用: {ex.Message}");
                 return false;
             }
         }
 
         /// <summary>
-        /// 创建 PS02 设备实例
+        /// 创建 PS02 设备实例（TCP 通讯）
         /// </summary>
         private PS02Base CreateDevice()
         {
-            var settings = new SerialPortSettings
-            {
-                PortName = _portName,
-                BaudRate = _baudRate,
-                DataBits = 8,
-                StopBits = StopBits.Two,
-                Parity = Parity.None,
-                DtrEnable = false,
-                RtsEnable = false,
-                ReceiveTimeoutMs = 15000,      // 15秒超时
-                ReceiveIdleTimeoutMs = 100,    // 100ms空闲超时
-                MaxRetryCount = 2,             // 重试2次
-                RetryDelayMs = 500             // 重试延迟500ms
-            };
-
-            return new PS02Base(settings, _slaveAddress);
+            var ip = IPAddress.Parse(_host);
+            return new PS02Base(ip, _port, _slaveAddress);
         }
 
         /// <summary>
@@ -141,12 +127,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_ConnectAndDisconnect_ShouldSucceed()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_ConnectAndDisconnect_ShouldSucceed()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -163,13 +149,93 @@ namespace DeviceLink.Tests.PS02
             }
         }
 
+        /// <summary>
+        /// 【诊断测试】直接使用 TcpTransport 发送原始帧，不经过 PS02Base/SendRawFrameAsync。
+        /// 帧数据来自用户手动测试确认有效的 0x0300 ScanDevice(scanType=1) 请求。
+        /// 如果此测试通过而 Tcp_ConverterInitialization 超时，问题在 PS02Base 内部流程。
+        /// </summary>
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_TestConnection_ShouldReturnTrue()
+        [Trait("Category", "TcpDiagnostic")]
+        public async Task Tcp_Diagnostic_DirectRawFrame_ShouldReceiveResponse()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            var transport = new TcpTransport(_host, _port);
+            try
+            {
+                await transport.ConnectAsync();
+                _output.WriteLine("TCP 连接已建立");
+
+                // 用户手动验证有效的原始帧：0x0300 ScanDevice(scanType=1)
+                // 55 03 23 01 00 36 22 11 00 03 01 01 00 D1 01 D1 F1
+                byte[] rawFrame = new byte[] {
+                    0x55, 0x03, 0x23, 0x01, 0x00, 0x36, 0x22, 0x11,
+                    0x00, 0x03, 0x01, 0x01, 0x00, 0xD1, 0x01, 0xD1, 0xF1
+                };
+
+                _output.WriteLine($"发送 {rawFrame.Length} 字节: {BitConverter.ToString(rawFrame)}");
+                await transport.WriteAsync(rawFrame, 0, rawFrame.Length);
+                _output.WriteLine("已发送，等待响应...");
+
+                // 接收响应（最多等 10 秒）
+                var buffer = new byte[4096];
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+                try
+                {
+                    // 持续读取直到收到数据或超时
+                    var accumulated = new List<byte>();
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    while (!cts.Token.IsCancellationRequested)
+                    {
+                        int read = await transport.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+                        if (read > 0)
+                        {
+                            accumulated.AddRange(buffer.AsSpan(0, read).ToArray());
+                            _output.WriteLine($"已收到 {read} 字节，累计 {accumulated.Count} 字节");
+
+                            // 期望收到 17 字节响应帧
+                            if (accumulated.Count >= 17)
+                            {
+                                _output.WriteLine($"完整响应: {BitConverter.ToString(accumulated.ToArray())}");
+                                // 验证帧头
+                                Assert.Equal(0x55, accumulated[0]);
+                                // 验证功能码回显 0x0300
+                                Assert.Equal(0x00, accumulated[8]);
+                                Assert.Equal(0x03, accumulated[9]);
+                                _output.WriteLine($"诊断测试通过！收到有效响应");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            await Task.Delay(20, cts.Token);
+                        }
+                    }
+                    Assert.Fail($"诊断测试失败: 10秒内未收到完整响应 (已收 {accumulated.Count} 字节)");
+                }
+                catch (OperationCanceledException)
+                {
+                    Assert.Fail("诊断测试失败: 读取超时");
+                }
+            }
+            finally
+            {
+                transport.Dispose();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_TestConnection_ShouldReturnTrue()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -195,12 +261,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetSerialNumber_ShouldReturnNonEmpty()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetSerialNumber_ShouldReturnNonEmpty()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -220,12 +286,12 @@ namespace DeviceLink.Tests.PS02
             }
         }
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_SetSerialNumber_ShouldReturnNonEmpty()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_SetSerialNumber_ShouldReturnNonEmpty()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -243,12 +309,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetFirmwareVersion_ShouldReturnNonEmpty()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetFirmwareVersion_ShouldReturnNonEmpty()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -268,12 +334,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetHardwareVersion_ShouldReturnNonEmpty()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetHardwareVersion_ShouldReturnNonEmpty()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -293,12 +359,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetIdentification_ShouldReturnAllInfo()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetIdentification_ShouldReturnAllInfo()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -328,12 +394,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_ConverterInitialization_ShouldSucceed()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_ConverterInitialization_ShouldSucceed()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -478,12 +544,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetPressure_ShouldReturnValue()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetPressure_ShouldReturnValue()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -520,12 +586,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetPressureF40_ShouldReturnValue()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetPressureF40_ShouldReturnValue()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -557,12 +623,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetPrecision_ShouldReturnValue()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetPrecision_ShouldReturnValue()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -582,12 +648,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetPressureType_ShouldReturnValidType()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetPressureType_ShouldReturnValidType()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -609,12 +675,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_SetPressureType_ShouldSucceed()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_SetPressureType_ShouldSucceed()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -667,12 +733,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetModuleType_ShouldReturnValue()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetModuleType_ShouldReturnValue()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -696,12 +762,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_GetMigrationRange_ShouldReturnRange()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetMigrationRange_ShouldReturnRange()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -722,12 +788,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_SetMigrationRange_ShouldSucceed()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_SetMigrationRange_ShouldSucceed()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -775,12 +841,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_ReadRegister_ShouldReturnValue()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_ReadRegister_ShouldReturnValue()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -801,12 +867,12 @@ namespace DeviceLink.Tests.PS02
         }
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_ReadRegisters_ShouldReturnMultipleValues()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_ReadRegisters_ShouldReturnMultipleValues()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -836,12 +902,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_WithCancellation_ShouldRespectToken()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_WithCancellation_ShouldRespectToken()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
@@ -879,12 +945,12 @@ namespace DeviceLink.Tests.PS02
         // ═══════════════════════════════════════════════════════════
 
         [Fact]
-        [Trait("Category", "Serial")]
-        public async Task Serial_MultipleReads_ShouldBeConsistent()
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_MultipleReads_ShouldBeConsistent()
         {
-            if (!IsSerialPortAvailable())
+            if (!IsTcpAvailable())
             {
-                _output.WriteLine("跳过测试: 串口不可用");
+                _output.WriteLine("跳过测试: TCP 不可用");
                 return;
             }
 
