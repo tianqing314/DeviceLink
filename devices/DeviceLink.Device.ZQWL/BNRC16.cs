@@ -298,9 +298,9 @@ public class BNRC16 : DeviceBase.DeviceBase
             return false;
         }
 
-        // raw[0]=addr, raw[1]=func, raw[2..9]=data (8 bytes)
-        int dataIndex = (int)Math.Ceiling(channel / 2.0);
-        byte dataByte = raw[1 + dataIndex];
+        // raw[0]=addr, raw[1]=func, raw[2..3]=reserved, raw[4..11]=data (8 bytes, 16 路)
+        int dataIndex = (channel - 1) / 2;  // 0-based byte index
+        byte dataByte = raw[4 + dataIndex];
 
         if (channel % 2 == 1)
         {

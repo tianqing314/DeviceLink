@@ -182,12 +182,12 @@ namespace DeviceLink.Protocol
         /// <returns>版本号字符串</returns>
         public string ExtractVersion(byte[] raw)
         {
-            // 帧结构: [addr][func][8字节数据]
-            // 版本从数据区开头 (raw[2]) 开始
-            if (raw.Length >= 10)
+            // 帧结构: [addr][func][reserved 2B][8字节版本数据]
+            // 版本从 raw[4] 开始（对齐 GetAllStatusesAsync / GetInputAsync 的数据偏移）
+            if (raw.Length >= 12)
             {
                 var verBytes = new byte[8];
-                Array.Copy(raw, 2, verBytes, 0, 8);
+                Array.Copy(raw, 4, verBytes, 0, 8);
                 return Encoding.UTF8.GetString(verBytes).TrimEnd('\0');
             }
             return string.Empty;
