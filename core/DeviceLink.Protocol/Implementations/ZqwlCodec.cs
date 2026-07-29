@@ -178,16 +178,16 @@ namespace DeviceLink.Protocol
         /// <summary>
         /// 从响应中提取版本号字符串
         /// </summary>
-        /// <param name="raw">原始响应</param>
+        /// <param name="raw">原始响应（TryParseFrame 剥离帧头帧尾后的10字节）</param>
         /// <returns>版本号字符串</returns>
         public string ExtractVersion(byte[] raw)
         {
-            // 帧结构: [addr][func][reserved 2B][8字节版本数据]
-            // 版本从 raw[4] 开始（对齐 GetAllStatusesAsync / GetInputAsync 的数据偏移）
-            if (raw.Length >= 12)
+            // TryParseFrame 返回: [addr][func][data x8] = 10 字节
+            // 数据从 raw[2] 开始
+            if (raw.Length >= 10)
             {
                 var verBytes = new byte[8];
-                Array.Copy(raw, 4, verBytes, 0, 8);
+                Array.Copy(raw, 2, verBytes, 0, 8);
                 return Encoding.UTF8.GetString(verBytes).TrimEnd('\0');
             }
             return string.Empty;
@@ -196,14 +196,15 @@ namespace DeviceLink.Protocol
         /// <summary>
         /// 从响应中提取模拟量值（BNRC16/BNRC32 使用）
         /// </summary>
-        /// <param name="raw">原始响应</param>
+        /// <param name="raw">原始响应（TryParseFrame 返回的10字节：[addr][func][data x8]）</param>
         /// <returns>模拟量原始值</returns>
         public int ExtractAnalogValue(byte[] raw)
         {
-            if (raw.Length > 7)
+            // TryParseFrame 返回: [addr][func][data x8] = 10 字节
+            // 模拟量数据从 raw[2] 开始取 2 字节（低字节在前）
+            if (raw.Length >= 4)
             {
-                // 数据区 offset 5 开始取 2 字节
-                return raw[5] | (raw[6] << 8);
+                return raw[2] | (raw[3] << 8);
             }
             return 0;
         }

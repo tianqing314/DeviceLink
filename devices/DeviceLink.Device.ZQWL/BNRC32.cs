@@ -240,11 +240,13 @@ public class BNRC32 : DeviceBase.DeviceBase
             raw =>
             {
                 var result = new List<bool>();
-                if (raw.Length >= 12)
+                // TryParseFrame 返回: [addr][func][data x8] = 10 字节
+                // 数据从 raw[2] 开始
+                if (raw.Length >= 10)
                 {
                     for (int i = 0; i < 32; i++)
                     {
-                        int byteIndex = 4 + i / 4;
+                        int byteIndex = 2 + i / 4;
                         int bitIndex = i % 4;
                         byte dataByte = raw[byteIndex];
                         string hex = dataByte.ToString("X2");
@@ -315,13 +317,15 @@ public class BNRC32 : DeviceBase.DeviceBase
     /// </summary>
     private static bool ExtractQuadInput(byte[] raw, int channel)
     {
-        if (raw.Length < 12)
+        // TryParseFrame 返回: [addr][func][data x8] = 10 字节
+        // 数据从 raw[2] 开始
+        if (raw.Length < 10)
         {
             return false;
         }
 
         int dataIndex = (int)Math.Floor(channel / 4.0);
-        byte dataByte = raw[4 + dataIndex];
+        byte dataByte = raw[2 + dataIndex];
         string hex = dataByte.ToString("X2");
         if (hex.Length == 1)
         {

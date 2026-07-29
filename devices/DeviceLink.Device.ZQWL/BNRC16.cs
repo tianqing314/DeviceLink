@@ -237,11 +237,13 @@ public class BNRC16 : DeviceBase.DeviceBase
             raw =>
             {
                 var result = new List<bool>();
-                if (raw.Length >= 12)
+                // TryParseFrame 返回: [addr][func][data x8] = 10 字节
+                // 数据从 raw[2] 开始
+                if (raw.Length >= 10)
                 {
                     for (int i = 0; i < 16; i++)
                     {
-                        int byteIndex = 4 + i / 2;
+                        int byteIndex = 2 + i / 2;
                         if (i % 2 == 1)
                         {
                             result.Add(raw[byteIndex] >= 16); // 高4位
@@ -293,14 +295,16 @@ public class BNRC16 : DeviceBase.DeviceBase
     /// </summary>
     private static bool ExtractNibbleInput(byte[] raw, int channel)
     {
-        if (raw.Length < 12)
+        // TryParseFrame 返回: [addr][func][data x8] = 10 字节
+        // 数据从 raw[2] 开始
+        if (raw.Length < 10)
         {
             return false;
         }
 
-        // raw[0]=addr, raw[1]=func, raw[2..3]=reserved, raw[4..11]=data (8 bytes, 16 路)
+        // raw[0]=addr, raw[1]=func, raw[2..9]=data (8 bytes, 16 路)
         int dataIndex = (channel - 1) / 2;  // 0-based byte index
-        byte dataByte = raw[4 + dataIndex];
+        byte dataByte = raw[2 + dataIndex];
 
         if (channel % 2 == 1)
         {

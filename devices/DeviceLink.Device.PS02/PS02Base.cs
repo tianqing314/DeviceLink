@@ -1132,6 +1132,11 @@ public class PS02Base : DeviceBase.DeviceBase
             await Task.Delay(200, ct);
             return true;
         }
+        catch (OperationCanceledException)
+        {
+            CommunicationLogger.LogError(Name, "启用 OWI 通信模式超时或被取消");
+            return false;
+        }
         catch (DeviceException ex)
         {
             CommunicationLogger.LogError(Name, "启用 OWI 通信模式失败", ex);
@@ -1165,6 +1170,11 @@ public class PS02Base : DeviceBase.DeviceBase
             // 等待设备完成模式切换
             await Task.Delay(200, ct);
             return true;
+        }
+        catch (OperationCanceledException)
+        {
+            CommunicationLogger.LogError(Name, "禁用 OWI 通信模式超时或被取消");
+            return false;
         }
         catch (DeviceException ex)
         {
