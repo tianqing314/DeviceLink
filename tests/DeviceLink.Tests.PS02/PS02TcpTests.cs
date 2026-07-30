@@ -262,6 +262,32 @@ namespace DeviceLink.Tests.PS02
 
         [Fact]
         [Trait("Category", "Tcp")]
+        public async Task Tcp_GetConverterDeviceNumber_ShouldReturnNonEmpty()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                var deviceNumber = await _device!.GetConverterDeviceNumberAsync();
+                _output.WriteLine($"转接板设备编号: {deviceNumber}");
+
+                Assert.False(string.IsNullOrEmpty(deviceNumber), "设备编号不应为空");
+                Assert.True(deviceNumber.Length <= 16, "设备编号长度不应超过16字符");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
         public async Task Tcp_GetSerialNumber_ShouldReturnNonEmpty()
         {
             if (!IsTcpAvailable())
@@ -1006,11 +1032,11 @@ namespace DeviceLink.Tests.PS02
                 {
                     StandardBoardSn = "STANDARD0001TEST",
                     StandardBoardCalibrationDate = new DateTime(2025, 6, 1),
-                    StandardVoltageValues = new float[] { 1.000f, 2.000f, 3.000f, 4.000f },
-                    StandardCurrentValues = new float[] { 4.000f, 8.000f, 12.000f, 16.000f },
+                    StandardVoltageValues = new float[] { 1.000f, 2.000f },
+                    StandardCurrentValues = new float[] { 4.000f, 8.000f },
                     CalibrationDate = new DateTime(2025, 7, 30),
-                    ActualVoltageValues = new float[] { 1.001f, 2.002f, 3.003f, 4.004f },
-                    ActualCurrentValues = new float[] { 4.001f, 8.002f, 12.003f, 16.004f },
+                    ActualVoltageValues = new float[] { 1.001f, 2.002f },
+                    ActualCurrentValues = new float[] { 4.001f, 8.002f },
                     VoltageK = 1.000100f,
                     VoltageB = -0.000200f,
                     CurrentK = 0.999900f,

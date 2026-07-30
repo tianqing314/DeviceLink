@@ -1602,15 +1602,15 @@ public class PS02Base : DeviceBase.DeviceBase
         // 基准板校准日期 (年): 2 bytes (大端)
         // 基准板校准日期 (月): 1 byte
         // 基准板校准日期 (日): 1 byte
-        // 基准板校准值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+        // 基准板校准值列表: 4*4-byte (前8字节电压值，后8字节电流值) = 16 bytes
         // 校准日期 (年): 2 bytes (大端)
         // 校准日期 (月): 1 byte
         // 校准日期 (日): 1 byte
-        // 实际值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+        // 实际值列表: 4*4-byte (前8字节电压值，后8字节电流值) = 16 bytes
         // 电压校准系数 (K, B): 8 bytes
         // 电流校准系数 (K, B): 8 bytes
         // CRC8: 1 byte
-        int expectedSize = 16 + 4 + 32 + 4 + 32 + 8 + 8 + 1;
+        int expectedSize = 16 + 4 + 16 + 4 + 16 + 8 + 8 + 1;
         if (data.Length < expectedSize)
             throw new DeviceException($"校准数据长度不足: 期望 {expectedSize}，实际 {data.Length}");
 
@@ -1628,15 +1628,15 @@ public class PS02Base : DeviceBase.DeviceBase
         result.StandardBoardCalibrationDate = new DateTime(stdYear, stdMonth, stdDay);
         offset += 4;
 
-        // 基准板校准值 - 电压 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 基准板校准值 - 电压 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             result.StandardVoltageValues[i] = BitConverter.ToSingle(data, offset);
             offset += 4;
         }
 
-        // 基准板校准值 - 电流 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 基准板校准值 - 电流 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             result.StandardCurrentValues[i] = BitConverter.ToSingle(data, offset);
             offset += 4;
@@ -1649,15 +1649,15 @@ public class PS02Base : DeviceBase.DeviceBase
         result.CalibrationDate = new DateTime(calYear, calMonth, calDay);
         offset += 4;
 
-        // 实际值 - 电压 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 实际值 - 电压 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             result.ActualVoltageValues[i] = BitConverter.ToSingle(data, offset);
             offset += 4;
         }
 
-        // 实际值 - 电流 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 实际值 - 电流 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             result.ActualCurrentValues[i] = BitConverter.ToSingle(data, offset);
             offset += 4;
@@ -1696,15 +1696,15 @@ public class PS02Base : DeviceBase.DeviceBase
         // 基准板校准日期 (年): 2 bytes (大端)
         // 基准板校准日期 (月): 1 byte
         // 基准板校准日期 (日): 1 byte
-        // 基准板校准值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+        // 基准板校准值列表: 4*4-byte (前8字节电压值，后8字节电流值) = 16 bytes
         // 校准日期 (年): 2 bytes (大端)
         // 校准日期 (月): 1 byte
         // 校准日期 (日): 1 byte
-        // 实际值列表: 4*4 bytes 电压 + 4*4 bytes 电流 = 32 bytes
+        // 实际值列表: 4*4-byte (前8字节电压值，后8字节电流值) = 16 bytes
         // 电压校准系数 (K, B): 8 bytes
         // 电流校准系数 (K, B): 8 bytes
         // CRC8: 1 byte (由转接板自动计算？文档中写 CRC8 上述所有数据同 CPPI V3 头)
-        int totalSize = 16 + 4 + 32 + 4 + 32 + 8 + 8 + 1;
+        int totalSize = 16 + 4 + 16 + 4 + 16 + 8 + 8 + 1;
         var data = new byte[totalSize];
         int offset = 0;
 
@@ -1720,16 +1720,16 @@ public class PS02Base : DeviceBase.DeviceBase
         data[offset + 3] = (byte)calibrationData.StandardBoardCalibrationDate.Day;
         offset += 4;
 
-        // 基准板校准值 - 电压 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 基准板校准值 - 电压 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             var bytes = BitConverter.GetBytes(calibrationData.StandardVoltageValues[i]);
             Array.Copy(bytes, 0, data, offset, 4);
             offset += 4;
         }
 
-        // 基准板校准值 - 电流 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 基准板校准值 - 电流 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             var bytes = BitConverter.GetBytes(calibrationData.StandardCurrentValues[i]);
             Array.Copy(bytes, 0, data, offset, 4);
@@ -1743,16 +1743,16 @@ public class PS02Base : DeviceBase.DeviceBase
         data[offset + 3] = (byte)calibrationData.CalibrationDate.Day;
         offset += 4;
 
-        // 实际值 - 电压 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 实际值 - 电压 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             var bytes = BitConverter.GetBytes(calibrationData.ActualVoltageValues[i]);
             Array.Copy(bytes, 0, data, offset, 4);
             offset += 4;
         }
 
-        // 实际值 - 电流 (4*4 bytes 小端 float32)
-        for (int i = 0; i < 4; i++)
+        // 实际值 - 电流 (2*4 bytes 小端 float32，共8字节)
+        for (int i = 0; i < 2; i++)
         {
             var bytes = BitConverter.GetBytes(calibrationData.ActualCurrentValues[i]);
             Array.Copy(bytes, 0, data, offset, 4);

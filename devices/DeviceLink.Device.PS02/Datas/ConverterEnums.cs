@@ -285,14 +285,16 @@ public class CalibrationData
     public DateTime StandardBoardCalibrationDate { get; set; }
 
     /// <summary>
-    /// 基准板校准值列表 - 电压（4个 float32，小端）
+    /// 基准板校准值列表 - 电压（2个 float32，小端，共8字节）
+    /// 索引0: 零位电压，索引1: 满度电压
     /// </summary>
-    public float[] StandardVoltageValues { get; set; } = new float[4];
+    public float[] StandardVoltageValues { get; set; } = new float[2];
 
     /// <summary>
-    /// 基准板校准值列表 - 电流（4个 float32，小端）
+    /// 基准板校准值列表 - 电流（2个 float32，小端，共8字节）
+    /// 索引0: 零位电流，索引1: 满度电流
     /// </summary>
-    public float[] StandardCurrentValues { get; set; } = new float[4];
+    public float[] StandardCurrentValues { get; set; } = new float[2];
 
     /// <summary>
     /// 校准日期
@@ -300,14 +302,16 @@ public class CalibrationData
     public DateTime CalibrationDate { get; set; }
 
     /// <summary>
-    /// 实际值列表 - 电压（4个 float32，小端）
+    /// 实际值列表 - 电压（2个 float32，小端，共8字节）
+    /// 索引0: 零位电压，索引1: 满度电压
     /// </summary>
-    public float[] ActualVoltageValues { get; set; } = new float[4];
+    public float[] ActualVoltageValues { get; set; } = new float[2];
 
     /// <summary>
-    /// 实际值列表 - 电流（4个 float32，小端）
+    /// 实际值列表 - 电流（2个 float32，小端，共8字节）
+    /// 索引0: 零位电流，索引1: 满度电流
     /// </summary>
-    public float[] ActualCurrentValues { get; set; } = new float[4];
+    public float[] ActualCurrentValues { get; set; } = new float[2];
 
     /// <summary>
     /// 电压校准系数 K 值
