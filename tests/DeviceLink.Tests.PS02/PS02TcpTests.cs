@@ -36,7 +36,7 @@ namespace DeviceLink.Tests.PS02
 
             // 从环境变量读取 TCP 配置，默认 127.0.0.1:10001
             _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.41.243";
-            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1030;
+            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1046;
             _slaveAddress = byte.TryParse(Environment.GetEnvironmentVariable("PS02_SLAVE_ADDRESS"), out var addr) ? addr : (byte)1;
 
             _output.WriteLine($"TCP 配置: {_host}:{_port}, 从站地址: {_slaveAddress}");
@@ -837,6 +837,228 @@ namespace DeviceLink.Tests.PS02
         }
 
         // ═══════════════════════════════════════════════════════════
+        // 输出项目与校准数据测试
+        // ═══════════════════════════════════════════════════════════
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_SetOutputProject_MaOut_ShouldSucceed()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                // 设置电流输出 - 测量OWI模块输出
+                await _device!.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
+                _output.WriteLine("已设置电流输出 - 测量OWI模块输出");
+                await Task.Delay(500);
+
+                // 读取当前输出项目，验证输出已开启（标准板卡返回2字节）
+                var result1 = await _device.GetStandardBoardOutputProjectAsync();
+                _output.WriteLine($"输出项目: {result1}");
+                Assert.Equal(MeasurementProject.Current, result1.Project);
+
+                // 设置电流输出 - 测量标准板输出
+                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.StandardBoard);
+                _output.WriteLine("已设置电流输出 - 测量标准板输出");
+                await Task.Delay(500);
+
+                var result2 = await _device.GetStandardBoardOutputProjectAsync();
+                _output.WriteLine($"输出项目: {result2}");
+                Assert.Equal(MeasurementProject.Current, result2.Project);
+
+                // 关闭输出
+                await _device.DisableAllOutputAsync();
+                _output.WriteLine("已关闭输出");
+
+                _output.WriteLine("电流输出设置测试通过");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_SetOutputProject_VOut_ShouldSucceed()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                // 设置电压输出 - 测量OWI模块输出
+                await _device!.SetOutputProjectAsync(OutputProject.VOut, MeasurementDeviceCategory.OwiModule);
+                _output.WriteLine("已设置电压输出 - 测量OWI模块输出");
+                await Task.Delay(500);
+
+                // 读取当前输出项目，验证输出已开启
+                var result1 = await _device.GetMeasurementProjectAsync();
+                _output.WriteLine($"输出项目: {result1}");
+                Assert.Equal(MeasurementProject.Voltage, result1.Project);
+
+                // 设置电压输出 - 测量标准板输出
+                await _device.SetOutputProjectAsync(OutputProject.VOut, MeasurementDeviceCategory.StandardBoard);
+                _output.WriteLine("已设置电压输出 - 测量标准板输出");
+                await Task.Delay(500);
+
+                var result2 = await _device.GetMeasurementProjectAsync();
+                _output.WriteLine($"输出项目: {result2}");
+                Assert.Equal(MeasurementProject.Voltage, result2.Project);
+
+                // 关闭输出
+                await _device.DisableAllOutputAsync();
+                _output.WriteLine("已关闭输出");
+
+                _output.WriteLine("电压输出设置测试通过");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_GetMeasurementProject_ShouldReturnResult()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                // 先关闭所有输出
+                await _device!.DisableAllOutputAsync();
+                _output.WriteLine("已关闭所有输出");
+
+                // 设置电流输出
+                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
+                _output.WriteLine("已设置电流输出 - OWI模块");
+                await Task.Delay(3000); // 等待输出稳定
+
+                // 读取输出项目
+                var result = await _device.GetMeasurementProjectAsync();
+                _output.WriteLine($"测量项目: {result.Project}, 原始值: {result.RawValue:F4}, 最终值: {result.FinalValue:F4}");
+
+                // 验证返回结果有效
+                Assert.True(result.Project == MeasurementProject.Current || result.Project == MeasurementProject.Voltage,
+                    $"测量项目应该是电流或电压，实际: {result.Project}");
+                Assert.True(result.RawValue >= 0, $"原始值应该 >= 0，实际: {result.RawValue}");
+                Assert.True(result.FinalValue >= 0, $"最终值应该 >= 0，实际: {result.FinalValue}");
+
+                // 关闭输出
+                await _device.DisableAllOutputAsync();
+                _output.WriteLine("已关闭输出");
+
+                _output.WriteLine("读取输出项目测试通过");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_WriteCalibrationData_ShouldSucceed()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                // 先读取校准数据份数
+                var count = await _device!.GetCalibrationCountAsync();
+                _output.WriteLine($"当前校准数据份数: {count}");
+
+                // 读取最新一条校准数据作为参考
+                CalibrationData? originalData = null;
+                if (count > 0)
+                {
+                    originalData = await _device.ReadCalibrationDataAsync(1);
+                    _output.WriteLine($"原始校准数据: {originalData}");
+                }
+
+                // 构造测试校准数据
+                var testData = new CalibrationData
+                {
+                    StandardBoardSn = "STANDARD0001TEST",
+                    StandardBoardCalibrationDate = new DateTime(2025, 6, 1),
+                    StandardVoltageValues = new float[] { 1.000f, 2.000f, 3.000f, 4.000f },
+                    StandardCurrentValues = new float[] { 4.000f, 8.000f, 12.000f, 16.000f },
+                    CalibrationDate = new DateTime(2025, 7, 30),
+                    ActualVoltageValues = new float[] { 1.001f, 2.002f, 3.003f, 4.004f },
+                    ActualCurrentValues = new float[] { 4.001f, 8.002f, 12.003f, 16.004f },
+                    VoltageK = 1.000100f,
+                    VoltageB = -0.000200f,
+                    CurrentK = 0.999900f,
+                    CurrentB = 0.000300f
+                };
+
+                // 写入校准数据
+                _output.WriteLine($"写入校准数据: {testData}");
+                await _device.WriteCalibrationDataAsync(testData);
+                _output.WriteLine("写入校准数据成功");
+
+                // 读取校准数据份数，验证增加了
+                var newCount = await _device.GetCalibrationCountAsync();
+                _output.WriteLine($"写入后校准数据份数: {newCount}");
+                Assert.True(newCount >= count, "写入后校准数据份数应大于等于之前");
+
+                // 读取最新校准数据，验证写入的数据
+                var readData = await _device.ReadCalibrationDataAsync(1);
+                _output.WriteLine($"读取校准数据: {readData}");
+
+                // 验证关键字段
+                Assert.Equal(testData.StandardBoardSn, readData.StandardBoardSn);
+                Assert.True(Math.Abs(testData.VoltageK - readData.VoltageK) < 0.001f,
+                    $"电压K值应为 {testData.VoltageK}，实际为 {readData.VoltageK}");
+                Assert.True(Math.Abs(testData.CurrentK - readData.CurrentK) < 0.001f,
+                    $"电流K值应为 {testData.CurrentK}，实际为 {readData.CurrentK}");
+                Assert.True(Math.Abs(testData.VoltageB - readData.VoltageB) < 0.001f,
+                    $"电压B值应为 {testData.VoltageB}，实际为 {readData.VoltageB}");
+                Assert.True(Math.Abs(testData.CurrentB - readData.CurrentB) < 0.001f,
+                    $"电流B值应为 {testData.CurrentB}，实际为 {readData.CurrentB}");
+
+                // 恢复原始校准数据
+                if (originalData != null)
+                {
+                    _output.WriteLine($"恢复原始校准数据: {originalData}");
+                    await _device.WriteCalibrationDataAsync(originalData);
+                    _output.WriteLine("已恢复原始校准数据");
+                }
+
+                _output.WriteLine("写入校准数据测试通过");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
         // 寄存器读写测试
         // ═══════════════════════════════════════════════════════════
 
@@ -976,6 +1198,295 @@ namespace DeviceLink.Tests.PS02
                 }
 
                 _output.WriteLine("多次读取结果一致");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 标准板卡测试（用于685校准）
+        // ═══════════════════════════════════════════════════════════
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_SetOutputProject_MaOut_ShouldSucceed()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：设定输出项目（MaOut + 满量程） ===");
+
+                // 设定 MaOut 输出，满量程
+                await _device!.SetStandardBoardOutputProjectAsync(OutputProject.MaOut, OutputValueType.FullScale);
+                _output.WriteLine("已设定 MaOut + 满量程");
+
+                // 读取当前输出项目
+                var result = await _device.GetStandardBoardOutputProjectAsync();
+                _output.WriteLine($"当前输出项目: {result}");
+
+                Assert.Equal(MeasurementProject.Current, result.Project);
+                Assert.Equal(OutputValueType.FullScale, result.ValueType);
+
+                // 关闭输出
+                await _device.CloseStandardBoardOutputProjectAsync(OutputProject.Off);
+                _output.WriteLine("已关闭输出");
+
+                _output.WriteLine("=== 标准板卡设定输出项目测试完成 ===");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_SetOutputProject_VOut_ShouldSucceed()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：设定输出项目（VOut + 零点） ===");
+
+                // 设定 VOut 输出，零点
+                await _device!.SetStandardBoardOutputProjectAsync(OutputProject.VOut, OutputValueType.Zero);
+                _output.WriteLine("已设定 VOut + 零点");
+
+                // 读取当前输出项目
+                var result = await _device.GetStandardBoardOutputProjectAsync();
+                _output.WriteLine($"当前输出项目: {result}");
+
+                Assert.Equal(MeasurementProject.Voltage, result.Project);
+                Assert.Equal(OutputValueType.Zero, result.ValueType);
+
+                // 关闭输出
+                await _device.CloseStandardBoardOutputProjectAsync(OutputProject.Off);
+                _output.WriteLine("已关闭输出");
+
+                _output.WriteLine("=== 标准板卡设定输出项目测试完成 ===");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_GetOutputProject_ShouldReturnResult()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：读取当前输出项目 ===");
+
+                var result = await _device!.GetStandardBoardOutputProjectAsync();
+                _output.WriteLine($"当前输出项目: {result}");
+
+                // 验证返回值有效
+                Assert.True(Enum.IsDefined(typeof(MeasurementProject), result.Project),
+                    $"项目代号应该有效，实际值: {result.Project}");
+                Assert.True(Enum.IsDefined(typeof(OutputValueType), result.ValueType),
+                    $"输出值类型应该有效，实际值: {result.ValueType}");
+
+                _output.WriteLine("=== 标准板卡读取输出项目测试完成 ===");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_ScanDevice_ShouldReturnInterfaceType()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：扫描从设备 ===");
+
+                var interfaceType = await _device!.ScanStandardBoardDeviceAsync();
+                _output.WriteLine($"扫描结果: {interfaceType} ({(byte)interfaceType})");
+
+                // 验证返回值有效
+                Assert.True(Enum.IsDefined(typeof(DeviceInterfaceType), interfaceType),
+                    $"接口类型应该有效，实际值: {interfaceType}");
+
+                _output.WriteLine("=== 标准板卡扫描从设备测试完成 ===");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_GetCalibrationCount_ShouldReturnCount()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：读取校准份数 ===");
+
+                var count = await _device!.GetStandardBoardCalibrationCountAsync();
+                _output.WriteLine($"校准份数: {count}");
+
+                // 校准份数应该 >= 0
+                Assert.True(count >= 0, $"校准份数应该 >= 0，实际值: {count}");
+
+                _output.WriteLine("=== 标准板卡读取校准份数测试完成 ===");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_ReadCalibrationData_ShouldReturnData()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：读取校准数据 ===");
+
+                // 先读取校准份数
+                var count = await _device!.GetStandardBoardCalibrationCountAsync();
+                _output.WriteLine($"校准份数: {count}");
+
+                if (count == 0)
+                {
+                    _output.WriteLine("没有校准数据，跳过读取");
+                    return;
+                }
+
+                // 读取第一份校准数据
+                var calibrationData = await _device.ReadStandardBoardCalibrationDataAsync(1);
+                _output.WriteLine($"685 SN: {calibrationData.ConST685Sn}");
+                _output.WriteLine($"685 校准日期: {calibrationData.ConST685CalibrationDate:yyyy-MM-dd}");
+                _output.WriteLine($"校准日期: {calibrationData.CalibrationDate:yyyy-MM-dd}");
+
+                _output.WriteLine("电压实际值:");
+                for (int i = 0; i < 2; i++)
+                {
+                    _output.WriteLine($"  [{i}] = {calibrationData.ActualVoltageValues[i]:F6} V");
+                }
+
+                _output.WriteLine("电流实际值:");
+                for (int i = 0; i < 2; i++)
+                {
+                    _output.WriteLine($"  [{i}] = {calibrationData.ActualCurrentValues[i]:F6} mA");
+                }
+
+                // 验证数据有效性
+                Assert.False(string.IsNullOrEmpty(calibrationData.ConST685Sn), "685 SN 号不应为空");
+                Assert.True(calibrationData.ConST685CalibrationDate.Year > 2000, "685 校准日期应该有效");
+                Assert.True(calibrationData.CalibrationDate.Year > 2000, "校准日期应该有效");
+
+                _output.WriteLine("=== 标准板卡读取校准数据测试完成 ===");
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_StandardBoard_WriteCalibrationData_ShouldSucceed()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 标准板卡：写入校准数据 ===");
+
+                // 创建测试校准数据
+                var calibrationData = new StandardBoardCalibrationData
+                {
+                    ConST685Sn = "TEST685SN1234567",
+                    ConST685CalibrationDate = new DateTime(2026, 1, 15),
+                    ActualVoltageValues = new float[] { 0.5f, 9.5f },
+                    ActualCurrentValues = new float[] { 11.5f, 35.08f },
+                    CalibrationDate = new DateTime(2026, 7, 30)
+                };
+
+                _output.WriteLine($"写入校准数据:");
+                _output.WriteLine($"  685 SN: {calibrationData.ConST685Sn}");
+                _output.WriteLine($"  685 校准日期: {calibrationData.ConST685CalibrationDate:yyyy-MM-dd}");
+                _output.WriteLine($"  校准日期: {calibrationData.CalibrationDate:yyyy-MM-dd}");
+
+                await _device!.WriteStandardBoardCalibrationDataAsync(calibrationData);
+                _output.WriteLine("校准数据写入成功");
+
+                // 等待标准板卡处理写入命令
+                _output.WriteLine("等待500ms让标准板卡处理写入...");
+                await Task.Delay(500);
+
+                // 验证写入后可以读取
+                var count = await _device.GetStandardBoardCalibrationCountAsync();
+                _output.WriteLine($"写入后校准份数: {count}");
+                Assert.True(count > 0, "写入后校准份数应该 > 0");
+
+                // 读取最新校准数据（内置重试逻辑）
+                var readData = await _device.ReadStandardBoardCalibrationDataAsync(1);
+                _output.WriteLine($"读取的685 SN: {readData.ConST685Sn}");
+                Assert.Equal(calibrationData.ConST685Sn, readData.ConST685Sn);
+
+                _output.WriteLine("=== 标准板卡写入校准数据测试完成 ===");
             }
             finally
             {

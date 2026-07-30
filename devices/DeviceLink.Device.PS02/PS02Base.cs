@@ -1415,7 +1415,7 @@ public class PS02Base : DeviceBase.DeviceBase
     /// <returns>
     /// 测量结果
     /// </returns>
-    public async Task<MeasurementResult> GetMeasurementProjectAsync(CancellationToken ct = default)
+    public async Task<ConverterMeasurementResult> GetMeasurementProjectAsync(CancellationToken ct = default)
     {
         var frame = _converterFrameStrategy.BuildRawFrame(0x0211);
         CommunicationLogger.LogRaw(Name, ">>> 转接板指令: 读取当前测量项目", frame);
@@ -1423,7 +1423,7 @@ public class PS02Base : DeviceBase.DeviceBase
         var response = await SendRawFrameAsync(frame, ct);
         var data = ParseConverterResponse(response, 9); // 1 + 4 + 4 = 9 字节
 
-        return new MeasurementResult
+        return new ConverterMeasurementResult
         {
             Project = (MeasurementProject)data[0],
             RawValue = BitConverter.ToSingle(data, 1),    // float32 小端，偏移 1
@@ -1982,4 +1982,355 @@ public class PS02Base : DeviceBase.DeviceBase
         }
         return sb.ToString().Trim();
     }
+
+    #region 标准板卡
+
+    // ═══════════════════════════════════════════════════════════
+    // 标准板卡指令（用于685校准）
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 设定输出项目（标准板卡功能码 0x0210）
+    /// </summary>
+    /// <param name="project">
+    /// 输出项目代号：0=关闭所有档位，1=MaOut（电流输出），2=VOut（电压输出）
+    /// </param>
+    /// <param name="valueType">
+    /// 输出值类型：0=输出零点，1=输出满量程
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    public async Task SetStandardBoardOutputProjectAsync(OutputProject project, OutputValueType valueType, CancellationToken ct = default)
+    {
+        var paramData = new byte[] { (byte)project, (byte)valueType };
+        var frame = _converterFrameStrategy.BuildRawFrame(0x0210, paramData);
+        CommunicationLogger.LogRaw(Name, $">>> 标准板卡指令: 设定输出项目 (项目:{project}, 值类型:{valueType})", frame);
+
+        var response = await SendRawFrameAsync(frame, ct);
+        ParseConverterResponse(response, 0); // 验证无错误
+    }
+
+    /// <summary>
+    /// 读取当前输出项目（标准板卡功能码 0x0211）
+    /// </summary>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    /// <returns>
+    /// 测量结果：项目代号 + 输出值类型
+    /// </returns>
+    public async Task<MeasurementResult> GetStandardBoardOutputProjectAsync(CancellationToken ct = default)
+    {
+        var frame = _converterFrameStrategy.BuildRawFrame(0x0211);
+        var response = await SendRawFrameAsync(frame, ct);
+        var data = ParseConverterResponse(response, 2); // 1 + 1 = 2 bytes
+
+        return new MeasurementResult
+        {
+            Project = (MeasurementProject)data[0],
+            ValueType = (OutputValueType)data[1]
+        };
+    }
+
+    /// <summary>
+    /// 关闭当前输出项目（标准板卡功能码 0x0212）
+    /// </summary>
+    /// <param name="project">
+    /// 输出项目代号：0=关闭所有档位，1=MaOut，2=VOut
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    public async Task CloseStandardBoardOutputProjectAsync(OutputProject project, CancellationToken ct = default)
+    {
+        var paramData = new byte[] { (byte)project };
+        var frame = _converterFrameStrategy.BuildRawFrame(0x0212, paramData);
+        CommunicationLogger.LogRaw(Name, $">>> 标准板卡指令: 关闭输出项目 (项目:{project})", frame);
+
+        var response = await SendRawFrameAsync(frame, ct);
+        ParseConverterResponse(response, 0); // 验证无错误
+    }
+
+    /// <summary>
+    /// 扫描从设备（标准板卡功能码 0x300）
+    /// </summary>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    /// <returns>
+    /// 扫描结果：0=未连接设备，1=OWI电流接口，2=OWI电压接口，3=485接口
+    /// </returns>
+    public async Task<DeviceInterfaceType> ScanStandardBoardDeviceAsync(CancellationToken ct = default)
+    {
+        var frame = _converterFrameStrategy.BuildRawFrame(0x300);
+        CommunicationLogger.LogRaw(Name, ">>> 标准板卡指令: 扫描从设备", frame);
+
+        var response = await SendRawFrameAsync(frame, ct);
+        var data = ParseConverterResponse(response, 1); // 1 byte
+
+        return (DeviceInterfaceType)data[0];
+    }
+
+    /// <summary>
+    /// 读取校准数据份数（标准板卡功能码 0x0282）
+    /// </summary>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    /// <returns>
+    /// 校准数据份数
+    /// </returns>
+    public async Task<ushort> GetStandardBoardCalibrationCountAsync(CancellationToken ct = default)
+    {
+        var frame = _converterFrameStrategy.BuildRawFrame(0x0282);
+        CommunicationLogger.LogRaw(Name, ">>> 标准板卡指令: 读取校准份数", frame);
+
+        var response = await SendRawFrameAsync(frame, ct);
+        var data = ParseConverterResponse(response, 2); // 2 字节
+
+        // 大端模式：高字节在前
+        return (ushort)((data[0] << 8) | data[1]);
+    }
+
+    /// <summary>
+    /// 读取校准数据（标准板卡功能码 0x0281）
+    /// 读取指定索引的校准数据
+    /// </summary>
+    /// <param name="index">
+    /// 校准数据索引（1=最新，依次累加）
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    /// <returns>
+    /// 标准板卡校准数据
+    /// </returns>
+    public async Task<StandardBoardCalibrationData> ReadStandardBoardCalibrationDataAsync(ushort index, CancellationToken ct = default)
+    {
+        const int maxRetries = 3;
+        const int retryDelayMs = 500;
+
+        for (int attempt = 1; attempt <= maxRetries; attempt++)
+        {
+            try
+            {
+                // 参数：索引（2字节大端）
+                var paramData = new byte[] { (byte)(index >> 8), (byte)(index & 0xFF) };
+                var frame = _converterFrameStrategy.BuildRawFrame(0x0281, paramData);
+                CommunicationLogger.LogRaw(Name, $">>> 标准板卡指令: 读取校准数据 (索引:{index}, 尝试:{attempt}/{maxRetries})", frame);
+
+                var response = await SendRawFrameAsync(frame, ct);
+
+                // 解析响应帧
+                if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
+                    throw new DeviceException($"标准板卡响应帧解析失败，数据: {BitConverter.ToString(response)}");
+
+                if (frameData.Length < 1)
+                    throw new DeviceException("标准板卡响应数据为空");
+
+                CommunicationLogger.LogRaw(Name, $"<<< 标准板卡响应帧数据 ({frameData.Length}字节)", frameData);
+
+                byte errorCode = frameData[0];
+                if (errorCode != 0)
+                {
+                    var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                        ? ((ConverterErrorCode)errorCode).ToString()
+                        : $"未知错误(0x{errorCode:X2})";
+                    CommunicationLogger.LogError(Name, $"标准板卡返回错误码: {errorCode} ({errorName}), 响应数据: {BitConverter.ToString(frameData)}");
+
+                    // 如果是执行错误且还有重试机会，等待后重试
+                    if (errorCode == (byte)ConverterErrorCode.ExecutionError && attempt < maxRetries)
+                    {
+                        CommunicationLogger.LogInfo(Name, $"标准板卡执行错误，{retryDelayMs}ms 后重试...");
+                        await Task.Delay(retryDelayMs, ct);
+                        continue;
+                    }
+
+                    throw new DeviceException($"标准板卡返回错误: {errorName} (0x{errorCode:X2})，响应: {BitConverter.ToString(frameData)}");
+                }
+
+                // 校准数据在错误码之后
+                var data = new byte[frameData.Length - 1];
+                Array.Copy(frameData, 1, data, 0, data.Length);
+
+                return ParseStandardBoardCalibrationData(data);
+            }
+            catch (DeviceException) when (attempt < maxRetries)
+            {
+                CommunicationLogger.LogInfo(Name, $"读取标准板卡校准数据失败，第 {attempt}/{maxRetries} 次重试...");
+                await Task.Delay(retryDelayMs, ct);
+            }
+        }
+
+        // 不应该到达这里，但为了编译通过
+        throw new DeviceException("读取标准板卡校准数据失败，已用尽所有重试次数");
+    }
+
+    /// <summary>
+    /// 写入校准数据（标准板卡功能码 0x0280）
+    /// </summary>
+    /// <param name="calibrationData">
+    /// 标准板卡校准数据
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    public async Task WriteStandardBoardCalibrationDataAsync(StandardBoardCalibrationData calibrationData, CancellationToken ct = default)
+    {
+        if (calibrationData == null)
+            throw new ArgumentNullException(nameof(calibrationData));
+
+        var data = SerializeStandardBoardCalibrationData(calibrationData);
+        var frame = _converterFrameStrategy.BuildRawFrame(0x0280, data);
+        CommunicationLogger.LogRaw(Name, ">>> 标准板卡指令: 写入校准数据", frame);
+
+        var response = await SendRawFrameAsync(frame, ct);
+        ParseConverterResponse(response, 0); // 验证无错误
+    }
+
+    #endregion
+
+    #region 标准板卡校准数据解析
+
+    /// <summary>
+    /// 计算 CRC8（多项式 0x07）
+    /// </summary>
+    private static byte CalculateCrc8(byte[] data, int length, int offset = 0)
+    {
+        byte crc = 0x00;
+        for (int i = 0; i < length; i++)
+        {
+            crc ^= data[offset + i];
+            for (int j = 0; j < 8; j++)
+            {
+                if ((crc & 0x80) != 0)
+                {
+                    crc = (byte)((crc << 1) ^ 0x07);
+                }
+                else
+                {
+                    crc = (byte)(crc << 1);
+                }
+            }
+        }
+        return crc;
+    }
+
+    /// <summary>
+    /// 解析标准板卡校准数据
+    /// 格式：685的SN号(16字节) + 685校准日期(年2字节+月1字节+日1字节) + 实际值列表(2*4字节电压值 + 2*4字节电流值，共16字节) + 校准日期(年2字节+月1字节+日1字节) + CRC8
+    /// </summary>
+    private StandardBoardCalibrationData ParseStandardBoardCalibrationData(byte[] data)
+    {
+        // 最小长度：16 + 4 + 16 + 4 + 1 = 41 bytes
+        if (data.Length < 41)
+            throw new DeviceException($"标准板卡校准数据长度不足，期望至少41字节，实际{data.Length}字节");
+
+        int offset = 0;
+
+        // 685 SN 号（16字节 ASCII）
+        string conST685Sn = ExtractAsciiString(data, offset, 16);
+        offset += 16;
+
+        // 685 校准日期（年2字节+月1字节+日1字节）
+        ushort year = (ushort)((data[offset] << 8) | data[offset + 1]);
+        byte month = data[offset + 2];
+        byte day = data[offset + 3];
+        DateTime conST685CalibrationDate = new DateTime(year, month, day);
+        offset += 4;
+
+        // 实际值列表 - 电压（2个 float32，小端，共8字节）
+        // 索引0: 零位电压，索引1: 满度电压
+        float[] actualVoltageValues = new float[2];
+        for (int i = 0; i < 2; i++)
+        {
+            actualVoltageValues[i] = BitConverter.ToSingle(data, offset);
+            offset += 4;
+        }
+
+        // 实际值列表 - 电流（2个 float32，小端，共8字节）
+        // 索引0: 零位电流，索引1: 满度电流
+        float[] actualCurrentValues = new float[2];
+        for (int i = 0; i < 2; i++)
+        {
+            actualCurrentValues[i] = BitConverter.ToSingle(data, offset);
+            offset += 4;
+        }
+
+        // 校准日期（年2字节+月1字节+日1字节）
+        year = (ushort)((data[offset] << 8) | data[offset + 1]);
+        month = data[offset + 2];
+        day = data[offset + 3];
+        DateTime calibrationDate = new DateTime(year, month, day);
+        offset += 4;
+
+        // CRC8 验证
+        byte receivedCrc8 = data[offset];
+        byte calculatedCrc8 = CalculateCrc8(data, data.Length - 1); // 计算除CRC8外的所有字节
+        if (receivedCrc8 != calculatedCrc8)
+            throw new DeviceException($"标准板卡校准数据 CRC8 校验失败: 期望 0x{calculatedCrc8:X2}，实际 0x{receivedCrc8:X2}");
+
+        return new StandardBoardCalibrationData
+        {
+            ConST685Sn = conST685Sn,
+            ConST685CalibrationDate = conST685CalibrationDate,
+            ActualVoltageValues = actualVoltageValues,
+            ActualCurrentValues = actualCurrentValues,
+            CalibrationDate = calibrationDate
+        };
+    }
+
+    /// <summary>
+    /// 序列化标准板卡校准数据
+    /// 格式：685的SN号(16字节) + 685校准日期(年2字节+月1字节+日1字节) + 实际值列表(2*4字节电压值 + 2*4字节电流值，共16字节) + 校准日期(年2字节+月1字节+日1字节) + CRC8
+    /// </summary>
+    private byte[] SerializeStandardBoardCalibrationData(StandardBoardCalibrationData data)
+    {
+        // 16 + 4 + 16 + 4 + 1 = 41 bytes
+        var result = new byte[41];
+        int offset = 0;
+
+        // 685 SN 号（16字节 ASCII）
+        byte[] snBytes = Encoding.ASCII.GetBytes(data.ConST685Sn.PadRight(16, '\0'));
+        Array.Copy(snBytes, 0, result, offset, 16);
+        offset += 16;
+
+        // 685 校准日期（年2字节+月1字节+日1字节）
+        result[offset] = (byte)(data.ConST685CalibrationDate.Year >> 8);
+        result[offset + 1] = (byte)(data.ConST685CalibrationDate.Year & 0xFF);
+        result[offset + 2] = (byte)data.ConST685CalibrationDate.Month;
+        result[offset + 3] = (byte)data.ConST685CalibrationDate.Day;
+        offset += 4;
+
+        // 实际值列表 - 电压（2个 float32，小端，共8字节）
+        // 索引0: 零位电压，索引1: 满度电压
+        for (int i = 0; i < 2; i++)
+        {
+            WriteFloat32LittleEndian(result, offset, data.ActualVoltageValues[i]);
+            offset += 4;
+        }
+
+        // 实际值列表 - 电流（2个 float32，小端，共8字节）
+        // 索引0: 零位电流，索引1: 满度电流
+        for (int i = 0; i < 2; i++)
+        {
+            WriteFloat32LittleEndian(result, offset, data.ActualCurrentValues[i]);
+            offset += 4;
+        }
+
+        // 校准日期（年2字节+月1字节+日1字节）
+        result[offset] = (byte)(data.CalibrationDate.Year >> 8);
+        result[offset + 1] = (byte)(data.CalibrationDate.Year & 0xFF);
+        result[offset + 2] = (byte)data.CalibrationDate.Month;
+        result[offset + 3] = (byte)data.CalibrationDate.Day;
+        offset += 4;
+
+        // CRC8
+        result[offset] = CalculateCrc8(result, offset);
+
+        return result;
+    }
+
+    #endregion
 }

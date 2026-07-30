@@ -18,7 +18,7 @@ namespace DeviceLink.Tests.ConST685
     public class ConST685NetworkTests
     {
         // ======================== 配置参数 ========================
-        private const string TestIpAddress = "192.168.143.245";
+        private const string TestIpAddress = "192.168.41.194";
         private const int TestPort = 8000;
 
         private ConST685Base CreateDevice()
@@ -192,7 +192,7 @@ namespace DeviceLink.Tests.ConST685
         {
             using var dev = CreateDevice();
             await dev.OpenAsync();
-            var readings = await dev.GetScanDataAsync(1);
+            var readings = await dev.GetScanDataAsync(30);
             Assert.NotNull(readings);
             if (readings.Count > 0)
             {

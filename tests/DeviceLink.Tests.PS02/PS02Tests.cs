@@ -589,20 +589,13 @@ namespace DeviceLink.Tests.PS02
             {
                 if (funcCode == 0x0211)
                 {
-                    // 响应：错误码(1) + 项目代号(1) + 原始值(4) + 最终值(4) = 10 字节
-                    var response = new byte[10];
-                    response[0] = 0x00; // 无错误
-                    response[1] = 0x01; // 项目代号: Current
-
-                    // 原始值 12.34 (float32 小端)
-                    var rawBytes = BitConverter.GetBytes(12.34f);
-                    Array.Copy(rawBytes, 0, response, 2, 4);
-
-                    // 最终值 12.50 (float32 小端)
-                    var finalBytes = BitConverter.GetBytes(12.50f);
-                    Array.Copy(finalBytes, 0, response, 6, 4);
-
-                    return response;
+                    // 响应：错误码(1) + 项目代号(1) + 原始值(4字节float) + 最终值(4字节float) = 10 字节
+                    var rawBytes = BitConverter.GetBytes(32.0f);
+                    var finalBytes = BitConverter.GetBytes(12.0f);
+                    return new byte[] { 0x00, 0x01 }
+                        .Concat(rawBytes)
+                        .Concat(finalBytes)
+                        .ToArray();
                 }
                 return null;
             });
@@ -611,8 +604,8 @@ namespace DeviceLink.Tests.PS02
             var result = await ps02.GetMeasurementProjectAsync();
 
             Assert.Equal(MeasurementProject.Current, result.Project);
-            Assert.True(Math.Abs(12.34f - result.RawValue) < 0.01f, $"原始值应为 12.34，实际 {result.RawValue}");
-            Assert.True(Math.Abs(12.50f - result.FinalValue) < 0.01f, $"最终值应为 12.50，实际 {result.FinalValue}");
+            Assert.Equal(32.0f, result.RawValue);
+            Assert.Equal(12.0f, result.FinalValue);
             await ps02.CloseAsync();
         }
 

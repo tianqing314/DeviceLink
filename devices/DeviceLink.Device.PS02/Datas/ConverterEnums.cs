@@ -182,7 +182,7 @@ public enum ScanCommand : byte
 }
 
 /// <summary>
-/// 测量结果
+/// 测量结果（标准板卡功能码 0x0211 返回 2 字节）
 /// </summary>
 public class MeasurementResult
 {
@@ -191,23 +191,86 @@ public class MeasurementResult
     /// </summary>
     public MeasurementProject Project { get; set; }
     /// <summary>
-    /// 测量原始值
+    /// 输出值类型：0=输出零点，1=输出满量程
+    /// </summary>
+    public OutputValueType ValueType { get; set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        return $"项目:{Project}, 输出值类型:{ValueType}";
+    }
+}
+
+/// <summary>
+/// 转发板卡测量结果（功能码 0x0211 返回 9 字节）
+/// </summary>
+public class ConverterMeasurementResult
+{
+    /// <summary>
+    /// 测量项目代号
+    /// </summary>
+    public MeasurementProject Project { get; set; }
+    /// <summary>
+    /// 测量原始值（float32，小端）
     /// </summary>
     public float RawValue { get; set; }
     /// <summary>
-    /// 测量最终值
+    /// 测量最终值（float32，小端）
     /// </summary>
     public float FinalValue { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()
     {
-        return $"项目:{Project}, 原始值:{RawValue:F4}, 最终值:{FinalValue:F4}";
+        return $"项目:{Project}, 原始值:{RawValue:F6}, 最终值:{FinalValue:F6}";
     }
 }
 
 /// <summary>
-/// 校准数据（功能码 0x0280/0x0281）
+/// 标准板卡校准数据（功能码 0x0280/0x0281）
+/// 685校准用
+/// </summary>
+public class StandardBoardCalibrationData
+{
+    /// <summary>
+    /// 685 SN 号（16字节 ASCII）
+    /// </summary>
+    public string ConST685Sn { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 685 校准日期
+    /// </summary>
+    public DateTime ConST685CalibrationDate { get; set; }
+
+    /// <summary>
+    /// 实际值列表 - 电压（2个 float32，小端，共8字节）
+    /// 索引0: 零位电压，索引1: 满度电压
+    /// </summary>
+    public float[] ActualVoltageValues { get; set; } = new float[2];
+
+    /// <summary>
+    /// 实际值列表 - 电流（2个 float32，小端，共8字节）
+    /// 索引0: 零位电流，索引1: 满度电流
+    /// </summary>
+    public float[] ActualCurrentValues { get; set; } = new float[2];
+
+    /// <summary>
+    /// 校准日期
+    /// </summary>
+    public DateTime CalibrationDate { get; set; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        return $"685SN:{ConST685Sn}, 685校准日期:{ConST685CalibrationDate:yyyy-MM-dd}, " +
+               $"校准日期:{CalibrationDate:yyyy-MM-dd}";
+    }
+}
+
+/// <summary>
+/// 校准数据（转发板卡功能码 0x0280/0x0281）
+/// 标准板卡校准用
 /// </summary>
 public class CalibrationData
 {
