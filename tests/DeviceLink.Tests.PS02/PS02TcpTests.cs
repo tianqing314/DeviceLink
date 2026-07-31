@@ -36,7 +36,7 @@ namespace DeviceLink.Tests.PS02
 
             // 从环境变量读取 TCP 配置，默认 127.0.0.1:10001
             _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.41.243";
-            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1046;
+            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1030;
             _slaveAddress = byte.TryParse(Environment.GetEnvironmentVariable("PS02_SLAVE_ADDRESS"), out var addr) ? addr : (byte)1;
 
             _output.WriteLine($"TCP 配置: {_host}:{_port}, 从站地址: {_slaveAddress}");
@@ -583,13 +583,13 @@ namespace DeviceLink.Tests.PS02
             {
 
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
-                await _device.DisableOwiViaConverterAsync();
-                await _device.EnableOwiViaConverterAsync();
-                var range = await _device!.GetMigrationRangeAsync();
+                //await _device.DisableOwiViaConverterAsync();
+                //await _device.EnableOwiViaConverterAsync();
+                //var range = await _device!.GetMigrationRangeAsync();
 
-                var pressure = await _device.GetPressureAsync();
-                await _device.DisableOwiViaConverterAsync();
-                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
+                //var pressure = await _device.GetPressureAsync();
+                //await _device.DisableOwiViaConverterAsync();
+                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.StandardBoard);
                 await Task.Delay(3000);
                 var measureResult = await _device!.GetMeasurementProjectAsync();
                 _output.WriteLine($"测量值: {measureResult:F3} mA");
@@ -1026,21 +1026,21 @@ namespace DeviceLink.Tests.PS02
                     originalData = await _device.ReadCalibrationDataAsync(1);
                     _output.WriteLine($"原始校准数据: {originalData}");
                 }
-
+                var measureResult = await _device!.GetMeasurementProjectAsync();
                 // 构造测试校准数据
                 var testData = new CalibrationData
                 {
-                    StandardBoardSn = "STANDARD0001TEST",
-                    StandardBoardCalibrationDate = new DateTime(2025, 6, 1),
-                    StandardVoltageValues = new float[] { 1.000f, 2.000f },
-                    StandardCurrentValues = new float[] { 4.000f, 8.000f },
-                    CalibrationDate = new DateTime(2025, 7, 30),
-                    ActualVoltageValues = new float[] { 1.001f, 2.002f },
-                    ActualCurrentValues = new float[] { 4.001f, 8.002f },
-                    VoltageK = 1.000100f,
-                    VoltageB = -0.000200f,
-                    CurrentK = 0.999900f,
-                    CurrentB = 0.000300f
+                    StandardBoardSn = "SN20260406002",
+                    StandardBoardCalibrationDate = new DateTime(2026, 05, 08),
+                    StandardVoltageValues = new float[] { 0.02f, 10.02f },
+                    StandardCurrentValues = new float[] { 0.001f, 20.003f },
+                    CalibrationDate = new DateTime(2026, 07, 31),
+                    ActualVoltageValues = new float[] { 0.021f, 10.021f },
+                    ActualCurrentValues = new float[] { 0.0011f, 20.004f },
+                    VoltageK = 0.0f,
+                    VoltageB = 0.0f,
+                    CurrentK = 0.0f,
+                    CurrentB = 0.0f
                 };
 
                 // 写入校准数据

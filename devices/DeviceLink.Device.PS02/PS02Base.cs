@@ -1513,9 +1513,15 @@ public class PS02Base : DeviceBase.DeviceBase
             throw new DeviceException($"转接板返回错误: {errorName}");
         }
 
-        // 校准数据在错误码之后
-        var data = new byte[frameData.Length - 1];
-        Array.Copy(frameData, 1, data, 0, data.Length);
+        // 校准数据在错误码之后（可能包含末尾 CRC8 字节）
+        var rawData = new byte[frameData.Length - 1];
+        Array.Copy(frameData, 1, rawData, 0, rawData.Length);
+
+        // 如果数据长度 > 72，去掉末尾的 CRC8 字节
+        int payloadSize = 16 + 4 + 16 + 4 + 16 + 8 + 8; // 72 字节
+        var data = rawData.Length > payloadSize
+            ? rawData.AsSpan(0, payloadSize).ToArray()
+            : rawData;
 
         return ParseCalibrationData(data);
     }
@@ -1609,8 +1615,8 @@ public class PS02Base : DeviceBase.DeviceBase
         // 实际值列表: 4*4-byte (前8字节电压值，后8字节电流值) = 16 bytes
         // 电压校准系数 (K, B): 8 bytes
         // 电流校准系数 (K, B): 8 bytes
-        // CRC8: 1 byte
-        int expectedSize = 16 + 4 + 16 + 4 + 16 + 8 + 8 + 1;
+        // CRC8: 1 byte（仅写入时包含，读取时不包含）
+        int expectedSize = 16 + 4 + 16 + 4 + 16 + 8 + 8; // 72 字节 payload
         if (data.Length < expectedSize)
             throw new DeviceException($"校准数据长度不足: 期望 {expectedSize}，实际 {data.Length}");
 
@@ -1625,7 +1631,10 @@ public class PS02Base : DeviceBase.DeviceBase
         int stdYear = (data[offset] << 8) | data[offset + 1];
         int stdMonth = data[offset + 2];
         int stdDay = data[offset + 3];
-        result.StandardBoardCalibrationDate = new DateTime(stdYear, stdMonth, stdDay);
+        if (stdYear >= 2000 && stdYear <= 2099 && stdMonth >= 1 && stdMonth <= 12 && stdDay >= 1 && stdDay <= 31)
+            result.StandardBoardCalibrationDate = new DateTime(stdYear, stdMonth, stdDay);
+        else
+            result.StandardBoardCalibrationDate = DateTime.MinValue;
         offset += 4;
 
         // 基准板校准值 - 电压 (2*4 bytes 小端 float32，共8字节)
@@ -1646,7 +1655,10 @@ public class PS02Base : DeviceBase.DeviceBase
         int calYear = (data[offset] << 8) | data[offset + 1];
         int calMonth = data[offset + 2];
         int calDay = data[offset + 3];
-        result.CalibrationDate = new DateTime(calYear, calMonth, calDay);
+        if (calYear >= 2000 && calYear <= 2099 && calMonth >= 1 && calMonth <= 12 && calDay >= 1 && calDay <= 31)
+            result.CalibrationDate = new DateTime(calYear, calMonth, calDay);
+        else
+            result.CalibrationDate = DateTime.MinValue;
         offset += 4;
 
         // 实际值 - 电压 (2*4 bytes 小端 float32，共8字节)
@@ -1775,8 +1787,21 @@ public class PS02Base : DeviceBase.DeviceBase
         Array.Copy(cb, 0, data, offset, 4);
         offset += 4;
 
-        // CRC8 占位（文档说明 CRC8 同 CPPI V3 头，由 CPPI V3 帧的 CRC8 字段覆盖）
-        // data[offset] = 0; // 保留字节
+        // 计算数据 CRC8（多项式 0x07，初始值 0x00，计算前72字节）
+        byte crc8 = 0x00;
+        int payloadSize = totalSize - 1; // 72 字节（不含CRC8）
+        for (int i = 0; i < payloadSize; i++)
+        {
+            crc8 ^= data[i];
+            for (int j = 0; j < 8; j++)
+            {
+                if ((crc8 & 0x80) != 0)
+                    crc8 = (byte)((crc8 << 1) ^ 0x07);
+                else
+                    crc8 = (byte)(crc8 << 1);
+            }
+        }
+        data[payloadSize] = crc8;
 
         return data;
     }
