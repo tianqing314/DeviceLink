@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="c45ab05f-9ce6-4220-a868-3dd8ca725ad7" name="gsl940@GSL940A 2026-07-30 13:55:05" runUser="CONST\gsl940" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-07-30T13:55:05.7626309+08:00" queuing="2026-07-30T13:55:05.7626313+08:00" start="2026-07-30T13:55:02.5546699+08:00" finish="2026-07-30T13:55:05.7750798+08:00" />
+  <TestSettings name="default" id="ff069a6c-50b5-4792-8218-00d9fbfbeb19">
+    <Deployment runDeploymentRoot="gsl940_GSL940A_2026-07-30_13_55_05" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="e3ef8c15-9174-457d-b41c-b023f4c77b05" testId="afba9c64-6f78-08b6-7444-66a7d7faaea8" testName="DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed" computerName="GSL940A" duration="00:00:00.6864354" startTime="2026-07-30T13:55:05.5349715+08:00" endTime="2026-07-30T13:55:05.5349926+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e3ef8c15-9174-457d-b41c-b023f4c77b05">
+      <Output>
+        <StdOut>TCP 配置: 192.168.41.243:1046, 从站地址: 1&#xD;
+TCP 连接 192.168.41.243:1046 成功&#xD;
+设备已成功打开&#xD;
+已设置电流输出 - 测量OWI模块输出&#xD;
+设备已关闭</StdOut>
+        <ErrorInfo>
+          <Message>DeviceLink.DeviceBase.DeviceException : 转接板响应数据长度不足: 期望 9，实际 2</Message>
+          <StackTrace>   at DeviceLink.Device.PS02.PS02Base.ParseConverterResponse(Byte[] response, Int32 expectedDataLength) in G:\PS02Item\src\libs\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1316&#xD;
+   at DeviceLink.Device.PS02.PS02Base.GetMeasurementProjectAsync(CancellationToken ct) in G:\PS02Item\src\libs\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs:line 1424&#xD;
+   at DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed() in G:\PS02Item\src\libs\DeviceLink\tests\DeviceLink.Tests.PS02\PS02TcpTests.cs:line 863&#xD;
+   at DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed() in G:\PS02Item\src\libs\DeviceLink\tests\DeviceLink.Tests.PS02\PS02TcpTests.cs:line 885&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed" storage="g:\ps02item\src\libs\devicelink\tests\devicelink.tests.ps02\bin\debug\net6.0\devicelink.tests.ps02.dll" id="afba9c64-6f78-08b6-7444-66a7d7faaea8">
+      <Execution id="e3ef8c15-9174-457d-b41c-b023f4c77b05" />
+      <TestMethod codeBase="G:\PS02Item\src\libs\DeviceLink\tests\DeviceLink.Tests.PS02\bin\Debug\net6.0\DeviceLink.Tests.PS02.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="DeviceLink.Tests.PS02.PS02TcpTests" name="Tcp_SetOutputProject_MaOut_ShouldSucceed" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="afba9c64-6f78-08b6-7444-66a7d7faaea8" executionId="e3ef8c15-9174-457d-b41c-b023f4c77b05" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="列表中未列出的结果" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="所有已加载的结果" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.01] xUnit.net VSTest Adapter v2.4.5+1caef2f33e (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.72]   Discovering: DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.88]   Discovered:  DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:00.88]   Starting:    DeviceLink.Tests.PS02&#xD;
+[xUnit.net 00:00:01.80]       DeviceLink.DeviceBase.DeviceException : 转接板响应数据长度不足: 期望 9，实际 2&#xD;
+[xUnit.net 00:00:01.80]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.80]         G:\PS02Item\src\libs\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1316,0): at DeviceLink.Device.PS02.PS02Base.ParseConverterResponse(Byte[] response, Int32 expectedDataLength)&#xD;
+[xUnit.net 00:00:01.80]         G:\PS02Item\src\libs\DeviceLink\devices\DeviceLink.Device.PS02\PS02Base.cs(1424,0): at DeviceLink.Device.PS02.PS02Base.GetMeasurementProjectAsync(CancellationToken ct)&#xD;
+[xUnit.net 00:00:01.80]         G:\PS02Item\src\libs\DeviceLink\tests\DeviceLink.Tests.PS02\PS02TcpTests.cs(863,0): at DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed()&#xD;
+[xUnit.net 00:00:01.80]         G:\PS02Item\src\libs\DeviceLink\tests\DeviceLink.Tests.PS02\PS02TcpTests.cs(885,0): at DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed()&#xD;
+[xUnit.net 00:00:01.80]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:01.80]       Output:&#xD;
+[xUnit.net 00:00:01.80]         TCP 配置: 192.168.41.243:1046, 从站地址: 1&#xD;
+[xUnit.net 00:00:01.80]         TCP 连接 192.168.41.243:1046 成功&#xD;
+[xUnit.net 00:00:01.80]         设备已成功打开&#xD;
+[xUnit.net 00:00:01.80]         已设置电流输出 - 测量OWI模块输出&#xD;
+[xUnit.net 00:00:01.80]         设备已关闭&#xD;
+[xUnit.net 00:00:01.81]   Finished:    DeviceLink.Tests.PS02&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="GSL940A" outcome="Error" timestamp="2026-07-30T13:55:05.5302157+08:00">
+        <Text>[xUnit.net 00:00:01.80]     DeviceLink.Tests.PS02.PS02TcpTests.Tcp_SetOutputProject_MaOut_ShouldSucceed [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

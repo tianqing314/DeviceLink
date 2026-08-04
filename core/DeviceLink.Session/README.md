@@ -21,6 +21,7 @@
 ### 核心接口
 
 #### `ISession`
+
 会话层的核心接口：
 
 ```csharp
@@ -30,7 +31,7 @@ public interface ISession : IDisposable
     bool IsOpen { get; }  // 会话是否已打开
     Task OpenAsync(CancellationToken ct = default);  // 打开会话
     Task CloseAsync();  // 关闭会话
-    Task<byte[]> SendAndReceiveAsync(byte[] request, CancellationToken ct = default);  // 发送请求并接收响应
+    Task<byte[]> SendAndReceiveAsync(byte[] request, CancellationToken ct = default);  // 发送请求并接收响应（内建超时、重试、线程安全）
     Task SendOnlyAsync(byte[] request, CancellationToken ct = default);  // 单向发送
     Task<byte[]> ReceiveOnlyAsync(CancellationToken ct = default);  // 仅接收
 }
@@ -39,22 +40,31 @@ public interface ISession : IDisposable
 ### 会话实现
 
 #### `DirectSession`
+
 直连会话实现，基于数据链路层：
 
+- **构造方式**:
+  - `DirectSession(IDataLink dataLink, SessionOptions? options = null, ILogger<DirectSession>? logger = null)`
+  - `DirectSession(IDataLink dataLink, string name, SessionOptions? options = null, ILogger<DirectSession>? logger = null)` - 可指定会话名称
 - **特点**: 适用于点对点连接场景（串口、TCP、USB 等）
 - **依赖**: `IDataLink` 数据链路层接口
-- **功能**: 内建重试机制，支持会话级别的超时控制
+- **功能**: 内建重试机制，支持会话级别的超时控制；请求失败（非取消）会按 `MaxRetryCount` 重试，最终失败抛 `SessionException` 或 `SessionTimeoutException`
 
 #### `MqttSession`
+
 MQTT 会话实现，基于 MQTT 协议：
 
-- **特点**: 适用于物联网场景，支持发布/订阅模式
-- **依赖**: MQTT 客户端库
-- **功能**: 支持主题订阅、消息发布
+- **构造方式**:
+  - `MqttSession(MqttSessionOptions options, ILogger<MqttSession>? logger = null)`
+  - `MqttSession(string brokerHost, int brokerPort, string requestTopic, string responseTopic, ILogger<MqttSession>? logger = null)`
+- **特点**: 适用于通过 MQTT Broker 进行设备通信的场景；使用 MQTTnet 4.3.x；使用 `TaskCompletionSource` 替代轮询，响应高效
+- **功能**: 请求-响应模式（发布到 `RequestTopic`，等待 `ResponseTopic` 响应）；支持 TLS、用户名/密码认证、心跳保活
+- **依赖**: NuGet 包 `MQTTnet`
 
 ### 配置选项
 
 #### `SessionOptions`
+
 会话配置选项：
 
 ```csharp
@@ -66,13 +76,31 @@ public class SessionOptions
 }
 ```
 
+#### `MqttSessionOptions`
+
+MQTT 会话配置选项：
+
+| 属性 | 类型 | 默认值 | 描述 |
+|------|------|--------|------|
+| BrokerHost | string | "127.0.0.1" | MQTT Broker 地址 |
+| BrokerPort | int | 1883 | Broker 端口 |
+| RequestTopic | string | "devicelink/request" | 请求主题（设备接收命令的主题） |
+| ResponseTopic | string | "devicelink/response" | 响应主题（设备发送响应的主题） |
+| ClientId | string | `DeviceLink_{Guid}` | 客户端 ID |
+| RequestTimeoutMs | int | 5000 | 请求超时时间（毫秒） |
+| Username | string? | null | MQTT 用户名（可选） |
+| Password | string? | null | MQTT 密码（可选） |
+| UseTls | bool | false | 是否使用 TLS 加密 |
+| CleanSession | bool | true | 是否清理会话 |
+| KeepAliveSeconds | ushort | 60 | 心跳间隔（秒） |
+
 ### 异常类
 
-#### `SessionException`
-会话层通用异常。
+会话层定义了以下异常类型（均定义在 `Exceptions/SessionException.cs`）：
 
-#### `SessionTimeoutException`
-会话超时异常。
+1. **`SessionException`** - 会话层异常基类
+2. **`SessionTimeoutException`**（继承 `SessionException`）- 会话超时异常
+3. **`SessionConnectionException`**（继承 `SessionException`）- 会话连接异常（如 MQTT 连接失败）
 
 ## 依赖关系
 
@@ -80,11 +108,12 @@ public class SessionOptions
   - `DeviceLink.Transport` - 物理传输层接口（通过数据链路层）
   - `DeviceLink.DataLink` - 数据链路层接口
 - **NuGet 依赖**:
-  - `Microsoft.Extensions.Logging.Abstractions` - 日志抽象
+  - `Microsoft.Extensions.Logging.Abstractions` 6.0.0 - 日志抽象
+  - `MQTTnet` 4.3.7.1207 - MQTT 客户端库
 
 ## 使用示例
 
-### 基本使用
+### 基本使用（DirectSession）
 
 ```csharp
 // 创建物理传输层
@@ -126,6 +155,29 @@ await session.SendOnlyAsync(command);
 var data = await session.ReceiveOnlyAsync();
 ```
 
+### MQTT 会话
+
+```csharp
+// 方式一：使用配置对象
+var options = new MqttSessionOptions
+{
+    BrokerHost = "192.168.1.50",
+    BrokerPort = 1883,
+    RequestTopic = "devicelink/request",
+    ResponseTopic = "devicelink/response",
+    RequestTimeoutMs = 5000
+};
+using var session = new MqttSession(options);
+
+// 方式二：便捷重载
+// using var session = new MqttSession("192.168.1.50", 1883, "devicelink/request", "devicelink/response");
+
+await session.OpenAsync();  // 连接 Broker 并订阅 ResponseTopic
+
+// 发送请求并等待响应
+var response = await session.SendAndReceiveAsync(requestData);
+```
+
 ## 配置选项详解
 
 ### SessionOptions
@@ -140,8 +192,9 @@ var data = await session.ReceiveOnlyAsync();
 
 会话层定义了以下异常类型：
 
-1. **`SessionException`** - 会话通用异常
+1. **`SessionException`** - 会话通用异常（基类）
 2. **`SessionTimeoutException`** - 会话超时异常
+3. **`SessionConnectionException`** - 会话连接异常
 
 ## 设计原则
 
@@ -154,10 +207,11 @@ var data = await session.ReceiveOnlyAsync();
 ## 注意事项
 
 1. 会话层建立在数据链路层之上，必须先设置数据链路层
-2. 重试机制在会话层实现，数据链路层可能也有自己的重试逻辑
+2. 重试机制在会话层实现，数据链路层可能也有自己的重试逻辑（两层重试次数会叠加）
 3. 超时参数需要根据实际通信环境调整
 4. 会话层保证线程安全，可以安全地在多线程环境中使用
 5. 使用完毕后应及时释放会话资源
+6. MQTT 会话依赖 `MQTTnet` 包，且不经过数据链路层（无帧策略），协议编码结果直接作为 MQTT 消息载荷发布
 
 ## 与其他层的关系
 
