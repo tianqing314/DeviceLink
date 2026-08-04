@@ -36,7 +36,7 @@ namespace DeviceLink.Tests.PS02
 
             // 从环境变量读取 TCP 配置，默认 127.0.0.1:10001
             _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.41.243";
-            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1030;
+            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1046;
             _slaveAddress = byte.TryParse(Environment.GetEnvironmentVariable("PS02_SLAVE_ADDRESS"), out var addr) ? addr : (byte)1;
 
             _output.WriteLine($"TCP 配置: {_host}:{_port}, 从站地址: {_slaveAddress}");
@@ -1252,7 +1252,7 @@ namespace DeviceLink.Tests.PS02
                 _output.WriteLine("=== 标准板卡：设定输出项目（MaOut + 满量程） ===");
 
                 // 设定 MaOut 输出，满量程
-                await _device!.SetStandardBoardOutputProjectAsync(OutputProject.MaOut, OutputValueType.FullScale);
+                await _device!.SetStandardBoardOutputProjectAsync(OutputProject.MaOut, OutputValueType.Zero);
                 _output.WriteLine("已设定 MaOut + 满量程");
 
                 // 读取当前输出项目

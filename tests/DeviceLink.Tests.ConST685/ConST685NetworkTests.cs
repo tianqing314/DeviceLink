@@ -224,6 +224,80 @@ namespace DeviceLink.Tests.ConST685
             Assert.NotNull(result);
         }
 
+        [Fact]
+        public async Task GetCalibrationDataAsync_ShouldReturnValidData()
+        {
+            using var dev = CreateDevice();
+            await dev.OpenAsync();
+
+            // 使用前面板通道1（REF1, ModeID="01"），电流功能（I=1），100mA量程（mA_100=3）
+            var data = await dev.GetCalibrationDataAsync(
+                CalChannelMode.REF1,
+                CalScanFunction.I,
+                CalScanRange.mA_100);
+
+            Assert.NotNull(data);
+            Assert.True(data.IsGetCalDataPass, $"获取校准数据失败: {data.DataStatus}");
+            Assert.True(data.PointCount > 0, "校准点个数应为正数");
+            Assert.NotEmpty(data.StandardList);
+            Assert.NotEmpty(data.CalPointList);
+            Assert.Equal(data.PointCount, data.StandardList.Count);
+            Assert.Equal(data.PointCount, data.CalPointList.Count);
+            Assert.True(data.Year >= 2000 && data.Year <= 2100, $"年份越界: {data.Year}");
+            Assert.True(data.Month >= 1 && data.Month <= 12, $"月份越界: {data.Month}");
+            Assert.True(data.Day >= 1 && data.Day <= 31, $"日期越界: {data.Day}");
+
+            // 验证 Xmas11 兼容属性
+            Assert.NotNull(data.RefValueList);
+            Assert.NotNull(data.CalibrationPointList);
+            Assert.Equal(data.PointCount, data.CalibrationPointCount);
+            Assert.Equal(data.CalDate, data.CalibrationDateTime);
+            Assert.Equal(data.UnitId, data.CurrentUnitId);
+        }
+
+        [Fact]
+        public async Task GetCalibrationDataAsync_DifferentFunction_ShouldReturnValidData()
+        {
+            using var dev = CreateDevice();
+            await dev.OpenAsync();
+
+            // 电压功能（V=0），1V量程（V_1=1）
+            var data = await dev.GetCalibrationDataAsync(
+                CalChannelMode.REF1,
+                CalScanFunction.V,
+                CalScanRange.V_1);
+
+            Assert.NotNull(data);
+            Assert.True(data.IsGetCalDataPass, $"获取电压校准数据失败: {data.DataStatus}");
+            Assert.True(data.PointCount > 0);
+            Assert.NotEmpty(data.StandardList);
+            Assert.NotEmpty(data.CalPointList);
+        }
+
+        [Fact]
+        public async Task GetCalibrationDataAsync_AllFunctions_ShouldAllSucceed()
+        {
+            using var dev = CreateDevice();
+            await dev.OpenAsync();
+
+            var functions = new (CalScanFunction func, CalScanRange range)[]
+            {
+                (CalScanFunction.V,  CalScanRange.V_10),
+                (CalScanFunction.I,  CalScanRange.mA_10),
+                (CalScanFunction.R,  CalScanRange.kR_10),
+            };
+
+            foreach (var (func, range) in functions)
+            {
+                var data = await dev.GetCalibrationDataAsync(
+                    CalChannelMode.REF1, func, range);
+
+                Assert.NotNull(data);
+                Assert.True(data.IsGetCalDataPass,
+                    $"Function={func}, Range={range} 失败: {data.DataStatus}");
+            }
+        }
+
         #endregion
 
         #region 存储指令

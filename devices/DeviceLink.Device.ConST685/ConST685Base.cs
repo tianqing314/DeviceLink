@@ -6,25 +6,25 @@ using System.Net;
 
 namespace DeviceLink.Device.ConST685;
 
-/// <summary>ConST685 ¶àÂ·ÎÂ³¡²âÁ¿/Ğ£×¼Éè±¸Àà
-/// »ùÓÚ ConST685 SCPI Í¨Ñ¶Ö¸Áî¼¯ÊµÏÖ£¬ÑÏ¸ñ×ñÊØ OSI Æß²ãÄ£ĞÍ¼Ü¹¹
+/// <summary>ConST685 å¤šè·¯æ¸©åœºæµ‹é‡/æ ¡å‡†è®¾å¤‡ç±»
+/// åŸºäº ConST685 SCPI é€šè®¯æŒ‡ä»¤é›†å®ç°ï¼Œä¸¥æ ¼éµå®ˆ OSI ä¸ƒå±‚æ¨¡å‹æ¶æ„
 /// 
-/// OSI Í¨ĞÅÕ»ÅäÖÃ£º
-/// ©°©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©´
-/// ©¦ Ó¦ÓÃ²ã: ConST685Base                      ©¦
-/// ©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-/// ©¦ Ğ­Òé²ã: ScpiCodec (CRLF ·Ö¸ô)            ©¦
-/// ©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-/// ©¦ Êı¾İÁ´Â·²ã: DelimiterFrameStrategy(\r\n) ©¦
-/// ©À©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©È
-/// ©¦ ÎïÀí²ã: SerialPortTransport / TcpTransport©¦
-/// ©¸©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¤©¼
+/// OSI é€šä¿¡æ ˆé…ç½®ï¼š
+/// â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+/// â”‚ åº”ç”¨å±‚: ConST685Base                      â”‚
+/// â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+/// â”‚ åè®®å±‚: ScpiCodec (CRLF åˆ†éš”)            â”‚
+/// â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+/// â”‚ æ•°æ®é“¾è·¯å±‚: DelimiterFrameStrategy(\r\n) â”‚
+/// â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+/// â”‚ ç‰©ç†å±‚: SerialPortTransport / TcpTransportâ”‚
+/// â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 /// 
-/// Ö¸ÁîÎÄµµ£ºdocs/ConST685/ConST685Í¨Ñ¶Ö¸Áî¼¯(½öÏŞÄÚ²¿Ê¹ÓÃ).pdf V1.1 2022
+/// æŒ‡ä»¤æ–‡æ¡£ï¼šdocs/ConST685/ConST685é€šè®¯æŒ‡ä»¤é›†(ä»…é™å†…éƒ¨ä½¿ç”¨).pdf V1.1 2022
 /// </summary>
 public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 {
-    #region ÊôĞÔ×Ö¶Î
+    #region å±æ€§å­—æ®µ
 
     private readonly ScpiCodec _codec;
     private static readonly byte[] CrlfDelimiter = new byte[] { 0x0D, 0x0A };
@@ -37,24 +37,24 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region ¹¹Ôìº¯Êı
+    #region æ„é€ å‡½æ•°
 
-    /// <summary>TCP/IP Á¬½Ó
+    /// <summary>TCP/IP è¿æ¥
     /// </summary>
     public ConST685Base(IPAddress ipAddress, int port) : base(ipAddress, port, new ScpiCodec("\r\n")) { _codec = (ScpiCodec)Codec; }
 
     /// <summary>
-    /// TCP/IP Á¬½Ó£¨×Ö·û´® IP£©
+    /// TCP/IP è¿æ¥ï¼ˆå­—ç¬¦ä¸² IPï¼‰
     /// </summary>
     public ConST685Base(string ipAddress, int port) : base(IPAddress.Parse(ipAddress), port, new ScpiCodec("\r\n")) { _codec = (ScpiCodec)Codec; }
 
     /// <summary>
-    /// Í¨ĞÅÅäÖÃ
+    /// é€šä¿¡é…ç½®
     /// </summary>
     public ConST685Base(DeviceCommSettings settings) : base(settings, new ScpiCodec("\r\n")) { _codec = (ScpiCodec)Codec; }
 
     /// <summary>
-    /// ´®¿ÚÍ¨ĞÅ£¨Ä¬ÈÏ 9600,8,1,None£©
+    /// ä¸²å£é€šä¿¡ï¼ˆé»˜è®¤ 9600,8,1,Noneï¼‰
     /// </summary>
     public ConST685Base(string portName, int baudRate = 9600, int dataBits = 8,
         System.IO.Ports.StopBits stopBits = System.IO.Ports.StopBits.One,
@@ -63,16 +63,16 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     { _codec = (ScpiCodec)Codec; }
 
     /// <summary>
-    /// ¹¹ÔìÄ¬ÈÏÉè±¸ĞÅÏ¢
+    /// æ„é€ é»˜è®¤è®¾å¤‡ä¿¡æ¯
     /// </summary>
     protected override void ConstructDefaultInfo() { base.ConstructDefaultInfo(); Name = "ConST685"; }
 
     #endregion
 
-    #region Í¨ÓÃÖ¸Áî ¡ª¡ª IEEE488.2 ¹²Í¬Ö¸Áî
+    #region é€šç”¨æŒ‡ä»¤ â€”â€” IEEE488.2 å…±åŒæŒ‡ä»¤
 
     /// <summary>
-    /// ÒÇÆ÷±êÊ¶²éÑ¯ ¡ª¡ª *IDN?£¨·µ»Ø ³§¼Ò,ĞÍºÅ,ĞòÁĞºÅ,Èí¼ş°æ±¾ºÅ£©
+    /// ä»ªå™¨æ ‡è¯†æŸ¥è¯¢ â€”â€” *IDN?ï¼ˆè¿”å› å‚å®¶,å‹å·,åºåˆ—å·,è½¯ä»¶ç‰ˆæœ¬å·ï¼‰
     /// </summary>
     public Task<DeviceIdentification> GetIdentificationAsync(CancellationToken ct = default)
     {
@@ -80,7 +80,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Çå³ı¼Ä´æÆ÷±êÖ¾£¨Çå³ı´íÎó¶ÓÁĞ£©¡ª¡ª *CLS
+    /// æ¸…é™¤å¯„å­˜å™¨æ ‡å¿—ï¼ˆæ¸…é™¤é”™è¯¯é˜Ÿåˆ—ï¼‰â€”â€” *CLS
     /// </summary>
     public Task ClearErrorsAsync(CancellationToken ct = default)
     {
@@ -88,7 +88,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ×´Ì¬¸´Î»£¨Ö÷³ÌĞò¸´Î»£©¡ª¡ª *RST
+    /// çŠ¶æ€å¤ä½ï¼ˆä¸»ç¨‹åºå¤ä½ï¼‰â€”â€” *RST
     /// </summary>
     public Task ResetAsync(CancellationToken ct = default)
     {
@@ -96,7 +96,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ±ê×¼ÊÂ¼şÊ¹ÄÜ¼Ä´æÆ÷Öµ ¡ª¡ª *ESE enableValue
+    /// è®¾ç½®æ ‡å‡†äº‹ä»¶ä½¿èƒ½å¯„å­˜å™¨å€¼ â€”â€” *ESE enableValue
     /// </summary>
     public Task SetStandardEventEnableAsync(int enableValue, CancellationToken ct = default)
     {
@@ -104,7 +104,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡±ê×¼ÊÂ¼şÊ¹ÄÜ¼Ä´æÆ÷Öµ ¡ª¡ª *ESE?
+    /// è¯»å–æ ‡å‡†äº‹ä»¶ä½¿èƒ½å¯„å­˜å™¨å€¼ â€”â€” *ESE?
     /// </summary>
     public Task<int> GetStandardEventEnableAsync(CancellationToken ct = default)
     {
@@ -112,7 +112,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡±ê×¼ÊÂ¼ş¼Ä´æÆ÷Öµ£¨¶ÁÈ¡ºóÇåÁã£©¡ª¡ª *ESR?
+    /// è¯»å–æ ‡å‡†äº‹ä»¶å¯„å­˜å™¨å€¼ï¼ˆè¯»å–åæ¸…é›¶ï¼‰â€”â€” *ESR?
     /// </summary>
     public Task<int> GetStandardEventStatusAsync(CancellationToken ct = default)
     {
@@ -120,7 +120,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²Ù×÷Íê³É²éÑ¯ ¡ª¡ª *OPC?£¨Ö´ĞĞºó·µ»Ø 1£©
+    /// æ“ä½œå®ŒæˆæŸ¥è¯¢ â€”â€” *OPC?ï¼ˆæ‰§è¡Œåè¿”å› 1ï¼‰
     /// </summary>
     public Task<int> GetOperationCompleteAsync(CancellationToken ct = default)
     {
@@ -128,7 +128,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ×´Ì¬×Ö½ÚÊ¹ÄÜ¼Ä´æÆ÷Öµ ¡ª¡ª *SRE enableValue
+    /// è®¾ç½®çŠ¶æ€å­—èŠ‚ä½¿èƒ½å¯„å­˜å™¨å€¼ â€”â€” *SRE enableValue
     /// </summary>
     public Task SetStatusByteEnableAsync(int enableValue, CancellationToken ct = default)
     {
@@ -136,7 +136,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡×´Ì¬×Ö½ÚÊ¹ÄÜ¼Ä´æÆ÷Öµ ¡ª¡ª *SRE?
+    /// è¯»å–çŠ¶æ€å­—èŠ‚ä½¿èƒ½å¯„å­˜å™¨å€¼ â€”â€” *SRE?
     /// </summary>
     public Task<int> GetStatusByteEnableAsync(CancellationToken ct = default)
     {
@@ -144,7 +144,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡×´Ì¬×Ö½Ú¼Ä´æÆ÷Öµ ¡ª¡ª *STB?
+    /// è¯»å–çŠ¶æ€å­—èŠ‚å¯„å­˜å™¨å€¼ â€”â€” *STB?
     /// </summary>
     public Task<int> GetStatusByteAsync(CancellationToken ct = default)
     {
@@ -152,7 +152,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// µÈ´ı²Ù×÷Íê³É ¡ª¡ª *WAI
+    /// ç­‰å¾…æ“ä½œå®Œæˆ â€”â€” *WAI
     /// </summary>
     public Task WaitAsync(CancellationToken ct = default)
     {
@@ -161,10 +161,10 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region ÏµÍ³Ö¸Áî ¡ª¡ª SYSTem
+    #region ç³»ç»ŸæŒ‡ä»¤ â€”â€” SYSTem
 
-    /// <summary>²éÑ¯°æ±¾ĞÅÏ¢£¨ºöÂÔ²ÎÊı·µ»Ø SCPI °æ±¾£¬Ö¸¶¨Ä£¿é·µ»Ø¶ÔÓ¦°æ±¾£©¡ª¡ª SYSTem:VERSion? [module]
-    /// Ä£¿é¿ÉÑ¡Öµ£º"APPLication", "ElECtricity:FIRMware", "ElECtricity:HARDware", "OS:FIRMware", "OS:HARDware", "JUNCtion:HARDware", "JUNCtion:FIRMware"/// </summary>
+    /// <summary>æŸ¥è¯¢ç‰ˆæœ¬ä¿¡æ¯ï¼ˆå¿½ç•¥å‚æ•°è¿”å› SCPI ç‰ˆæœ¬ï¼ŒæŒ‡å®šæ¨¡å—è¿”å›å¯¹åº”ç‰ˆæœ¬ï¼‰â€”â€” SYSTem:VERSion? [module]
+    /// æ¨¡å—å¯é€‰å€¼ï¼š"APPLication", "ElECtricity:FIRMware", "ElECtricity:HARDware", "OS:FIRMware", "OS:HARDware", "JUNCtion:HARDware", "JUNCtion:FIRMware"/// </summary>
     public Task<string> GetVersionAsync(string module = null!, CancellationToken ct = default)
     {
         return SendForResultAsync(
@@ -173,7 +173,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯´íÎó¶ÓÁĞÖĞµÄÏÂÒ»¸ö´íÎó ¡ª¡ª SYSTem:ERRor[:NEXT]?
+    /// æŸ¥è¯¢é”™è¯¯é˜Ÿåˆ—ä¸­çš„ä¸‹ä¸€ä¸ªé”™è¯¯ â€”â€” SYSTem:ERRor[:NEXT]?
     /// </summary>
     public Task<ScpiError> GetErrorAsync(CancellationToken ct = default)
     {
@@ -181,7 +181,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÏµÍ³ÈÕÆÚ ¡ª¡ª SYSTem:DATE year,month,day
+    /// è®¾ç½®ç³»ç»Ÿæ—¥æœŸ â€”â€” SYSTem:DATE year,month,day
     /// </summary>
     public Task SetDateAsync(int year, int month, int day, CancellationToken ct = default)
     {
@@ -189,7 +189,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÏµÍ³ÈÕÆÚ ¡ª¡ª SYSTem:DATE?£¨·µ»Ø yyyy,MM,dd£©
+    /// æŸ¥è¯¢ç³»ç»Ÿæ—¥æœŸ â€”â€” SYSTem:DATE?ï¼ˆè¿”å› yyyy,MM,ddï¼‰
     /// </summary>
     public Task<string> GetDateAsync(CancellationToken ct = default)
     {
@@ -197,7 +197,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÏµÍ³Ê±¼ä ¡ª¡ª SYSTem:TIME hour,minute,second
+    /// è®¾ç½®ç³»ç»Ÿæ—¶é—´ â€”â€” SYSTem:TIME hour,minute,second
     /// </summary>
     public Task SetTimeAsync(int hour, int minute, int second, CancellationToken ct = default)
     {
@@ -205,7 +205,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÏµÍ³Ê±¼ä ¡ª¡ª SYSTem:TIME?£¨·µ»Ø HH,mm,ss£©
+    /// æŸ¥è¯¢ç³»ç»Ÿæ—¶é—´ â€”â€” SYSTem:TIME?ï¼ˆè¿”å› HH,mm,ssï¼‰
     /// </summary>
     public Task<string> GetTimeAsync(CancellationToken ct = default)
     {
@@ -213,7 +213,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÏµÍ³±¾µØËø¶¨×´Ì¬ ¡ª¡ª SYSTem:KLOCk 1|0
+    /// è®¾ç½®ç³»ç»Ÿæœ¬åœ°é”å®šçŠ¶æ€ â€”â€” SYSTem:KLOCk 1|0
     /// </summary>
     public Task SetLocalLockAsync(bool enable, CancellationToken ct = default)
     {
@@ -221,7 +221,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÏµÍ³±¾µØËø¶¨×´Ì¬ ¡ª¡ª SYSTem:KLOCk?
+    /// æŸ¥è¯¢ç³»ç»Ÿæœ¬åœ°é”å®šçŠ¶æ€ â€”â€” SYSTem:KLOCk?
     /// </summary>
     public Task<bool> GetLocalLockAsync(CancellationToken ct = default)
     {
@@ -229,7 +229,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÌáÊ¾Òô×´Ì¬ ¡ª¡ª SYSTem:BEEPer:ALARm 1|0
+    /// è®¾ç½®æç¤ºéŸ³çŠ¶æ€ â€”â€” SYSTem:BEEPer:ALARm 1|0
     /// </summary>
     public Task SetAlarmSoundAsync(bool enable, CancellationToken ct = default)
     {
@@ -237,7 +237,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ°´¼üÒô×´Ì¬ ¡ª¡ª SYSTem:BEEPer:TOUCh 1|0
+    /// è®¾ç½®æŒ‰é”®éŸ³çŠ¶æ€ â€”â€” SYSTem:BEEPer:TOUCh 1|0
     /// </summary>
     public Task SetTouchSoundAsync(bool enable, CancellationToken ct = default)
     {
@@ -245,7 +245,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ×Ô¶¯¿ª¹Ø»ú ¡ª¡ª SYSTem:STATe 1|0
+    /// è®¾ç½®è‡ªåŠ¨å¼€å…³æœº â€”â€” SYSTem:STATe 1|0
     /// </summary>
     public Task SetDeviceSwitchStateAsync(bool enable, CancellationToken ct = default)
     {
@@ -253,7 +253,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡¿ª¹Ø»ú×´Ì¬ ¡ª¡ª SYSTem:STATe?
+    /// è·å–å¼€å…³æœºçŠ¶æ€ â€”â€” SYSTem:STATe?
     /// </summary>
     public Task<bool> GetDeviceSwitchStateAsync(CancellationToken ct = default)
     {
@@ -261,7 +261,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÏµÍ³¶Ë¿ÚºÅ ¡ª¡ª SYSTem:COMMunicate:SOCKet:PORT?
+    /// æŸ¥è¯¢ç³»ç»Ÿç«¯å£å· â€”â€” SYSTem:COMMunicate:SOCKet:PORT?
     /// </summary>
     public Task<int> GetPortAsync(CancellationToken ct = default)
     {
@@ -269,7 +269,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÏµÍ³¶Ë¿ÚºÅ ¡ª¡ª SYSTem:COMMunicate:SOCKet:PORT port
+    /// è®¾ç½®ç³»ç»Ÿç«¯å£å· â€”â€” SYSTem:COMMunicate:SOCKet:PORT port
     /// </summary>
     public Task SetPortAsync(int port, CancellationToken ct = default)
     {
@@ -279,7 +279,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     // ---- WIFI ----
 
     /// <summary>
-    /// ÉèÖÃ WIFI ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN[:STATe] 1|0
+    /// è®¾ç½® WIFI çŠ¶æ€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN[:STATe] 1|0
     /// </summary>
     public Task SetWlanStateAsync(bool enable, CancellationToken ct = default)
     {
@@ -287,7 +287,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ WIFI ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN[:STATe]?
+    /// æŸ¥è¯¢ WIFI çŠ¶æ€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN[:STATe]?
     /// </summary>
     public Task<bool> GetWlanStateAsync(CancellationToken ct = default)
     {
@@ -295,7 +295,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ WIFI IP µØÖ· ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:ADDRess ip
+    /// è®¾ç½® WIFI IP åœ°å€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:ADDRess ip
     /// </summary>
     public Task SetWlanAddressAsync(string ip, CancellationToken ct = default)
     {
@@ -303,7 +303,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ WIFI IP µØÖ· ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:ADDRess?
+    /// æŸ¥è¯¢ WIFI IP åœ°å€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:ADDRess?
     /// </summary>
     public Task<string> GetWlanAddressAsync(CancellationToken ct = default)
     {
@@ -311,7 +311,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ WIFI ×ÓÍøÑÚÂë ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:MASK mask
+    /// è®¾ç½® WIFI å­ç½‘æ©ç  â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:MASK mask
     /// </summary>
     public Task SetWlanMaskAsync(string mask, CancellationToken ct = default)
     {
@@ -319,7 +319,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ WIFI ×ÓÍøÑÚÂë ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:MASK?
+    /// æŸ¥è¯¢ WIFI å­ç½‘æ©ç  â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:MASK?
     /// </summary>
     public Task<string> GetWlanMaskAsync(CancellationToken ct = default)
     {
@@ -327,7 +327,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ WIFI Íø¹Ø ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:GATeway gateway
+    /// è®¾ç½® WIFI ç½‘å…³ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:GATeway gateway
     /// </summary>
     public Task SetWlanGatewayAsync(string gateway, CancellationToken ct = default)
     {
@@ -335,7 +335,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ WIFI Íø¹Ø ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:GATeway?
+    /// æŸ¥è¯¢ WIFI ç½‘å…³ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:GATeway?
     /// </summary>
     public Task<string> GetWlanGatewayAsync(CancellationToken ct = default)
     {
@@ -343,7 +343,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ WIFI MAC µØÖ· ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:MAC?
+    /// æŸ¥è¯¢ WIFI MAC åœ°å€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:MAC?
     /// </summary>
     public Task<string> GetWlanMacAsync(CancellationToken ct = default)
     {
@@ -351,7 +351,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ WIFI DHCP ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:DHCP[:STATe] 1|0
+    /// è®¾ç½® WIFI DHCP çŠ¶æ€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:DHCP[:STATe] 1|0
     /// </summary>
     public Task SetWlanDhcpAsync(bool enable, CancellationToken ct = default)
     {
@@ -359,17 +359,17 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ WIFI DHCP ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:SOCKet:WLAN:DHCP[:STATe]?
+    /// æŸ¥è¯¢ WIFI DHCP çŠ¶æ€ â€”â€” SYSTem:COMMunicate:SOCKet:WLAN:DHCP[:STATe]?
     /// </summary>
     public Task<bool> GetWlanDhcpAsync(CancellationToken ct = default)
     {
         return SendForResultAsync(Command.Read("SYSTem:COMMunicate:SOCKet:WLAN:DHCP:STATe"), r => IsOne(_codec.ExtractString(r)), ct);
     }
 
-    // ---- ÒÔÌ«Íø ----
+    // ---- ä»¥å¤ªç½‘ ----
 
     /// <summary>
-    /// ÉèÖÃÒÔÌ«Íø IP µØÖ· ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:ADDRess ip
+    /// è®¾ç½®ä»¥å¤ªç½‘ IP åœ°å€ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:ADDRess ip
     /// </summary>
     public Task SetEthernetAddressAsync(string ip, CancellationToken ct = default)
     {
@@ -377,7 +377,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÒÔÌ«Íø IP µØÖ· ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:ADDRess?
+    /// æŸ¥è¯¢ä»¥å¤ªç½‘ IP åœ°å€ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:ADDRess?
     /// </summary>
     public Task<string> GetEthernetAddressAsync(CancellationToken ct = default)
     {
@@ -385,7 +385,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÒÔÌ«Íø×ÓÍøÑÚÂë ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:MASK mask
+    /// è®¾ç½®ä»¥å¤ªç½‘å­ç½‘æ©ç  â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:MASK mask
     /// </summary>
     public Task SetEthernetMaskAsync(string mask, CancellationToken ct = default)
     {
@@ -393,7 +393,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÒÔÌ«Íø×ÓÍøÑÚÂë ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:MASK?
+    /// æŸ¥è¯¢ä»¥å¤ªç½‘å­ç½‘æ©ç  â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:MASK?
     /// </summary>
     public Task<string> GetEthernetMaskAsync(CancellationToken ct = default)
     {
@@ -401,7 +401,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÒÔÌ«ÍøÍø¹Ø ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:GATeway gateway
+    /// è®¾ç½®ä»¥å¤ªç½‘ç½‘å…³ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:GATeway gateway
     /// </summary>
     public Task SetEthernetGatewayAsync(string gateway, CancellationToken ct = default)
     {
@@ -409,7 +409,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÒÔÌ«ÍøÍø¹Ø ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:GATeway?
+    /// æŸ¥è¯¢ä»¥å¤ªç½‘ç½‘å…³ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:GATeway?
     /// </summary>
     public Task<string> GetEthernetGatewayAsync(CancellationToken ct = default)
     {
@@ -417,7 +417,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÒÔÌ«Íø DHCP ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:DHCP[:STATe] 1|0
+    /// è®¾ç½®ä»¥å¤ªç½‘ DHCP çŠ¶æ€ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:DHCP[:STATe] 1|0
     /// </summary>
     public Task SetEthernetDhcpAsync(bool enable, CancellationToken ct = default)
     {
@@ -425,7 +425,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÒÔÌ«Íø DHCP ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:DHCP[:STATe]?
+    /// æŸ¥è¯¢ä»¥å¤ªç½‘ DHCP çŠ¶æ€ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:DHCP[:STATe]?
     /// </summary>
     public Task<bool> GetEthernetDhcpAsync(CancellationToken ct = default)
     {
@@ -433,17 +433,17 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÒÔÌ«Íø MAC µØÖ· ¡ª¡ª SYSTem:COMMunicate:SOCKet:ETHernet:MAC?
+    /// æŸ¥è¯¢ä»¥å¤ªç½‘ MAC åœ°å€ â€”â€” SYSTem:COMMunicate:SOCKet:ETHernet:MAC?
     /// </summary>
     public Task<string> GetEthernetMacAsync(CancellationToken ct = default)
     {
         return SendForResultAsync(Command.Read("SYSTem:COMMunicate:SOCKet:ETHernet:MAC"), r => _codec.ExtractString(r), ct);
     }
 
-    // ---- À¶ÑÀ ----
+    // ---- è“ç‰™ ----
 
     /// <summary>
-    /// ÉèÖÃÀ¶ÑÀ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:BLUEtooth:STATe 1|0
+    /// è®¾ç½®è“ç‰™çŠ¶æ€ â€”â€” SYSTem:COMMunicate:BLUEtooth:STATe 1|0
     /// </summary>
     public Task SetBluetoothStateAsync(bool enable, CancellationToken ct = default)
     {
@@ -451,7 +451,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯À¶ÑÀ×´Ì¬ ¡ª¡ª SYSTem:COMMunicate:BLUEtooth:STATe?
+    /// æŸ¥è¯¢è“ç‰™çŠ¶æ€ â€”â€” SYSTem:COMMunicate:BLUEtooth:STATe?
     /// </summary>
     public Task<bool> GetBluetoothStateAsync(CancellationToken ct = default)
     {
@@ -459,7 +459,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡À¶ÑÀÃû³Æ ¡ª¡ª SYSTem:COMMunicate:BLUEtooth:NAMe?
+    /// è·å–è“ç‰™åç§° â€”â€” SYSTem:COMMunicate:BLUEtooth:NAMe?
     /// </summary>
     public Task<string> GetBluetoothNameAsync(CancellationToken ct = default)
     {
@@ -467,7 +467,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÀ¶ÑÀÃû³Æ ¡ª¡ª SYSTem:COMMunicate:BLUEtooth:NAMe name
+    /// è®¾ç½®è“ç‰™åç§° â€”â€” SYSTem:COMMunicate:BLUEtooth:NAMe name
     /// </summary>
     public Task SetBluetoothNameAsync(string name, CancellationToken ct = default)
     {
@@ -476,10 +476,10 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region ÏÔÊ¾Ö¸Áî ¡ª¡ª DISPlay
+    #region æ˜¾ç¤ºæŒ‡ä»¤ â€”â€” DISPlay
 
     /// <summary>
-    /// ²éÑ¯ÆÁÄ»ÁÁ¶È ¡ª¡ª DISPlay:BRIGhtness? type£¨type: 0=Õı³£, 1=AC Ä£Ê½£©
+    /// æŸ¥è¯¢å±å¹•äº®åº¦ â€”â€” DISPlay:BRIGhtness? typeï¼ˆtype: 0=æ­£å¸¸, 1=AC æ¨¡å¼ï¼‰
     /// </summary>
     public Task<string> GetBrightnessAsync(int type = 0, CancellationToken ct = default)
     {
@@ -487,7 +487,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÆÁÄ»ÁÁ¶È ¡ª¡ª DISPlay:BRIGhtness type,level
+    /// è®¾ç½®å±å¹•äº®åº¦ â€”â€” DISPlay:BRIGhtness type,level
     /// </summary>
     public Task SetBrightnessAsync(int type, string level, CancellationToken ct = default)
     {
@@ -496,10 +496,10 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region ²âÁ¿Ö¸Áî ¡ª¡ª MODule / SCAN / CHANnel
+    #region æµ‹é‡æŒ‡ä»¤ â€”â€” MODule / SCAN / CHANnel
 
     /// <summary>
-    /// »ñÈ¡½ÓÏßºĞĞÅÏ¢ÁĞ±í ¡ª¡ª JSON:MODule:INFormation?£¨·µ»Ø List&lt;DIModuleInfo&gt; ¸ñÊ½ JSON£©
+    /// è·å–æ¥çº¿ç›’ä¿¡æ¯åˆ—è¡¨ â€”â€” JSON:MODule:INFormation?ï¼ˆè¿”å› List&lt;DIModuleInfo&gt; æ ¼å¼ JSONï¼‰
     /// </summary>
     public Task<List<ModuleInfo>> GetModuleInfoListAsync(CancellationToken ct = default)
     {
@@ -508,7 +508,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ½ÓÏßºĞ±êÇ© ¡ª¡ª MODule:LABel index,"label"
+    /// è®¾ç½®æ¥çº¿ç›’æ ‡ç­¾ â€”â€” MODule:LABel index,"label"
     /// </summary>
     public Task SetModuleLabelAsync(int index, string label, CancellationToken ct = default)
     {
@@ -516,7 +516,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡½ÓÏßºĞÍ¨µÀÅäÖÃÁĞ±í ¡ª¡ª JSON:MODule:CONFig? moduleIndex£¨·µ»Ø List&lt;DIFunctionChannelConfig&gt; ¸ñÊ½ JSON£©
+    /// è·å–æ¥çº¿ç›’é€šé“é…ç½®åˆ—è¡¨ â€”â€” JSON:MODule:CONFig? moduleIndexï¼ˆè¿”å› List&lt;DIFunctionChannelConfig&gt; æ ¼å¼ JSONï¼‰
     /// </summary>
     public Task<List<ChannelConfig>> GetModuleConfigListAsync(int moduleIndex, CancellationToken ct = default)
     {
@@ -525,7 +525,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ½ÓÏßºĞ JSON Í¨µÀÅäÖÃ ¡ª¡ª JSON:MODule:CONFig moduleIndex,"jsonStr"
+    /// è®¾ç½®æ¥çº¿ç›’ JSON é€šé“é…ç½® â€”â€” JSON:MODule:CONFig moduleIndex,"jsonStr"
     /// </summary>
     public Task SetModuleConfigJsonAsync(int moduleIndex, string jsonStr, CancellationToken ct = default)
     {
@@ -533,7 +533,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ½ÓÏßºĞÍ¨µÀÅäÖÃ£¨ÏêÏ¸²ÎÊı£©¡ª¡ª MEASure:CHANnel:CONFig "chName",enable,"label",elecType,range,delay,autoRange,filter,"otherParam"
+    /// è®¾ç½®æ¥çº¿ç›’é€šé“é…ç½®ï¼ˆè¯¦ç»†å‚æ•°ï¼‰â€”â€” MEASure:CHANnel:CONFig "chName",enable,"label",elecType,range,delay,autoRange,filter,"otherParam"
     /// </summary>
     public Task SetChannelConfigAsync(string chName, bool enable, string label, int elecType,
         int range, int delay, bool autoRange, int filter, string otherParam, CancellationToken ct = default)
@@ -544,7 +544,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÍ¨µÀ JSON ÅäÖÃ ¡ª¡ª JSON:CHANnel:CONFig "jsonStr"
+    /// è®¾ç½®é€šé“ JSON é…ç½® â€”â€” JSON:CHANnel:CONFig "jsonStr"
     /// </summary>
     public Task SetChannelConfigJsonAsync(string jsonStr, CancellationToken ct = default)
     {
@@ -552,7 +552,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¿ªÊ¼É¨Ãè ¡ª¡ª JSON:SCAN:STARt "jsonStr"£¨²ÎÊıÎª DIScanInfo ĞòÁĞ»¯µÄ JSON ×Ö·û´®£©
+    /// å¼€å§‹æ‰«æ â€”â€” JSON:SCAN:STARt "jsonStr"ï¼ˆå‚æ•°ä¸º DIScanInfo åºåˆ—åŒ–çš„ JSON å­—ç¬¦ä¸²ï¼‰
     /// </summary>
     public Task StartScanAsync(string jsonStr, CancellationToken ct = default)
     {
@@ -560,7 +560,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¿ªÊ¼É¨Ãè ¡ª¡ª JSON:SCAN:STARt£¨´«Èë ScanInfo ¶ÔÏó×Ô¶¯ĞòÁĞ»¯£©
+    /// å¼€å§‹æ‰«æ â€”â€” JSON:SCAN:STARtï¼ˆä¼ å…¥ ScanInfo å¯¹è±¡è‡ªåŠ¨åºåˆ—åŒ–ï¼‰
     /// </summary>
     public Task StartScanAsync(ScanInfo info, CancellationToken ct = default)
     {
@@ -568,7 +568,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡µ±Ç°É¨ÃèÅäÖÃ ¡ª¡ª JSON:SCAN:STARt?£¨·µ»Ø DIScanInfo£©
+    /// è·å–å½“å‰æ‰«æé…ç½® â€”â€” JSON:SCAN:STARt?ï¼ˆè¿”å› DIScanInfoï¼‰
     /// </summary>
     public Task<ScanInfo> GetScanConfigAsync(CancellationToken ct = default)
     {
@@ -577,7 +577,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡ËùÓĞÉ¨ÃèÍ¨µÀÅäÖÃ ¡ª¡ª JSON:SCAN:STARt? 1£¨·µ»Ø List&lt;DIScanInfo&gt;£©
+    /// è·å–æ‰€æœ‰æ‰«æé€šé“é…ç½® â€”â€” JSON:SCAN:STARt? 1ï¼ˆè¿”å› List&lt;DIScanInfo&gt;ï¼‰
     /// </summary>
     public Task<List<ScanInfo>> GetAllScanConfigAsync(CancellationToken ct = default)
     {
@@ -586,7 +586,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Í£Ö¹É¨Ãè ¡ª¡ª SCAN:STOP
+    /// åœæ­¢æ‰«æ â€”â€” SCAN:STOP
     /// </summary>
     public Task StopScanAsync(CancellationToken ct = default)
     {
@@ -594,7 +594,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡É¨ÃèÊı¾İ ¡ª¡ª JSON:SCAN:DATA? count[,time]£¨·µ»Ø List&lt;DIReading&gt; ¸ñÊ½ JSON£©
+    /// è·å–æ‰«ææ•°æ® â€”â€” JSON:SCAN:DATA? count[,time]ï¼ˆè¿”å› List&lt;DIReading&gt; æ ¼å¼ JSONï¼‰
     /// </summary>
     public Task<List<ScanReading>> GetScanDataAsync(int count, long time = 0, CancellationToken ct = default)
     {
@@ -603,8 +603,8 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
             r => JsonConvert.DeserializeObject<List<ScanReading>>(_codec.ExtractString(r), _jsonSettings) ?? new List<ScanReading>(), ct);
     }
 
-    /// <summary>»ñÈ¡×îĞÂÒ»´ÎÉ¨ÃèÊı¾İ£¨ÎÄ±¾¸ñÊ½£©¡ª¡ª SCAN:DATA:Last? [timeFormat]
-    /// timeFormat: 0=²»´øÊ±¼ä, 1=yyyy:MM:dd HH:mm:ss fff, 2=long/// </summary>
+    /// <summary>è·å–æœ€æ–°ä¸€æ¬¡æ‰«ææ•°æ®ï¼ˆæ–‡æœ¬æ ¼å¼ï¼‰â€”â€” SCAN:DATA:Last? [timeFormat]
+    /// timeFormat: 0=ä¸å¸¦æ—¶é—´, 1=yyyy:MM:dd HH:mm:ss fff, 2=long/// </summary>
     public Task<string> GetLastScanDataAsync(int timeFormat = 0, CancellationToken ct = default)
     {
         return SendForResultAsync(
@@ -613,7 +613,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡ÖÇÄÜ½ÓÏßÏÂÉ¨ÃèÊı¾İ ¡ª¡ª JSON:SCAN:SCONnection:DATA? count£¨·µ»Ø List&lt;DIReading&gt; ¸ñÊ½ JSON£©
+    /// è·å–æ™ºèƒ½æ¥çº¿ä¸‹æ‰«ææ•°æ® â€”â€” JSON:SCAN:SCONnection:DATA? countï¼ˆè¿”å› List&lt;DIReading&gt; æ ¼å¼ JSONï¼‰
     /// </summary>
     public Task<List<ScanReading>> GetSmartConnectionDataAsync(int count, CancellationToken ct = default)
     {
@@ -622,7 +622,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶àÂ·É¨Ãè¿ªÊ¼ ¡ª¡ª JSON:SCAN:MULT:STARt "jsonStr"
+    /// å¤šè·¯æ‰«æå¼€å§‹ â€”â€” JSON:SCAN:MULT:STARt "jsonStr"
     /// </summary>
     public Task StartMultiScanAsync(string jsonStr, CancellationToken ct = default)
     {
@@ -630,7 +630,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃµ±Ç°Í¨µÀÇåÁã×´Ì¬ ¡ª¡ª CHANnel:ZERo 1|0
+    /// è®¾ç½®å½“å‰é€šé“æ¸…é›¶çŠ¶æ€ â€”â€” CHANnel:ZERo 1|0
     /// </summary>
     public Task SetCurrentChannelZeroAsync(bool enable, CancellationToken ct = default)
     {
@@ -638,7 +638,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÈıÏßµç×èºãÁ÷»»Ïò ¡ª¡ª CHANnel:RESIstance:COMMutation ON|OFF
+    /// è®¾ç½®ä¸‰çº¿ç”µé˜»æ’æµæ¢å‘ â€”â€” CHANnel:RESIstance:COMMutation ON|OFF
     /// </summary>
     public Task SetChannelResistanceCommutationAsync(bool enable, CancellationToken ct = default)
     {
@@ -647,10 +647,10 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region Ğ£×¼Ö¸Áî ¡ª¡ª CALibration
+    #region æ ¡å‡†æŒ‡ä»¤ â€”â€” CALibration
 
-    /// <summary>¿ªÊ¼µç²âĞ£×¼É¨Ãè ¡ª¡ª CALibration:ELECtricity:SCAN mode,function,range[,channel]
-    /// mode: 0=APF, 10=ADC; function: 0=DCV,1=DCI,2=Resistance,3=PRT,4=Thermistor; range: Á¿³ÌË÷Òı; channel: Í¨µÀ/// </summary>
+    /// <summary>å¼€å§‹ç”µæµ‹æ ¡å‡†æ‰«æ â€”â€” CALibration:ELECtricity:SCAN mode,function,range[,channel]
+    /// mode: 0=APF, 10=ADC; function: 0=DCV,1=DCI,2=Resistance,3=PRT,4=Thermistor; range: é‡ç¨‹ç´¢å¼•; channel: é€šé“/// </summary>
     public Task StartCalibrationScanAsync(int mode, int function, int range, int channel = -1, CancellationToken ct = default)
     {
         return SendNonQueryAsync(
@@ -661,7 +661,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡µç²âĞ£×¼É¨ÃèÊı¾İ£¨Ô­Ê¼×Ö·û´®£©¡ª¡ª CALibration:ELECtricity:SCAN?
+    /// è¯»å–ç”µæµ‹æ ¡å‡†æ‰«ææ•°æ®ï¼ˆåŸå§‹å­—ç¬¦ä¸²ï¼‰â€”â€” CALibration:ELECtricity:SCAN?
     /// </summary>
     public Task<string> GetCalibrationScanAsync(CancellationToken ct = default)
     {
@@ -669,7 +669,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡µç²âĞ£×¼É¨Ãè½á¹û£¨½âÎöºó£©¡ª¡ª CALibration:ELECtricity:SCAN?
+    /// è¯»å–ç”µæµ‹æ ¡å‡†æ‰«æç»“æœï¼ˆè§£æåï¼‰â€”â€” CALibration:ELECtricity:SCAN?
     /// </summary>
     public Task<CalibrationResult> GetCalibrationScanResultAsync(CancellationToken ct = default)
     {
@@ -677,7 +677,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Æô¶¯ CJC Àä¶ËĞ£×¼ ¡ª¡ª CALibration:ELECtricity:CJCenable 1|0
+    /// å¯åŠ¨ CJC å†·ç«¯æ ¡å‡† â€”â€” CALibration:ELECtricity:CJCenable 1|0
     /// </summary>
     public Task SetCjcCalibrationScanAsync(bool enable, CancellationToken ct = default)
     {
@@ -685,7 +685,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃĞ£×¼Êı¾İ ¡ª¡ª CALibration:ELECtricity:DATA role,password,channel,function,range,unitID,count,"points","values",year,month,day
+    /// è®¾ç½®æ ¡å‡†æ•°æ® â€”â€” CALibration:ELECtricity:DATA role,password,channel,function,range,unitID,count,"points","values",year,month,day
     /// </summary>
     public Task SetCalibrationDataAsync(string role, string password, int channel, int function,
         int range, int unitId, int count, string points, string values,
@@ -698,15 +698,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// »ñÈ¡Ğ£×¼Êı¾İ ¡ª¡ª CALibration:ELECtricity:DATA? role,password,channel,function,range
-    /// </summary>
-    public Task<string> GetCalibrationDataAsync(string role, string password, int channel, int function, int range, CancellationToken ct = default)
-    {
-        return SendForResultAsync(Command.Read("CALibration:ELECtricity:DATA", role, password, channel.ToString(), function.ToString(), range.ToString()), r => _codec.ExtractString(r), ct);
-    }
-
-    /// <summary>
-    /// Çå³ıÇåÁãĞ£×¼Êı¾İ ¡ª¡ª CALibration:ELECtricity:CZERo function,range
+    /// æ¸…é™¤æ¸…é›¶æ ¡å‡†æ•°æ® â€”â€” CALibration:ELECtricity:CZERo function,range
     /// </summary>
     public Task ClearZeroCalDataAsync(int function, int range, CancellationToken ct = default)
     {
@@ -715,10 +707,10 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region ´æ´¢Ö¸Áî ¡ª¡ª MMEMory
+    #region å­˜å‚¨æŒ‡ä»¤ â€”â€” MMEMory
 
     /// <summary>
-    /// ·µ»Ø´æ´¢Æ÷´óĞ¡ ¡ª¡ª MMEMory:FREE[:ALL]?
+    /// è¿”å›å­˜å‚¨å™¨å¤§å° â€”â€” MMEMory:FREE[:ALL]?
     /// </summary>
     public Task<MemoryInfo> GetMemoryFreeAsync(CancellationToken ct = default)
     {
@@ -726,7 +718,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ·µ»Ø´ÅÅÌ´óĞ¡ ¡ª¡ª MMEMory:DISK:FREE? disk_name
+    /// è¿”å›ç£ç›˜å¤§å° â€”â€” MMEMory:DISK:FREE? disk_name
     /// </summary>
     public Task<string> GetDiskFreeAsync(string diskName, CancellationToken ct = default)
     {
@@ -734,7 +726,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ·µ»ØÎÄ¼ş¼ĞÎÄ¼şÁĞ±í ¡ª¡ª MMEMory:CATalog? [directory_name]
+    /// è¿”å›æ–‡ä»¶å¤¹æ–‡ä»¶åˆ—è¡¨ â€”â€” MMEMory:CATalog? [directory_name]
     /// </summary>
     public Task<string> GetCatalogAsync(string directoryName = null!, CancellationToken ct = default)
     {
@@ -744,7 +736,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÎÄ¼şÊÇ·ñ´æÔÚ ¡ª¡ª MMEMory:EXISt:FILE? filename
+    /// æŸ¥è¯¢æ–‡ä»¶æ˜¯å¦å­˜åœ¨ â€”â€” MMEMory:EXISt:FILE? filename
     /// </summary>
     public Task<bool> FileExistsAsync(string filename, CancellationToken ct = default)
     {
@@ -753,7 +745,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÎÄ¼ş¼ĞÊÇ·ñ´æÔÚ ¡ª¡ª MMEMory:EXISt:DIREctory? directory_name
+    /// æŸ¥è¯¢æ–‡ä»¶å¤¹æ˜¯å¦å­˜åœ¨ â€”â€” MMEMory:EXISt:DIREctory? directory_name
     /// </summary>
     public Task<bool> DirectoryExistsAsync(string directoryName, CancellationToken ct = default)
     {
@@ -762,7 +754,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÍùÎÄ¼şÀïĞ´ÈëÊı¾İ ¡ª¡ª MMEMory:DATA filename,data,APPend|TRUNcate
+    /// å¾€æ–‡ä»¶é‡Œå†™å…¥æ•°æ® â€”â€” MMEMory:DATA filename,data,APPend|TRUNcate
     /// </summary>
     public Task<string> WriteFileDataAsync(string filename, string data, bool append, CancellationToken ct = default)
     {
@@ -771,7 +763,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡ÎÄ¼şÊı¾İ ¡ª¡ª MMEMory:DATA? filename
+    /// è¯»å–æ–‡ä»¶æ•°æ® â€”â€” MMEMory:DATA? filename
     /// </summary>
     public Task<string> ReadFileDataAsync(string filename, CancellationToken ct = default)
     {
@@ -779,7 +771,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ½«ÎÄ¼ş½âÑ¹µ½Ö¸¶¨Ä¿Â¼ ¡ª¡ª MMEMory:UNPAck filename,path[,password]
+    /// å°†æ–‡ä»¶è§£å‹åˆ°æŒ‡å®šç›®å½• â€”â€” MMEMory:UNPAck filename,path[,password]
     /// </summary>
     public Task<string> UnpackFileAsync(string filename, string path, string password = null!, CancellationToken ct = default)
     {
@@ -791,7 +783,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// É¾³ıÎÄ¼ş ¡ª¡ª MMEMory:DELete filename
+    /// åˆ é™¤æ–‡ä»¶ â€”â€” MMEMory:DELete filename
     /// </summary>
     public Task<string> DeleteFileAsync(string filename, CancellationToken ct = default)
     {
@@ -799,7 +791,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// É¾³ıÄ¿Â¼ ¡ª¡ª MMEMory:DELete:DIRectory directoryName[,rescursive]
+    /// åˆ é™¤ç›®å½• â€”â€” MMEMory:DELete:DIRectory directoryName[,rescursive]
     /// </summary>
     public Task<string> DeleteDirectoryAsync(string directoryName, bool recursive = false, CancellationToken ct = default)
     {
@@ -811,7 +803,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÍùÅäÖÃÎÄ¼şÀïĞ´ÈëÊı¾İ ¡ª¡ª MMEMory:VALue file_name,data
+    /// å¾€é…ç½®æ–‡ä»¶é‡Œå†™å…¥æ•°æ® â€”â€” MMEMory:VALue file_name,data
     /// </summary>
     public Task WriteConfigValueAsync(string fileName, string data, CancellationToken ct = default)
     {
@@ -819,7 +811,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ´ÓÅäÖÃÎÄ¼şÀï¶ÁÈ¡Êı¾İ ¡ª¡ª MMEMory:VALue? file_name,key
+    /// ä»é…ç½®æ–‡ä»¶é‡Œè¯»å–æ•°æ® â€”â€” MMEMory:VALue? file_name,key
     /// </summary>
     public Task<string> ReadConfigValueAsync(string fileName, string key, CancellationToken ct = default)
     {
@@ -827,7 +819,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´ÈëÎÄ¼ş£¨º¬ CRC£© ¡ª¡ª MMEMory:FILE fileName,data,crc
+    /// å†™å…¥æ–‡ä»¶ï¼ˆå« CRCï¼‰ â€”â€” MMEMory:FILE fileName,data,crc
     /// </summary>
     public Task WriteFileWithCrcAsync(string fileName, string data, int crc, CancellationToken ct = default)
     {
@@ -835,7 +827,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¼ÆËãÎÄ¼şĞ£ÑéÂë ¡ª¡ª MMEMory:CHECk? fileName,MD5|CRC16
+    /// è®¡ç®—æ–‡ä»¶æ ¡éªŒç  â€”â€” MMEMory:CHECk? fileName,MD5|CRC16
     /// </summary>
     public Task<string> GetFileChecksumAsync(string fileName, string algorithm, CancellationToken ct = default)
     {
@@ -844,10 +836,10 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region Õï¶ÏÖ¸Áî ¡ª¡ª DIAGnostic
+    #region è¯Šæ–­æŒ‡ä»¤ â€”â€” DIAGnostic
 
     /// <summary>
-    /// ¶ÁÖ÷»úĞòÁĞºÅ ¡ª¡ª DIAGnostic:IDN?
+    /// è¯»ä¸»æœºåºåˆ—å· â€”â€” DIAGnostic:IDN?
     /// </summary>
     public Task<string> GetDiagnosticSerialNumberAsync(CancellationToken ct = default)
     {
@@ -855,7 +847,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´Ö÷»úĞòÁĞºÅ ¡ª¡ª DIAGnostic:IDN sn
+    /// å†™ä¸»æœºåºåˆ—å· â€”â€” DIAGnostic:IDN sn
     /// </summary>
     public Task SetDiagnosticSerialNumberAsync(string sn, CancellationToken ct = default)
     {
@@ -863,7 +855,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÖ÷»úĞÍºÅ ¡ª¡ª DIAGnostic:MODel?
+    /// è¯»ä¸»æœºå‹å· â€”â€” DIAGnostic:MODel?
     /// </summary>
     public Task<string> GetDiagnosticModelAsync(CancellationToken ct = default)
     {
@@ -871,7 +863,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´Ö÷»úĞÍºÅ ¡ª¡ª DIAGnostic:MODel model
+    /// å†™ä¸»æœºå‹å· â€”â€” DIAGnostic:MODel model
     /// </summary>
     public Task SetDiagnosticModelAsync(string model, CancellationToken ct = default)
     {
@@ -879,7 +871,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÖ÷»ú Tag Öµ ¡ª¡ª DIAGnostic:TAG?
+    /// è¯»ä¸»æœº Tag å€¼ â€”â€” DIAGnostic:TAG?
     /// </summary>
     public Task<string> GetDiagnosticTagAsync(CancellationToken ct = default)
     {
@@ -887,7 +879,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´Ö÷»ú Tag Öµ ¡ª¡ª DIAGnostic:TAG tag
+    /// å†™ä¸»æœº Tag å€¼ â€”â€” DIAGnostic:TAG tag
     /// </summary>
     public Task SetDiagnosticTagAsync(string tag, CancellationToken ct = default)
     {
@@ -895,7 +887,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÖ÷»úÃû³Æ ¡ª¡ª DIAGnostic:NAME?
+    /// è¯»ä¸»æœºåç§° â€”â€” DIAGnostic:NAME?
     /// </summary>
     public Task<string> GetDiagnosticNameAsync(CancellationToken ct = default)
     {
@@ -903,7 +895,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´Ö÷»úÃû³Æ ¡ª¡ª DIAGnostic:NAME name
+    /// å†™ä¸»æœºåç§° â€”â€” DIAGnostic:NAME name
     /// </summary>
     public Task SetDiagnosticNameAsync(string name, CancellationToken ct = default)
     {
@@ -911,7 +903,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÖ÷»ú Guid Öµ ¡ª¡ª DIAGnostic:GUID?
+    /// è¯»ä¸»æœº Guid å€¼ â€”â€” DIAGnostic:GUID?
     /// </summary>
     public Task<string> GetDiagnosticGuidAsync(CancellationToken ct = default)
     {
@@ -919,7 +911,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´Ö÷»ú Guid Öµ ¡ª¡ª DIAGnostic:GUID guid
+    /// å†™ä¸»æœº Guid å€¼ â€”â€” DIAGnostic:GUID guid
     /// </summary>
     public Task SetDiagnosticGuidAsync(string guid, CancellationToken ct = default)
     {
@@ -927,7 +919,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÖ÷»ú Host ×Ô¶¨Òå×Ö¶Î ¡ª¡ª DIAGnostic:HOST? keyName
+    /// è¯»ä¸»æœº Host è‡ªå®šä¹‰å­—æ®µ â€”â€” DIAGnostic:HOST? keyName
     /// </summary>
     public Task<string> GetDiagnosticHostAsync(string keyName, CancellationToken ct = default)
     {
@@ -935,7 +927,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Ğ´Ö÷»ú Host ×Ô¶¨Òå×Ö¶Î ¡ª¡ª DIAGnostic:HOST keyName,value
+    /// å†™ä¸»æœº Host è‡ªå®šä¹‰å­—æ®µ â€”â€” DIAGnostic:HOST keyName,value
     /// </summary>
     public Task SetDiagnosticHostAsync(string keyName, string value, CancellationToken ct = default)
     {
@@ -943,7 +935,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÅäÖÃÎÄ¼ş ¡ª¡ª DIAGnostic:PROFile? fileName,section,key
+    /// æŸ¥è¯¢é…ç½®æ–‡ä»¶ â€”â€” DIAGnostic:PROFile? fileName,section,key
     /// </summary>
     public Task<string> GetDiagnosticProfileAsync(string fileName, string section, string key, CancellationToken ct = default)
     {
@@ -951,7 +943,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ±à¼­ÅäÖÃÎÄ¼ş ¡ª¡ª DIAGnostic:PROFile "fileName",section,key,value
+    /// ç¼–è¾‘é…ç½®æ–‡ä»¶ â€”â€” DIAGnostic:PROFile "fileName",section,key,value
     /// </summary>
     public Task SetDiagnosticProfileAsync(string fileName, string section, string key, string value, CancellationToken ct = default)
     {
@@ -959,7 +951,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÖ÷»úÓ¦ÓÃ³ÌĞòÈí¼ş°æ±¾ ¡ª¡ª DIAGnostic:VERSion? [ALL|"file-name"]
+    /// è¯»ä¸»æœºåº”ç”¨ç¨‹åºè½¯ä»¶ç‰ˆæœ¬ â€”â€” DIAGnostic:VERSion? [ALL|"file-name"]
     /// </summary>
     public Task<string> GetDiagnosticVersionAsync(string param = null!, CancellationToken ct = default)
     {
@@ -969,7 +961,23 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯¹¦ÄÜ¿ªÆô×´Ì¬ ¡ª¡ª DIAGnostic:FEATures:ENABle? [0|4|5|6|ALL|WLAN|BLE|USBSerial]
+    /// æ£€æµ‹è®¾å¤‡æ˜¯å¦å­˜åœ¨ â€”â€” å‘é€ DIAGnostic:VERSion? æŒ‡ä»¤ï¼Œè¿”å›åŒ…å« "TAU-HOST" åˆ™è®¤ä¸ºè®¾å¤‡å­˜åœ¨
+    /// </summary>
+    public async Task<bool> IsExistAsync(CancellationToken ct = default)
+    {
+        try
+        {
+            var version = await GetDiagnosticVersionAsync(ct: ct);
+            return !string.IsNullOrEmpty(version) && version.ToUpper().Contains("TAU-HOST");
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// æŸ¥è¯¢åŠŸèƒ½å¼€å¯çŠ¶æ€ â€”â€” DIAGnostic:FEATures:ENABle? [0|4|5|6|ALL|WLAN|BLE|USBSerial]
     /// </summary>
     public Task<bool> GetFeatureEnabledAsync(string feature = null!, CancellationToken ct = default)
     {
@@ -979,7 +987,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ¹¦ÄÜ¿ªÆô×´Ì¬ ¡ª¡ª DIAGnostic:FEATures:ENABle [ÏîÄ¿,]1|0
+    /// è®¾ç½®åŠŸèƒ½å¼€å¯çŠ¶æ€ â€”â€” DIAGnostic:FEATures:ENABle [é¡¹ç›®,]1|0
     /// </summary>
     public Task SetFeatureEnabledAsync(string feature, bool enable, CancellationToken ct = default)
     {
@@ -987,7 +995,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// Èí¼şÉı¼¶ ¡ª¡ª DIAGnostic:SYSTem:UPDAte "fileName"
+    /// è½¯ä»¶å‡çº§ â€”â€” DIAGnostic:SYSTem:UPDAte "fileName"
     /// </summary>
     public Task SystemUpdateAsync(string fileName, CancellationToken ct = default)
     {
@@ -995,7 +1003,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯Éè±¸ PID VID ¡ª¡ª DIAGnostic:SYSTem:VPID?
+    /// æŸ¥è¯¢è®¾å¤‡ PID VID â€”â€” DIAGnostic:SYSTem:VPID?
     /// </summary>
     public Task<string> GetSystemVpidAsync(CancellationToken ct = default)
     {
@@ -1004,7 +1012,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
 
     /// <summary>
-    /// »Ö¸´³ö³§ÉèÖÃ ¡ª¡ª DIAGnostic:SYSTem:RESTore Manufactor|User,password
+    /// æ¢å¤å‡ºå‚è®¾ç½® â€”â€” DIAGnostic:SYSTem:RESTore Manufactor|User,password
     /// </summary>
     public Task SystemRestoreAsync(string role, string password, CancellationToken ct = default)
     {
@@ -1012,7 +1020,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯µ±Ç°¿ÉÓÃÍ¼Æ¬ ¡ª¡ª DIAGnostic:LOGO?
+    /// æŸ¥è¯¢å½“å‰å¯ç”¨å›¾ç‰‡ â€”â€” DIAGnostic:LOGO?
     /// </summary>
     public Task<string> GetLogoListAsync(CancellationToken ct = default)
     {
@@ -1020,7 +1028,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ¿ªÆô logo ¡ª¡ª DIAGnostic:LOGO name
+    /// è®¾ç½®å¼€å¯ logo â€”â€” DIAGnostic:LOGO name
     /// </summary>
     public Task SetLogoAsync(string name, CancellationToken ct = default)
     {
@@ -1028,7 +1036,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// É¾³ı logo ¡ª¡ª DIAGnostic:LOGO:DELete name
+    /// åˆ é™¤ logo â€”â€” DIAGnostic:LOGO:DELete name
     /// </summary>
     public Task DeleteLogoAsync(string name, CancellationToken ct = default)
     {
@@ -1036,7 +1044,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ boot logo ¡ª¡ª DIAGnostic:BLOGo "name"£¨º¬À©Õ¹Ãû£©
+    /// è®¾ç½® boot logo â€”â€” DIAGnostic:BLOGo "name"ï¼ˆå«æ‰©å±•åï¼‰
     /// </summary>
     public Task SetBootLogoAsync(string name, CancellationToken ct = default)
     {
@@ -1044,7 +1052,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯ÓïÑÔ ¡ª¡ª DIAGnostic:LANGuage?
+    /// æŸ¥è¯¢è¯­è¨€ â€”â€” DIAGnostic:LANGuage?
     /// </summary>
     public Task<string> GetDiagnosticLanguageAsync(CancellationToken ct = default)
     {
@@ -1052,77 +1060,77 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃÓïÑÔ ¡ª¡ª DIAGnostic:LANGuage lcid[,reboot]
+    /// è®¾ç½®è¯­è¨€ â€”â€” DIAGnostic:LANGuage lcid[,reboot]
     /// </summary>
     public Task SetDiagnosticLanguageAsync(int lcid, int reboot = 0, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LANGuage", lcid.ToString(), reboot.ToString()), ct);
 
     /// <summary>
-    /// ÉèÖÃÖ§³ÖÓïÑÔÅäÖÃ ¡ª¡ª DIAGnostic:LANGuage:CONFig "lcids"
+    /// è®¾ç½®æ”¯æŒè¯­è¨€é…ç½® â€”â€” DIAGnostic:LANGuage:CONFig "lcids"
     /// </summary>
     public Task SetSupportedLanguagesAsync(string lcids, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LANGuage:CONFig", $"\"{lcids}\""), ct);
 
     /// <summary>
-    /// ²éÑ¯Ö§³ÖÓïÑÔÅäÖÃ ¡ª¡ª DIAGnostic:LANGuage:CONFig?
+    /// æŸ¥è¯¢æ”¯æŒè¯­è¨€é…ç½® â€”â€” DIAGnostic:LANGuage:CONFig?
     /// </summary>
     public Task<string> GetSupportedLanguagesAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:LANGuage:CONFig"), r => _codec.ExtractString(r), ct);
 
-    /// <summary>¶ÁÈ¡ÏµÍ³µçÑ¹ĞÅÏ¢ ¡ª¡ª DIAGnostic:SYSTem:INFOs:VOLTages?
-    /// ·µ»Ø 3 ¸ö¶ººÅ·Ö¸ôÖµ£ºADÍ¨µÀ12VÖµ,5VÊÇ·ñÕı³£,3.3VÊÇ·ñÕı³£/// </summary>
+    /// <summary>è¯»å–ç³»ç»Ÿç”µå‹ä¿¡æ¯ â€”â€” DIAGnostic:SYSTem:INFOs:VOLTages?
+    /// è¿”å› 3 ä¸ªé€—å·åˆ†éš”å€¼ï¼šADé€šé“12Vå€¼,5Væ˜¯å¦æ­£å¸¸,3.3Væ˜¯å¦æ­£å¸¸/// </summary>
     public Task<SystemVoltageInfo> GetSystemVoltagesAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:SYSTem:INFOs:VOLTages"), ParseSystemVoltageInfo, ct);
 
     /// <summary>
-    /// ¶ÁÈ¡µç²â°åĞòÁĞºÅ ¡ª¡ª DIAGnostic:ELECtricity:IDN?
+    /// è¯»å–ç”µæµ‹æ¿åºåˆ—å· â€”â€” DIAGnostic:ELECtricity:IDN?
     /// </summary>
     public Task<string> GetElectricitySerialNumberAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:ELECtricity:IDN"), r => _codec.ExtractString(r), ct);
 
     /// <summary>
-    /// Ğ´Èëµç²â°åĞòÁĞºÅ ¡ª¡ª DIAGnostic:ELECtricity:IDN "sn"
+    /// å†™å…¥ç”µæµ‹æ¿åºåˆ—å· â€”â€” DIAGnostic:ELECtricity:IDN "sn"
     /// </summary>
     public Task SetElectricitySerialNumberAsync(string sn, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:ELECtricity:IDN", $"\"{sn}\""), ct);
 
     /// <summary>
-    /// ¶ÁÈ¡½ÓÏßºĞ¼ÌµçÆ÷ÇĞ»»´ÎÊı ¡ª¡ª DIAGnostic:ELECtric:MODule:RELay? moduleIndex
+    /// è¯»å–æ¥çº¿ç›’ç»§ç”µå™¨åˆ‡æ¢æ¬¡æ•° â€”â€” DIAGnostic:ELECtric:MODule:RELay? moduleIndex
     /// </summary>
     public Task<int> GetModuleRelayCountAsync(int moduleIndex, CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:ELECtric:MODule:RELay", moduleIndex.ToString()), r => ParseInt(_codec.ExtractString(r)), ct);
 
     /// <summary>
-    /// Ğ´Èë½ÓÏßºĞ¼ÌµçÆ÷ÇĞ»»´ÎÊı ¡ª¡ª DIAGnostic:ELECtric:MODule:RELay moduleIndex,count
+    /// å†™å…¥æ¥çº¿ç›’ç»§ç”µå™¨åˆ‡æ¢æ¬¡æ•° â€”â€” DIAGnostic:ELECtric:MODule:RELay moduleIndex,count
     /// </summary>
     public Task SetModuleRelayCountAsync(int moduleIndex, int count, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:ELECtric:MODule:RELay", moduleIndex.ToString(), count.ToString()), ct);
 
     /// <summary>
-    /// ¶ÁÈ¡½ÓÏßºĞĞòÁĞºÅ ¡ª¡ª DIAGnostic:ELECtric:MODule:IDN? moduleIndex
+    /// è¯»å–æ¥çº¿ç›’åºåˆ—å· â€”â€” DIAGnostic:ELECtric:MODule:IDN? moduleIndex
     /// </summary>
     public Task<string> GetModuleSerialNumberAsync(int moduleIndex, CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:ELECtric:MODule:IDN", moduleIndex.ToString()), r => _codec.ExtractString(r), ct);
 
     /// <summary>
-    /// Ğ´Èë½ÓÏßºĞĞòÁĞºÅ ¡ª¡ª DIAGnostic:ELECtric:MODule:IDN moduleIndex,sn
+    /// å†™å…¥æ¥çº¿ç›’åºåˆ—å· â€”â€” DIAGnostic:ELECtric:MODule:IDN moduleIndex,sn
     /// </summary>
     public Task SetModuleSerialNumberAsync(int moduleIndex, string sn, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:ELECtric:MODule:IDN", moduleIndex.ToString(), sn), ct);
 
     /// <summary>
-    /// ÖØÆôµç²â°å ¡ª¡ª DIAGnostic:ELECtricity:REBoot
+    /// é‡å¯ç”µæµ‹æ¿ â€”â€” DIAGnostic:ELECtricity:REBoot
     /// </summary>
     public Task RebootElectricityBoardAsync(CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:ELECtricity:REBoot"), ct);
 
-    /// <summary>Ğ´ÈëÉè±¸·¢ĞĞÀà±ğ ¡ª¡ª DIAGnostic:CATEGORY category
-    /// 0=U=ÍêÕû°æ£¬1=S=¼ò°æ£¬2=H=685-H°æ/// </summary>
+    /// <summary>å†™å…¥è®¾å¤‡å‘è¡Œç±»åˆ« â€”â€” DIAGnostic:CATEGORY category
+    /// 0=U=å®Œæ•´ç‰ˆï¼Œ1=S=ç®€ç‰ˆï¼Œ2=H=685-Hç‰ˆ/// </summary>
     public Task SetDeviceCategoryAsync(int category, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:CATEGORY", category.ToString()), ct);
 
     /// <summary>
-    /// ¶ÁÈ¡Éè±¸±¾´Î¿ª»úÊ±¼ä£¨ºÁÃë£©¡ª¡ª DIAGnostic:SYSTem:RUNTime?
+    /// è¯»å–è®¾å¤‡æœ¬æ¬¡å¼€æœºæ—¶é—´ï¼ˆæ¯«ç§’ï¼‰â€”â€” DIAGnostic:SYSTem:RUNTime?
     /// </summary>
     public Task<long> GetSystemRuntimeAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:SYSTem:RUNTime"), r =>
@@ -1132,25 +1140,25 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
         }, ct);
 
     /// <summary>
-    /// ¶ÁÈ¡ IO °å°æ±¾ ¡ª¡ª DIAGnostic:VERSion:LPC? "version"£¨"FIRMware" »ò "HARDware"£©
+    /// è¯»å– IO æ¿ç‰ˆæœ¬ â€”â€” DIAGnostic:VERSion:LPC? "version"ï¼ˆ"FIRMware" æˆ– "HARDware"ï¼‰
     /// </summary>
     public Task<string> GetLpcVersionAsync(string version, CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:VERSion:LPC", $"\"{version}\""), r => _codec.ExtractString(r), ct);
 
     /// <summary>
-    /// ÅäÖÃ IO °åÊäÈëÊä³ö ¡ª¡ª DIAGnostic:LPC:DIOMode mode
+    /// é…ç½® IO æ¿è¾“å…¥è¾“å‡º â€”â€” DIAGnostic:LPC:DIOMode mode
     /// </summary>
     public Task SetLpcDiomodeAsync(byte mode, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:DIOMode", mode.ToString()), ct);
 
     /// <summary>
-    /// ÉèÖÃÊä³öÒı½ÅµçÆ½¸ßµÍ ¡ª¡ª DIAGnostic:LPC:DIOLevel level
+    /// è®¾ç½®è¾“å‡ºå¼•è„šç”µå¹³é«˜ä½ â€”â€” DIAGnostic:LPC:DIOLevel level
     /// </summary>
     public Task SetLpcDioLevelAsync(byte level, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:DIOLevel", level.ToString()), ct);
 
     /// <summary>
-    /// ²éÑ¯ÊäÈëÒı½Å×´Ì¬ ¡ª¡ª DIAGnostic:LPC:DIOLevel?
+    /// æŸ¥è¯¢è¾“å…¥å¼•è„šçŠ¶æ€ â€”â€” DIAGnostic:LPC:DIOLevel?
     /// </summary>
     public Task<byte> GetLpcDioLevelAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:LPC:DIOLevel"), r =>
@@ -1160,31 +1168,31 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
         }, ct);
 
     /// <summary>
-    /// ±¨¾¯Êä³ö¿ØÖÆ ¡ª¡ª DIAGnostic:LPC:AIOMode mode
+    /// æŠ¥è­¦è¾“å‡ºæ§åˆ¶ â€”â€” DIAGnostic:LPC:AIOMode mode
     /// </summary>
     public Task SetLpcAiomodeAsync(byte mode, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:AIOMode", mode.ToString()), ct);
 
     /// <summary>
-    /// ÅäÖÃ±¨¾¯Êä³öÓĞĞ§µçÆ½ ¡ª¡ª DIAGnostic:LPC:AIOLevel level
+    /// é…ç½®æŠ¥è­¦è¾“å‡ºæœ‰æ•ˆç”µå¹³ â€”â€” DIAGnostic:LPC:AIOLevel level
     /// </summary>
     public Task SetLpcAioLevelAsync(byte level, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:AIOLevel", level.ToString()), ct);
 
     /// <summary>
-    /// ÉèÖÃ´¥·¢ĞÅºÅÂË²¨Ê±¼ä ¡ª¡ª DIAGnostic:LPC:TIOinterval interval
+    /// è®¾ç½®è§¦å‘ä¿¡å·æ»¤æ³¢æ—¶é—´ â€”â€” DIAGnostic:LPC:TIOinterval interval
     /// </summary>
     public Task SetLpcTioIntervalAsync(byte interval, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:TIOinterval", interval.ToString()), ct);
 
     /// <summary>
-    /// ÉèÖÃ´¥·¢ÀàĞÍ ¡ª¡ª DIAGnostic:LPC:TIOType type
+    /// è®¾ç½®è§¦å‘ç±»å‹ â€”â€” DIAGnostic:LPC:TIOType type
     /// </summary>
     public Task SetLpcTioTypeAsync(byte type, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:TIOType", type.ToString()), ct);
 
     /// <summary>
-    /// ²éÑ¯´¥·¢ĞÅºÅ×´Ì¬ ¡ª¡ª DIAGnostic:LPC:TIOStatus?
+    /// æŸ¥è¯¢è§¦å‘ä¿¡å·çŠ¶æ€ â€”â€” DIAGnostic:LPC:TIOStatus?
     /// </summary>
     public Task<byte> GetLpcTioStatusAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:LPC:TIOStatus"), r =>
@@ -1194,19 +1202,19 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
         }, ct);
 
     /// <summary>
-    /// ÉèÖÃ¼ÆÊıÃÅÏŞ ¡ª¡ª DIAGnostic:LPC:CIOLimit maxCount
+    /// è®¾ç½®è®¡æ•°é—¨é™ â€”â€” DIAGnostic:LPC:CIOLimit maxCount
     /// </summary>
     public Task SetLpcCioLimitAsync(uint maxCount, CancellationToken ct = default) =>
         SendNonQueryAsync(Command.Write("DIAGnostic:LPC:CIOLimit", maxCount.ToString()), ct);
 
     /// <summary>
-    /// ²éÑ¯¼ÆÊıÆ÷±¨¾¯×´Ì¬ ¡ª¡ª DIAGnostic:LPC:CIOStatus?
+    /// æŸ¥è¯¢è®¡æ•°å™¨æŠ¥è­¦çŠ¶æ€ â€”â€” DIAGnostic:LPC:CIOStatus?
     /// </summary>
     public Task<string> GetLpcCioStatusAsync(CancellationToken ct = default) =>
         SendForResultAsync(Command.Read("DIAGnostic:LPC:CIOStatus"), r => _codec.ExtractString(r), ct);
 
     /// <summary>
-    /// ÇåÁã¼ÆÊıÆ÷ ¡ª¡ª DIAGnostic:LPC:CIOReset
+    /// æ¸…é›¶è®¡æ•°å™¨ â€”â€” DIAGnostic:LPC:CIOReset
     /// </summary>
     public Task ResetLpcCioAsync(CancellationToken ct = default)
     {
@@ -1214,7 +1222,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ¼ÆÊıÆ÷¶¶¶¯ÒÖÖÆ ¡ª¡ª DIAGnostic:LPC:CIOFilter 1|0
+    /// è®¾ç½®è®¡æ•°å™¨æŠ–åŠ¨æŠ‘åˆ¶ â€”â€” DIAGnostic:LPC:CIOFilter 1|0
     /// </summary>
     public Task SetLpcCioFilterAsync(bool state, CancellationToken ct = default)
     {
@@ -1222,15 +1230,15 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÖØÖÃ´¥·¢ĞÅºÅ×´Ì¬ ¡ª¡ª DIAGnostic:LPC:TIOReset
+    /// é‡ç½®è§¦å‘ä¿¡å·çŠ¶æ€ â€”â€” DIAGnostic:LPC:TIOReset
     /// </summary>
     public Task ResetLpcTioAsync(CancellationToken ct = default)
     {
         return SendNonQueryAsync(Command.Write("DIAGnostic:LPC:TIOReset"), ct);
     }
 
-    /// <summary>ÆÁÄ»×Ô¼ì ¡ª¡ª DIAGnostic:SCREen:CHECker type[,param]
-    /// type: 0=ËùÓĞ, 1=µ¥Ïî²âÊÔ, 2=¹¦ÄÜ²âÊÔ, 3=LAN²âÊÔ, 4=WiFi²âÊÔ, 5=A/B°´¼ü²âÊÔ, 6=Ö÷USB²âÊÔ/// </summary>
+    /// <summary>å±å¹•è‡ªæ£€ â€”â€” DIAGnostic:SCREen:CHECker type[,param]
+    /// type: 0=æ‰€æœ‰, 1=å•é¡¹æµ‹è¯•, 2=åŠŸèƒ½æµ‹è¯•, 3=LANæµ‹è¯•, 4=WiFiæµ‹è¯•, 5=A/BæŒ‰é”®æµ‹è¯•, 6=ä¸»USBæµ‹è¯•/// </summary>
     public Task<string> ScreenCheckerAsync(int type, int function = 0, CancellationToken ct = default)
     {
         return SendForResultAsync(
@@ -1240,8 +1248,8 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
             r => _codec.ExtractString(r), ct);
     }
 
-    /// <summary>²âÊÔ´®¿ÚÍ¨ĞÅ ¡ª¡ª DIAGnostic:COM:CHECker COMM[,Data]
-    /// COM0=×Ô·¢×ÔÊÕ²âÊÔ£¬COM3=¶ÁÈ¡°æ±¾ĞÅÏ¢/// </summary>
+    /// <summary>æµ‹è¯•ä¸²å£é€šä¿¡ â€”â€” DIAGnostic:COM:CHECker COMM[,Data]
+    /// COM0=è‡ªå‘è‡ªæ”¶æµ‹è¯•ï¼ŒCOM3=è¯»å–ç‰ˆæœ¬ä¿¡æ¯/// </summary>
     public Task<string> CheckComAsync(string com, string data = null!, CancellationToken ct = default)
     {
         return SendForResultAsync(
@@ -1252,7 +1260,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÆôÓÃ/¹Ø±Õ×ª·¢´°¿Ú ¡ª¡ª DIAGnostic:FORWardform state[,ip]
+    /// å¯ç”¨/å…³é—­è½¬å‘çª—å£ â€”â€” DIAGnostic:FORWardform state[,ip]
     /// </summary>
     public Task SetForwardFormAsync(bool state, string ip = null!, CancellationToken ct = default)
     {
@@ -1264,7 +1272,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯×ª·¢´°¿ÚÊÇ·ñ´ò¿ª ¡ª¡ª DIAGnostic:FORWardform?
+    /// æŸ¥è¯¢è½¬å‘çª—å£æ˜¯å¦æ‰“å¼€ â€”â€” DIAGnostic:FORWardform?
     /// </summary>
     public Task<bool> GetForwardFormAsync(CancellationToken ct = default)
     {
@@ -1272,7 +1280,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¸ø×ª·¢´°¿Ú·¢ËÍÏÔÊ¾Öµ ¡ª¡ª DIAGnostic:FORWardform:VALue value,unit
+    /// ç»™è½¬å‘çª—å£å‘é€æ˜¾ç¤ºå€¼ â€”â€” DIAGnostic:FORWardform:VALue value,unit
     /// </summary>
     public Task SetForwardFormValueAsync(string value, string unit, CancellationToken ct = default)
     {
@@ -1280,7 +1288,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ÉèÖÃ×ª·¢´°¿ÚËøÆÁ ¡ª¡ª DIAGnostic:LOCKforward 1|0
+    /// è®¾ç½®è½¬å‘çª—å£é”å± â€”â€” DIAGnostic:LOCKforward 1|0
     /// </summary>
     public Task SetForwardLockAsync(bool state, CancellationToken ct = default)
     {
@@ -1289,17 +1297,17 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region ²âÊÔÊı¾İÖ¸Áî ¡ª¡ª TDATa
+    #region æµ‹è¯•æ•°æ®æŒ‡ä»¤ â€”â€” TDATa
 
-    /// <summary>¿ªÊ¼²âÊÔ ¡ª¡ª TDATa:{type}:STARt "params"
-    /// type: SE=´«¸ĞÆ÷²âÊÔ, SW=¿ª¹Ø²âÊÔ, TF=ÎÂÔ´²âÊÔ, ETF=¿Õ¼äÎÂ³¡²âÊÔ/// </summary>
+    /// <summary>å¼€å§‹æµ‹è¯• â€”â€” TDATa:{type}:STARt "params"
+    /// type: SE=ä¼ æ„Ÿå™¨æµ‹è¯•, SW=å¼€å…³æµ‹è¯•, TF=æ¸©æºæµ‹è¯•, ETF=ç©ºé—´æ¸©åœºæµ‹è¯•/// </summary>
     public Task StartTestAsync(string type, string paramsStr, CancellationToken ct = default)
     {
         return SendNonQueryAsync(Command.Write($"TDATa:{type}:STARt", $"\"{paramsStr}\""), ct);
     }
 
     /// <summary>
-    /// Í£Ö¹²âÊÔ ¡ª¡ª TDATa:{type}:STOP
+    /// åœæ­¢æµ‹è¯• â€”â€” TDATa:{type}:STOP
     /// </summary>
     public Task StopTestAsync(string type, CancellationToken ct = default)
     {
@@ -1307,7 +1315,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ¶ÁÈ¡²âÊÔÊı¾İ ¡ª¡ª TDATa:{type}:DATA? [count]
+    /// è¯»å–æµ‹è¯•æ•°æ® â€”â€” TDATa:{type}:DATA? [count]
     /// </summary>
     public Task<string> GetTestDataAsync(string type, int count = 1, CancellationToken ct = default)
     {
@@ -1315,7 +1323,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ²éÑ¯²âÊÔ×´Ì¬ ¡ª¡ª TDATa:{type}:STAT?
+    /// æŸ¥è¯¢æµ‹è¯•çŠ¶æ€ â€”â€” TDATa:{type}:STAT?
     /// </summary>
     public Task<string> GetTestStatusAsync(string type, CancellationToken ct = default)
     {
@@ -1323,7 +1331,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// ËÑË÷²âÊÔÎÄ¼ş ¡ª¡ª TDATa:{type}? "condition"
+    /// æœç´¢æµ‹è¯•æ–‡ä»¶ â€”â€” TDATa:{type}? "condition"
     /// </summary>
     public Task<string> SearchTestFilesAsync(string type, string condition, CancellationToken ct = default)
     {
@@ -1331,8 +1339,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// <summary>
-    /// åˆ é™¤æµ‹è¯•æ–‡ä»¶ â€”â€?DELete:TDATa:{type} "filename"[,"name"]
+    /// åˆ é™¤æµ‹è¯•æ–‡ä»¶ â€”â€” DELete:TDATa:{type} "filename"[,"name"]
     /// </summary>
     public Task<string> DeleteTestFileAsync(string type, string filename, string name = null!, CancellationToken ct = default)
     {
@@ -1345,7 +1352,123 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #endregion
 
-    #region Ë½ÓĞ½âÎö·½·¨
+    #region æ ¡å‡†æ•°æ®æŒ‡ä»¤ â€”â€” CALibration:ELECtricity
+
+    /// <summary>
+    /// è·å–æ ¡å‡†æ•°æ® â€”â€” CALibration:ELECtricity:DATA? Manufactor,3721,&lt;channel&gt;,&lt;function&gt;,&lt;range&gt;
+    /// å‚æ•°ç»“æ„ä¸ Xmas11 TAUBase.GetCalibrationData å®Œå…¨ä¸€è‡´
+    /// æ³¨æ„ï¼šXmas11 çš„ out å‚æ•° (isGetCalDataPass, dataStatus) å·²åŒ…å«åœ¨è¿”å›çš„ CalibrationData å¯¹è±¡ä¸­
+    /// </summary>
+    /// <param name="channel">æ ¡å‡†é€šé“æ¨¡å¼ï¼ˆåŒ…å«é€šé“å·ã€æ¨¡å¼ã€åç§°ï¼‰</param>
+    /// <param name="function">æ ¡å‡†æ‰«æåŠŸèƒ½</param>
+    /// <param name="range">æ ¡å‡†æ‰«æé‡ç¨‹</param>
+    /// <returns>æ ¡å‡†æ•°æ®ï¼ˆåŒ…å« IsGetCalDataPass å’Œ DataStatus å±æ€§ï¼‰</returns>
+    public async Task<CalibrationData> GetCalibrationDataAsync(
+        CalChannelMode channel,
+        CalScanFunction function,
+        CalScanRange range)
+    {
+        // æ„å»ºSCPIå‘½ä»¤ï¼šæ ¼å¼ä¸ Xmas11 TAUBase.GetCalibrationData å®Œå…¨ä¸€è‡´
+        // CALibration:ELECtricity:DATA? Manufactor,3721,{ModeID},{function},{range}
+        string modeID = channel.ModeID;
+        string functionStr = ((int)function).ToString();
+        string rangeStr = ((int)range).ToString();
+
+        var content = await SendForResultAsync(
+            Command.Read("CALibration:ELECtricity:DATA",
+                "Manufactor,3721",
+                modeID,
+                functionStr,
+                rangeStr),
+            r => _codec.ExtractString(r),
+            CancellationToken.None);
+
+        if (string.IsNullOrEmpty(content))
+        {
+            return new CalibrationData { IsGetCalDataPass = false, DataStatus = "No response" };
+        }
+
+        var dataStr = content.Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        if (dataStr.Length < 5)
+        {
+            return new CalibrationData { IsGetCalDataPass = false, DataStatus = $"Invalid data length: {dataStr.Length}" };
+        }
+
+        // è§£æåŸºç¡€ä¿¡æ¯
+        int unitId = ParseInt(dataStr[0]);
+        int pointCount = ParseInt(dataStr[1]);
+
+        if (pointCount <= 0)
+        {
+            return new CalibrationData { IsGetCalDataPass = false, DataStatus = "Invalid point count" };
+        }
+
+        // éªŒè¯æ•°æ®é•¿åº¦ï¼š2 + pointCount * 2 + 3
+        int expectedLength = 2 + pointCount * 2 + 3;
+        if (dataStr.Length < expectedLength)
+        {
+            return new CalibrationData
+            {
+                IsGetCalDataPass = false,
+                DataStatus = $"Data length mismatch: expected {expectedLength}, got {dataStr.Length}"
+            };
+        }
+
+        // è§£ææ ‡å‡†å€¼åˆ—è¡¨
+        var standardList = new List<double>(pointCount);
+        for (int i = 0; i < pointCount; i++)
+        {
+            standardList.Add(ParseDouble(dataStr[2 + i]));
+        }
+
+        // è§£ææ ¡å‡†ç‚¹åˆ—è¡¨
+        var calPointList = new List<double>(pointCount);
+        for (int i = 0; i < pointCount; i++)
+        {
+            calPointList.Add(ParseDouble(dataStr[2 + pointCount + i]));
+        }
+
+        // è§£ææ—¥æœŸ
+        int year = ParseInt(dataStr[2 + pointCount * 2]);
+        int month = ParseInt(dataStr[2 + pointCount * 2 + 1]);
+        int day = ParseInt(dataStr[2 + pointCount * 2 + 2]);
+
+        return new CalibrationData
+        {
+            ID = $"{channel.ID}_{(int)function}_{(int)range}",
+            Key = $"{channel.Name}_{functionStr}_{rangeStr}",
+            PointCount = pointCount,
+            StandardList = standardList,
+            StandardUnit = GetUnitByFunction(function),
+            CalPointList = calPointList,
+            CalPointUnit = GetUnitByFunction(function),
+            Year = year,
+            Month = month,
+            Day = day,
+            UnitId = unitId,
+            IsGetCalDataPass = true,
+            DataStatus = "OK"
+        };
+    }
+
+    /// <summary>
+    /// æ ¹æ®æ ¡å‡†åŠŸèƒ½è·å–å•ä½åç§°
+    /// </summary>
+    private static string GetUnitByFunction(CalScanFunction function)
+    {
+        return function switch
+        {
+            CalScanFunction.V => "V",
+            CalScanFunction.I => "A",
+            CalScanFunction.R => "Î©",
+            CalScanFunction.PRT or CalScanFunction.RTC or CalScanFunction.Cjc => "Â°C",
+            _ => string.Empty
+        };
+    }
+
+    #endregion
+
+    #region ç§æœ‰è§£ææ–¹æ³•
 
     private static double ParseDouble(string text)
     {
@@ -1366,12 +1489,12 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     {
         var text = _codec.DecodeText(raw);
         var parts = text.Split(',');
+        // ConST685 *IDN? è¿”å›æ ¼å¼ï¼š'åºåˆ—å·',å›ºä»¶ç‰ˆæœ¬å·
+        // ä¾‹å¦‚ï¼š'685018010023',TAU-HOST 1.0.0.92
         return new DeviceIdentification
         {
-            Manufacturer = parts.Length >= 1 ? parts[0].Trim() : string.Empty,
-            Model = parts.Length >= 2 ? parts[1].Trim() : string.Empty,
-            SerialNumber = parts.Length >= 3 ? parts[2].Trim() : string.Empty,
-            FirmwareVersion = parts.Length >= 4 ? parts[3].Trim() : string.Empty
+            SerialNumber = parts.Length >= 1 ? parts[0].Trim().Trim('\'') : string.Empty,
+            FirmwareVersion = parts.Length >= 2 ? parts[1].Trim() : string.Empty
         };
     }
 
@@ -1423,7 +1546,7 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
     {
         var text = _codec.DecodeText(raw);
         var parts = text.Split(',');
-        // ¸ñÊ½£º´íÎóÂë,Ä£Ê½,¹¦ÄÜ,Á¿³Ì,Íê³É×´Ì¬,Ô­Ê¼Öµ
+        // æ ¼å¼ï¼šé”™è¯¯ç ,æ¨¡å¼,åŠŸèƒ½,é‡ç¨‹,å®ŒæˆçŠ¶æ€,åŸå§‹å€¼
         if (parts.Length >= 6)
         {
             return new CalibrationResult
