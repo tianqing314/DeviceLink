@@ -1589,6 +1589,189 @@ public class PS02Base : DeviceBase.DeviceBase
     }
 
     // ═══════════════════════════════════════════════════════════
+    // 调试输出相关指令（整机自检：读AD码 / 调试模式 / 电流输出 / 电压输出）
+    // ═══════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// 读取 AD 码原始值（F40 读寄存器 0x7000，32 个寄存器 = 64 字节）
+    /// 通过转接板 Modbus 转发发送，响应解析规则参考《PS02整机自检测试项.xlsx》。
+    /// 指令示例：发 01 28 70 00 00 20 7A D4
+    /// </summary>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    /// <returns>
+    /// AD 码解析结果（含判定指标）
+    /// </returns>
+    public async Task<AdCodeResult> ReadAdCodeAsync(CancellationToken ct = default)
+    {
+        // 构建 Modbus RTU 读帧：F40 读寄存器 0x7000，共 32 个寄存器（64 字节）
+        var modbusFrame = BuildModbusReadFrame(_slaveAddress, 0x28, 0x7000, 0x0020);
+        CommunicationLogger.LogRaw(Name, ">>> Modbus RTU: 读取 AD 码 (F40 0x7000, 32寄存器)", modbusFrame);
+
+        var modbusResponse = await SendModbusForwardAsync(modbusFrame, ct);
+        return ParseAdCodeResponse(modbusResponse);
+    }
+
+    /// <summary>
+    /// 通过转接板设置调试模式（F41 写寄存器 0x8002）
+    /// 进入 OWI 后，需要进入调试模式才能输出电流/电压。
+    /// 指令示例（进入调试模式）：01 29 80 02 00 01 02 00 01 24 C4
+    /// </summary>
+    /// <param name="enable">
+    /// true=进入调试模式（0x0001），false=回到变送输出模式（0x0000）
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    public async Task SetDebugModeViaConverterAsync(bool enable, CancellationToken ct = default)
+    {
+        var data = new byte[] { 0x00, enable ? (byte)0x01 : (byte)0x00 };
+        var modbusFrame = BuildModbusRtuFrame(_slaveAddress, 0x29, PS02Registers.DebugMode, 0x0001, data);
+        CommunicationLogger.LogRaw(Name, $">>> Modbus RTU: 调试模式 ({(enable ? "进入" : "退出")})", modbusFrame);
+
+        // 该指令无返回（文档"回："为空），单向发送
+        await SendModbusForwardOnlyAsync(modbusFrame, ct);
+    }
+
+    /// <summary>
+    /// 通过转接板设置调试模式电流输出（F41 写寄存器 0x8003）
+    /// 指令示例：4mA → 01 29 80 03 00 01 02 29 00 FB 45；20mA → 01 29 80 03 00 01 02 CF 49 70 D3
+    /// </summary>
+    /// <param name="output">
+    /// 电流输出档位（4mA / 20mA）
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    public async Task SetCurrentOutputViaConverterAsync(DebugCurrentOutput output, CancellationToken ct = default)
+    {
+        await SetDebugDacOutputViaConverterAsync((ushort)output, $"{output}", ct);
+    }
+
+    /// <summary>
+    /// 通过转接板设置调试模式电压输出（F41 写寄存器 0x8003）
+    /// 指令示例：0.5V → 01 29 80 03 00 01 02 06 66 67 5F；10V → 01 29 80 03 00 01 02 7F FF 84 A5
+    /// </summary>
+    /// <param name="output">
+    /// 电压输出档位（0.5V / 10V）
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    public async Task SetVoltageOutputViaConverterAsync(DebugVoltageOutput output, CancellationToken ct = default)
+    {
+        await SetDebugDacOutputViaConverterAsync((ushort)output, $"{output}", ct);
+    }
+
+    /// <summary>
+    /// 通过转接板设置调试模式 DAC 输出值（F41 写寄存器 0x8003）
+    /// 该指令无返回（文档"回："为空），单向发送。
+    /// </summary>
+    /// <param name="dacValue">
+    /// DAC 输出值（大端）
+    /// </param>
+    /// <param name="description">
+    /// 日志描述文本
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    private async Task SetDebugDacOutputViaConverterAsync(ushort dacValue, string description, CancellationToken ct)
+    {
+        var data = new byte[] { (byte)(dacValue >> 8), (byte)(dacValue & 0xFF) };
+        var modbusFrame = BuildModbusRtuFrame(_slaveAddress, 0x29, PS02Registers.DebugDacValue, 0x0001, data);
+        CommunicationLogger.LogRaw(Name, $">>> Modbus RTU: 调试输出 ({description}, DAC=0x{dacValue:X4})", modbusFrame);
+
+        // 该指令无返回（文档"回："为空），单向发送
+        await SendModbusForwardOnlyAsync(modbusFrame, ct);
+    }
+
+    /// <summary>
+    /// 解析 AD 码 Modbus 响应（01 28 40 + 64字节数据 + CRC16）
+    /// </summary>
+    /// <param name="response">
+    /// Modbus RTU 响应（含 CRC16）
+    /// </param>
+    /// <returns>
+    /// AD 码解析结果
+    /// </returns>
+    private AdCodeResult ParseAdCodeResponse(byte[] response)
+    {
+        // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(64) + CRC(2) = 69
+        if (response == null || response.Length < 3 + 64 + 2)
+        {
+            throw new DeviceException($"AD码响应长度不足: 期望至少69字节，实际 {response?.Length ?? 0} 字节，数据={BitConverter.ToString(response ?? Array.Empty<byte>())}");
+        }
+
+        if (response[0] != _slaveAddress)
+        {
+            throw new DeviceException($"AD码响应从站地址错误: 0x{response[0]:X2}（期望0x{_slaveAddress:X2}）");
+        }
+
+        if (response[1] != 0x28)
+        {
+            throw new DeviceException($"AD码响应功能码错误: 0x{response[1]:X2}（期望0x28）");
+        }
+
+        int byteCount = response[2];
+        if (byteCount < 64)
+        {
+            throw new DeviceException($"AD码响应数据长度不足: 字节数={byteCount}（期望≥64），数据={BitConverter.ToString(response)}");
+        }
+
+        int off = 3;
+        var result = new AdCodeResult
+        {
+            PressureAdc = BitConverter.ToInt32(response, off)
+        };
+        off += 4;
+        result.TemperatureAdc = BitConverter.ToInt32(response, off);
+        off += 4;
+        result.TemperatureCompensatedPressure = BitConverter.ToInt32(response, off);
+        off += 4;
+        result.CorrectedPressure = BitConverter.ToInt32(response, off);
+        off += 4;
+        result.CalibratedPressure = BitConverter.ToInt32(response, off);
+        off += 4;
+        result.FilteredPressure = BitConverter.ToInt32(response, off);
+        off += 4;
+        result.ComputedPressure = BitConverter.ToInt32(response, off);
+        off += 4;
+        // TMP1075 温度值为 int16 大端（高字节在前）
+        result.Tm1075Raw = (short)((response[off] << 8) | response[off + 1]);
+
+        CommunicationLogger.LogInfo(Name, $"读AD码结果: {result}");
+        return result;
+    }
+
+    /// <summary>
+    /// 通过转接板单向发送 Modbus RTU 转发指令（功能码 0x0400）
+    /// 仅发送，不等待响应（用于文档中"回："为空的调试输出指令）。
+    /// </summary>
+    /// <param name="modbusFrame">
+    /// 完整的 Modbus RTU 报文（含 CRC16）
+    /// </param>
+    /// <param name="ct">
+    /// 取消令牌
+    /// </param>
+    private async Task SendModbusForwardOnlyAsync(byte[] modbusFrame, CancellationToken ct)
+    {
+        var frame = _cppiV3FrameStrategy.BuildRawFrame(0x0400, modbusFrame);
+        CommunicationLogger.LogRaw(Name, ">>> 转接板 Modbus 转发(单向, 无返回)", frame);
+
+        var transport = Pipeline.Transport;
+        if (transport == null || !transport.IsOpen)
+        {
+            throw new DeviceException("传输层未打开");
+        }
+
+        // 清空接收缓冲区后单向发送，不等待响应
+        await transport.ClearReceiveBufferAsync(ct);
+        await transport.WriteAsync(frame, 0, frame.Length, ct);
+    }
+
+    // ═══════════════════════════════════════════════════════════
     // 校准数据序列化/反序列化
     // ═══════════════════════════════════════════════════════════
 
@@ -1944,6 +2127,29 @@ public class PS02Base : DeviceBase.DeviceBase
             }
         }
         return crc;
+    }
+
+    /// <summary>
+    /// 构建完整的 Modbus RTU 读帧（含从机地址、功能码、寄存器地址、数量、CRC16）
+    /// 用于 F03/F40 读寄存器指令（无字节数段）
+    /// </summary>
+    private static byte[] BuildModbusReadFrame(byte slaveAddress, byte functionCode, ushort registerAddress, ushort registerCount)
+    {
+        // Modbus RTU 读帧：地址(1) + 功能码(1) + 起始地址(2) + 寄存器数量(2) + CRC(2) = 8 字节
+        var frame = new byte[8];
+        frame[0] = slaveAddress;
+        frame[1] = functionCode;
+        frame[2] = (byte)(registerAddress >> 8);   // 寄存器地址高字节
+        frame[3] = (byte)(registerAddress & 0xFF); // 寄存器地址低字节
+        frame[4] = (byte)(registerCount >> 8);     // 寄存器数量高字节
+        frame[5] = (byte)(registerCount & 0xFF);   // 寄存器数量低字节
+
+        // 计算 CRC16（不含 CRC 本身）
+        ushort crc = CalculateModbusCrc16(frame, 6);
+        frame[6] = (byte)(crc & 0xFF);
+        frame[7] = (byte)((crc >> 8) & 0xFF);
+
+        return frame;
     }
 
     /// <summary>

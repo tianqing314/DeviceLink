@@ -36,7 +36,7 @@ namespace DeviceLink.Tests.PS02
 
             // 从环境变量读取 TCP 配置，默认 127.0.0.1:10001
             _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.41.243";
-            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1046;
+            _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1030;
             _slaveAddress = byte.TryParse(Environment.GetEnvironmentVariable("PS02_SLAVE_ADDRESS"), out var addr) ? addr : (byte)1;
 
             _output.WriteLine($"TCP 配置: {_host}:{_port}, 从站地址: {_slaveAddress}");
@@ -588,8 +588,13 @@ namespace DeviceLink.Tests.PS02
                 //var range = await _device!.GetMigrationRangeAsync();
 
                 //var pressure = await _device.GetPressureAsync();
-                //await _device.DisableOwiViaConverterAsync();
-                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.StandardBoard);
+                //c
+                await _device.EnableOwiViaConverterAsync();
+                await Task.Delay(3000);
+                await _device.SetDebugModeViaConverterAsync(true);
+                await _device.SetCurrentOutputViaConverterAsync(DebugCurrentOutput.Current20mA);
+                await _device.SetOutputProjectAsync(OutputProject.MaOut, MeasurementDeviceCategory.OwiModule);
+                await _device.DisableOwiViaConverterAsync();
                 await Task.Delay(3000);
                 var measureResult = await _device!.GetMeasurementProjectAsync();
                 _output.WriteLine($"测量值: {measureResult:F3} mA");
@@ -637,6 +642,60 @@ namespace DeviceLink.Tests.PS02
                     Assert.True(pressure >= -1000 && pressure <= 10000,
                         $"压力值应该在合理范围内，实际值: {pressure}");
                 }
+            }
+            finally
+            {
+                await CloseDeviceAsync();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 读 AD 码测试（整机自检：读取原始 AD 码值）
+        // ═══════════════════════════════════════════════════════════
+
+        [Fact]
+        [Trait("Category", "Tcp")]
+        public async Task Tcp_ReadAdCode_ShouldReturnRawValues()
+        {
+            if (!IsTcpAvailable())
+            {
+                _output.WriteLine("跳过测试: TCP 不可用");
+                return;
+            }
+
+            try
+            {
+                Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
+
+                _output.WriteLine("=== 读取 AD 码原始值（F40 读寄存器 0x7000，32 个寄存器） ===");
+
+                var result = await _device!.ReadAdCodeAsync();
+                Assert.NotNull(result);
+
+                // 原始字段
+                _output.WriteLine($"压力ADC: {result.PressureAdc} ({result.PressureKpa:F3} kPa)");
+                _output.WriteLine($"温度ADC: {result.TemperatureAdc}");
+                _output.WriteLine($"桥阻值: {result.BridgeResistance:F1} Ω");
+                _output.WriteLine($"温度补偿压力值: {result.TemperatureCompensatedPressure} ({result.TemperatureCompensatedPressureKpa:F3} kPa)");
+                _output.WriteLine($"修正后压力值: {result.CorrectedPressure} ({result.CorrectedPressureKpa:F3} kPa)");
+                _output.WriteLine($"校准压力值: {result.CalibratedPressure} ({result.CalibratedPressureKpa:F3} kPa)");
+                _output.WriteLine($"滤波后压力值: {result.FilteredPressure} ({result.FilteredPressureKpa:F3} kPa)");
+                _output.WriteLine($"计算压力值: {result.ComputedPressure} ({result.ComputedPressureKpa:F3} kPa)");
+                _output.WriteLine($"TMP1075 温度: {result.Tm1075Temperature:F2} ℃ (原始 0x{result.Tm1075Raw:X4})");
+
+                // 判定指标（参考《PS02通信指令示例》）
+                _output.WriteLine($"判定 - 压力AD绝对值<300000: {(result.IsPressureAdcOk ? "OK" : "NG")} (实际 {result.PressureAdc})");
+                _output.WriteLine($"判定 - 桥阻值9000~11000: {(result.IsBridgeResistanceOk ? "OK" : "NG")} (实际 {result.BridgeResistance:F1})");
+                _output.WriteLine($"判定 - 温度15~30℃: {(result.IsTemperatureOk ? "OK" : "NG")} (实际 {result.Tm1075Temperature:F2})");
+
+                Assert.True(result.IsPressureAdcOk,
+                    $"压力AD绝对值应小于300000，实际: {result.PressureAdc}");
+                Assert.True(result.IsBridgeResistanceOk,
+                    $"桥阻值应介于9000~11000Ω，实际: {result.BridgeResistance:F1}");
+                Assert.True(result.IsTemperatureOk,
+                    $"温度应介于15~30℃，实际: {result.Tm1075Temperature:F2}");
+
+                _output.WriteLine($"=== 读 AD 码测试完成，总体: {(result.IsAllOk ? "OK" : "NG")} ===");
             }
             finally
             {

@@ -134,15 +134,15 @@ namespace DeviceLink.Tests.PS02
         {
             var (ps02, settings) = CreateTestDevice();
 
-            //SetupConverterSimulation(settings, modbusData =>
-            //{
-            //    // F03 读压力: [地址][03][起始H][起始L][数量H][数量L]
-            //    if (modbusData.Length >= 6 && modbusData[1] == 0x03)
-            //    {
-            //        return BuildPressureResponse(500.0f);
-            //    }
-            //    return null;
-            //});
+            SetupConverterSimulation(settings, modbusData =>
+            {
+                // F03 读压力: [地址][03][起始H][起始L][数量H][数量L]
+                if (modbusData.Length >= 6 && modbusData[1] == 0x03)
+                {
+                    return BuildPressureResponse(500.0f);
+                }
+                return null;
+            });
 
             await ps02.OpenAsync();
             var pressure = await ps02.GetPressureAsync();
@@ -713,6 +713,205 @@ namespace DeviceLink.Tests.PS02
                 ps02.GetConverterModelAsync());
 
             await ps02.CloseAsync();
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // 转接板调试输出指令测试（读AD码 / 调试模式 / 电流输出 / 电压输出）
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// 从发送的 CPPI V3 帧中提取数据段（Modbus RTU 报文，含 CRC16）
+        /// </summary>
+        private static byte[]? ExtractCppiData(byte[] rawFrame)
+        {
+            if (rawFrame == null || rawFrame.Length < 14 || rawFrame[0] != 0x55)
+                return null;
+
+            int dataLen = rawFrame[11] | (rawFrame[12] << 8);
+            int dataStart = 14; // 13字节头 + 1字节CRC8
+            if (rawFrame.Length < dataStart + dataLen)
+                return null;
+
+            var data = new byte[dataLen];
+            Array.Copy(rawFrame, dataStart, data, 0, dataLen);
+            return data;
+        }
+
+        /// <summary>
+        /// 构造用户提供的读AD码响应：01 28 40 + 64字节数据 + CRC16(93 88)
+        /// </summary>
+        private static byte[] BuildAdCodeResponse()
+        {
+            // 数据布局（xlsx 数据转换表）：
+            // @0  压力ADC:   C2 D6 FF FF (int32 小端 = -10558)
+            // @4  温度ADC:   95 DE 2E 00 (int32 小端 = 3071637)
+            // @8  ~@27: 5 个压力值（均为 0）
+            // @28 TMP1075:   51 E0 00 00 (int16 大端 = 0x51E0)
+            // @32 ~@39: 未解析（0）
+            // @40 7F FF 7F FF
+            var data = new byte[64];
+            data[0] = 0xC2; data[1] = 0xD6; data[2] = 0xFF; data[3] = 0xFF; // 压力ADC
+            data[4] = 0x95; data[5] = 0xDE; data[6] = 0x2E; data[7] = 0x00; // 温度ADC
+            data[28] = 0x51; data[29] = 0xE0;                               // TMP1075 (大端)
+            data[40] = 0x7F; data[41] = 0xFF; data[42] = 0x7F; data[43] = 0xFF;
+
+            var response = new byte[3 + 64 + 2];
+            response[0] = 0x01; // 从站地址
+            response[1] = 0x28; // F40
+            response[2] = 0x40; // 64 字节
+            Array.Copy(data, 0, response, 3, 64);
+            response[67] = 0x93; // CRC16 低字节
+            response[68] = 0x88; // CRC16 高字节
+            return response;
+        }
+
+        [Fact]
+        public async Task ReadAdCodeAsync_ShouldParseResponse()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            var modbusResponse = BuildAdCodeResponse();
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0400)
+                {
+                    // 转接板包装：CPPI 错误码(0x00) + Modbus 响应
+                    return new byte[] { 0x00 }.Concat(modbusResponse).ToArray();
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+            var result = await ps02.ReadAdCodeAsync();
+            await ps02.CloseAsync();
+
+            // 原始字段解析
+            Assert.Equal(-10558, result.PressureAdc);          // C2 D6 FF FF 小端
+            Assert.Equal(3071637, result.TemperatureAdc);      // 95 DE 2E 00 小端
+            Assert.Equal(0, result.TemperatureCompensatedPressure);
+            Assert.Equal(0, result.CorrectedPressure);
+            Assert.Equal(0, result.CalibratedPressure);
+            Assert.Equal(0, result.FilteredPressure);
+            Assert.Equal(0, result.ComputedPressure);
+            Assert.Equal(0x51E0, result.Tm1075Raw);            // 大端
+
+            // 换算值（xlsx 公式）
+            Assert.Equal(32715571200.0 / 3071637, result.BridgeResistance, 3);
+            Assert.Equal(0x51E0 / 16.0 * 0.0625, result.Tm1075Temperature, 3); // 81.875℃
+
+            // 判定指标（docx：压力AD绝对值<300000 / 桥阻9000~11000 / 温度15~30℃）
+            Assert.True(result.IsPressureAdcOk);     // |-10558| < 300000
+            Assert.True(result.IsBridgeResistanceOk); // 10650.86 ∈ [9000,11000]
+            Assert.False(result.IsTemperatureOk);    // 81.875℃ ∉ [15,30]
+            Assert.False(result.IsAllOk);
+        }
+
+        [Fact]
+        public async Task ReadAdCodeAsync_InvalidResponse_ShouldThrow()
+        {
+            var (ps02, settings) = CreateTestDevice();
+
+            SetupRawConverterSimulation(settings, (funcCode, _) =>
+            {
+                if (funcCode == 0x0400)
+                {
+                    // 只有错误码，没有 Modbus 响应
+                    return new byte[] { 0x00 };
+                }
+                return null;
+            });
+
+            await ps02.OpenAsync();
+
+            await Assert.ThrowsAsync<DeviceException>(() => ps02.ReadAdCodeAsync());
+
+            await ps02.CloseAsync();
+        }
+
+        [Fact]
+        public async Task SetDebugModeViaConverterAsync_Enter_ShouldSendCorrectCommand()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            var sentFrames = new System.Collections.Generic.List<byte[]>();
+
+            settings.Transport.OnSend += rawData =>
+            {
+                var modbus = ExtractCppiData(rawData);
+                if (modbus != null) sentFrames.Add(modbus);
+            };
+
+            await ps02.OpenAsync();
+            await ps02.SetDebugModeViaConverterAsync(true);
+            await ps02.CloseAsync();
+
+            // 调试模式进入指令：01 29 80 02 00 01 02 00 01 24 C4
+            Assert.Contains(sentFrames, f => f.SequenceEqual(new byte[] { 0x01, 0x29, 0x80, 0x02, 0x00, 0x01, 0x02, 0x00, 0x01, 0x24, 0xC4 }));
+        }
+
+        [Fact]
+        public async Task SetDebugModeViaConverterAsync_Exit_ShouldSendCorrectCommand()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            var sentFrames = new System.Collections.Generic.List<byte[]>();
+
+            settings.Transport.OnSend += rawData =>
+            {
+                var modbus = ExtractCppiData(rawData);
+                if (modbus != null) sentFrames.Add(modbus);
+            };
+
+            await ps02.OpenAsync();
+            await ps02.SetDebugModeViaConverterAsync(false);
+            await ps02.CloseAsync();
+
+            // 调试模式退出指令：01 29 80 02 00 01 02 00 00 E5 04
+            Assert.Contains(sentFrames, f => f.SequenceEqual(new byte[] { 0x01, 0x29, 0x80, 0x02, 0x00, 0x01, 0x02, 0x00, 0x00, 0xE5, 0x04 }));
+        }
+
+        [Fact]
+        public async Task SetCurrentOutputViaConverterAsync_ShouldSendCorrectCommands()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            var sentFrames = new System.Collections.Generic.List<byte[]>();
+
+            settings.Transport.OnSend += rawData =>
+            {
+                var modbus = ExtractCppiData(rawData);
+                if (modbus != null) sentFrames.Add(modbus);
+            };
+
+            await ps02.OpenAsync();
+            await ps02.SetCurrentOutputViaConverterAsync(DebugCurrentOutput.Current4mA);
+            await ps02.SetCurrentOutputViaConverterAsync(DebugCurrentOutput.Current20mA);
+            await ps02.CloseAsync();
+
+            // 4mA：01 29 80 03 00 01 02 29 00 FB 45
+            Assert.Contains(sentFrames, f => f.SequenceEqual(new byte[] { 0x01, 0x29, 0x80, 0x03, 0x00, 0x01, 0x02, 0x29, 0x00, 0xFB, 0x45 }));
+            // 20mA：01 29 80 03 00 01 02 CF 49 70 D3
+            Assert.Contains(sentFrames, f => f.SequenceEqual(new byte[] { 0x01, 0x29, 0x80, 0x03, 0x00, 0x01, 0x02, 0xCF, 0x49, 0x70, 0xD3 }));
+        }
+
+        [Fact]
+        public async Task SetVoltageOutputViaConverterAsync_ShouldSendCorrectCommands()
+        {
+            var (ps02, settings) = CreateTestDevice();
+            var sentFrames = new System.Collections.Generic.List<byte[]>();
+
+            settings.Transport.OnSend += rawData =>
+            {
+                var modbus = ExtractCppiData(rawData);
+                if (modbus != null) sentFrames.Add(modbus);
+            };
+
+            await ps02.OpenAsync();
+            await ps02.SetVoltageOutputViaConverterAsync(DebugVoltageOutput.Voltage0_5V);
+            await ps02.SetVoltageOutputViaConverterAsync(DebugVoltageOutput.Voltage10V);
+            await ps02.CloseAsync();
+
+            // 0.5V：01 29 80 03 00 01 02 06 66 67 5F
+            Assert.Contains(sentFrames, f => f.SequenceEqual(new byte[] { 0x01, 0x29, 0x80, 0x03, 0x00, 0x01, 0x02, 0x06, 0x66, 0x67, 0x5F }));
+            // 10V：01 29 80 03 00 01 02 7F FF 84 A5
+            Assert.Contains(sentFrames, f => f.SequenceEqual(new byte[] { 0x01, 0x29, 0x80, 0x03, 0x00, 0x01, 0x02, 0x7F, 0xFF, 0x84, 0xA5 }));
         }
     }
 }
