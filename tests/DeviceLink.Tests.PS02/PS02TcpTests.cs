@@ -35,7 +35,7 @@ namespace DeviceLink.Tests.PS02
             _output = output;
 
             // 从环境变量读取 TCP 配置，默认 127.0.0.1:10001
-            _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.41.243";
+            _host = Environment.GetEnvironmentVariable("PS02_TCP_HOST") ?? "192.168.40.252";
             _port = int.TryParse(Environment.GetEnvironmentVariable("PS02_TCP_PORT"), out var p) ? p : 1030;
             _slaveAddress = byte.TryParse(Environment.GetEnvironmentVariable("PS02_SLAVE_ADDRESS"), out var addr) ? addr : (byte)1;
 
@@ -479,7 +479,7 @@ namespace DeviceLink.Tests.PS02
                 _output.WriteLine("[06/14] 发送扫描从设备指令...");
                 await _device.ScanDeviceAsync(0x00);
                 _output.WriteLine("  已发送扫描指令，开始轮询扫描结果...");
-
+                await Task.Delay(3000);
                 // 轮询扫描结果，最多等待10秒（每200ms查询一次）
                 for (int poll = 0; poll < 50; poll++)
                 {
