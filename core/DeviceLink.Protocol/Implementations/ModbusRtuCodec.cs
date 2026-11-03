@@ -33,6 +33,9 @@ namespace DeviceLink.Protocol
         public string ProtocolName => "ModbusRTU";
 
         /// <inheritdoc/>
+        public bool PayloadIncludesTerminator => false;
+
+        /// <inheritdoc/>
         public byte[] Encode(Command command)
         {
             // 解析命令ID，格式：功能码.寄存器地址.寄存器数量

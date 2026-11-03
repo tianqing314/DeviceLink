@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- 仓库内各项目缺少显式 using，统一开启隐式 using 以保证 dotnet build / dotnet test 可直接执行 -->
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

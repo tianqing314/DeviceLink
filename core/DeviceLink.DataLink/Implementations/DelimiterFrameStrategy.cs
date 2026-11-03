@@ -11,16 +11,25 @@ namespace DeviceLink.DataLink
     {
         private readonly byte[] _delimiter;
         private readonly int _minDelimiterCount;
+        private readonly FrameTerminationPolicy _terminationPolicy;
 
         /// <summary>
         /// 创建分隔符帧策略
         /// </summary>
         /// <param name="delimiter">帧结束分隔符，如 new byte[]{0} 或 Encoding.ASCII.GetBytes("\r\n")</param>
         /// <param name="minDelimiterCount">最少需匹配的分隔符次数（广播场景等，默认1，即遇第一个分隔符即分帧）</param>
-        public DelimiterFrameStrategy(byte[] delimiter, int minDelimiterCount = 1)
+        /// <param name="terminationPolicy">
+        /// 终止符追加策略。默认 AppendAlways，保持既有线上字节不变；
+        /// 设为 SkipIfAlreadyTerminated 时，载荷已以分隔符结尾则不再追加（单终止符）。
+        /// </param>
+        public DelimiterFrameStrategy(
+            byte[] delimiter,
+            int minDelimiterCount = 1,
+            FrameTerminationPolicy terminationPolicy = FrameTerminationPolicy.AppendAlways)
         {
             _delimiter = delimiter ?? throw new ArgumentNullException(nameof(delimiter));
             _minDelimiterCount = minDelimiterCount > 0 ? minDelimiterCount : 1;
+            _terminationPolicy = terminationPolicy;
         }
 
         /// <summary>
@@ -28,12 +37,21 @@ namespace DeviceLink.DataLink
         /// </summary>
         /// <param name="delimiter">分隔符字符串</param>
         /// <param name="minDelimiterCount">最少需匹配的分隔符次数</param>
-        public DelimiterFrameStrategy(string delimiter, int minDelimiterCount = 1)
-            : this(Encoding.UTF8.GetBytes(delimiter), minDelimiterCount)
+        /// <param name="terminationPolicy">终止符追加策略（默认 AppendAlways）</param>
+        public DelimiterFrameStrategy(
+            string delimiter,
+            int minDelimiterCount = 1,
+            FrameTerminationPolicy terminationPolicy = FrameTerminationPolicy.AppendAlways)
+            : this(Encoding.UTF8.GetBytes(delimiter), minDelimiterCount, terminationPolicy)
         { }
 
         /// <inheritdoc/>
         public string Name => $"Delimiter({BitConverter.ToString(_delimiter)})";
+
+        /// <summary>
+        /// 当前使用的终止符追加策略
+        /// </summary>
+        public FrameTerminationPolicy TerminationPolicy => _terminationPolicy;
 
         /// <inheritdoc/>
         public byte[] BuildFrame(byte[] data)
@@ -41,7 +59,11 @@ namespace DeviceLink.DataLink
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
 
-            // 添加分隔符到数据末尾
+            // 去重模式：载荷已自带终止符时直接发送，不再追加（单终止符）
+            if (_terminationPolicy == FrameTerminationPolicy.SkipIfAlreadyTerminated && EndsWithDelimiter(data))
+                return (byte[])data.Clone();
+
+            // 默认模式：无条件追加分隔符（保持既有线上字节）
             var frame = new byte[data.Length + _delimiter.Length];
             Array.Copy(data, 0, frame, 0, data.Length);
             Array.Copy(_delimiter, 0, frame, data.Length, _delimiter.Length);
@@ -82,6 +104,20 @@ namespace DeviceLink.DataLink
             }
 
             return false;
+        }
+
+        private bool EndsWithDelimiter(byte[] data)
+        {
+            if (data.Length < _delimiter.Length)
+                return false;
+
+            int offset = data.Length - _delimiter.Length;
+            for (int i = 0; i < _delimiter.Length; i++)
+            {
+                if (data[offset + i] != _delimiter[i])
+                    return false;
+            }
+            return true;
         }
 
         private bool MatchAt(byte[] data, int offset)

@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using DeviceLink.DataLink;
 using DeviceLink.Pipeline;
 using DeviceLink.Protocol;
@@ -47,10 +50,11 @@ namespace DeviceLink.DeviceBase
         /// <returns>推荐的帧策略，或 null 使用默认策略</returns>
         protected static IFrameStrategy? GetDefaultFrameStrategy(IProtocolCodec codec)
         {
-            return codec.ProtocolName switch
+            // 按编解码器类型（而非协议名字符串）映射，避免改名/漏改时静默退化为分隔符策略
+            return codec switch
             {
-                "ModbusRTU" => new ModbusRtuFrameStrategy(),
-                "ZQWL" => new ZqwlFrameStrategy(),
+                ModbusRtuCodec => new ModbusRtuFrameStrategy(),
+                ZqwlCodec => new ZqwlFrameStrategy(),
                 _ => null  // 默认使用 DelimiterFrameStrategy
             };
         }

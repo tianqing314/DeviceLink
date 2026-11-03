@@ -14,6 +14,13 @@ namespace DeviceLink.Protocol
         string ProtocolName { get; }
 
         /// <summary>
+        /// 载荷是否已包含帧终止符 —— 即 Encode 的返回值是否自带帧结束符。
+        /// 该能力位只描述事实，供链路层按 FrameTerminationPolicy 去重时参考；
+        /// 默认 AppendAlways 策略下仍会追加，因此不会改变既有线上字节。
+        /// </summary>
+        bool PayloadIncludesTerminator { get; }
+
+        /// <summary>
         /// 将逻辑命令编码为传输字节（已包含帧分隔符）
         /// </summary>
         /// <param name="command">逻辑命令</param>

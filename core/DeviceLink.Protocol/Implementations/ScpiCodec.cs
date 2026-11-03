@@ -35,6 +35,9 @@ namespace DeviceLink.Protocol
         public string ProtocolName => "SCPI";
 
         /// <inheritdoc/>
+        public bool PayloadIncludesTerminator => true;
+
+        /// <inheritdoc/>
         public byte[] Encode(Command command)
         {
             var sb = new StringBuilder();

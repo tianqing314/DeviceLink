@@ -76,31 +76,59 @@ namespace DeviceLink.Session
             if (request == null || request.Length == 0)
                 throw new ArgumentException("请求数据为空", nameof(request));
 
-            for (int retry = 0; retry <= _options.MaxRetryCount; retry++)
+            try
             {
-                try
-                {
-                    var response = await _dataLink.SendAndReceiveFrameAsync(request, ct);
-                    return response;
-                }
-                catch (Exception ex) when (ex is not OperationCanceledException)
-                {
-                    if (retry < _options.MaxRetryCount)
-                    {
-                        _logger.LogWarning(ex,
-                            "[{Session}] 请求失败 (第{Retry}/{Max}次重试): {Error}",
-                            Name, retry + 1, _options.MaxRetryCount, ex.Message);
-
-                        await Task.Delay(_options.RetryDelayMs, ct);
-                    }
-                    else
-                    {
-                        throw new SessionException($"请求失败: {ex.Message}", ex);
-                    }
-                }
+                return await SendOnceAsync(request, ct).ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                // 调用方取消，直接向上传播
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // 重试由数据链路层统一负责，会话层只做单次请求与异常映射
+                _logger.LogDebug(ex, "[{Session}] 请求失败: {Error}", Name, ex.Message);
+                throw MapException(ex);
+            }
+        }
 
-            throw new SessionTimeoutException("请求超时");
+        /// <summary>
+        /// 单次请求 —— 仅在显式配置 RequestTimeoutMs (&gt;0) 时启用会话级超时；
+        /// 默认 0 表示禁用，由数据链路层的 ReceiveTimeoutMs 负责超时控制。
+        /// </summary>
+        private async Task<byte[]> SendOnceAsync(byte[] request, CancellationToken ct)
+        {
+            if (_options.RequestTimeoutMs <= 0)
+                return await _dataLink.SendAndReceiveFrameAsync(request, ct).ConfigureAwait(false);
+
+            using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            timeoutCts.CancelAfter(_options.RequestTimeoutMs);
+            try
+            {
+                return await _dataLink.SendAndReceiveFrameAsync(request, timeoutCts.Token)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+            {
+                throw new SessionTimeoutException(
+                    $"请求超时（会话超时 {_options.RequestTimeoutMs}ms）");
+            }
+        }
+
+        /// <summary>
+        /// 将下层异常映射为会话层异常，保留超时语义。
+        /// SessionTimeoutException 继承自 SessionException，原有 catch (SessionException) 调用方不受影响。
+        /// </summary>
+        private static SessionException MapException(Exception ex)
+        {
+            if (ex is SessionException sessionEx)
+                return sessionEx;
+
+            if (ex is FrameTimeoutException)
+                return new SessionTimeoutException($"请求超时: {ex.Message}", ex);
+
+            return new SessionException($"请求失败: {ex.Message}", ex);
         }
 
         /// <inheritdoc/>

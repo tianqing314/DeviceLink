@@ -230,7 +230,8 @@ namespace DeviceLink.Tests
             var encoded = codec.Encode(command);
 
             // Assert
-            Assert.Equal(9, encoded.Length); // 从站地址(1) + 功能码(1) + 地址(2) + 数量(2) + CRC(2)
+            // 编解码器只负责净载荷，CRC 由数据链路层 ModbusRtuFrameStrategy 追加
+            Assert.Equal(6, encoded.Length); // 从站地址(1) + 功能码(1) + 地址(2) + 数量(2)
             Assert.Equal(1, encoded[0]); // 从站地址
             Assert.Equal(3, encoded[1]); // 功能码
         }

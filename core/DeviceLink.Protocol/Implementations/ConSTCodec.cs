@@ -43,6 +43,9 @@ namespace DeviceLink.Protocol
         public string ProtocolName => "ConST";
 
         /// <inheritdoc/>
+        public bool PayloadIncludesTerminator => true;
+
+        /// <inheritdoc/>
         public byte[] Encode(Command command)
         {
             var mark = command.Kind switch

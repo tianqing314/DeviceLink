@@ -201,6 +201,8 @@ namespace DeviceLink.DataLink
         private async Task<byte[]?> ReceiveLoopAsync(CancellationToken ct)
         {
             var accumulated = new List<byte>();
+            // 复用同一个读缓冲区：数据链路层由信号量串行化，局部缓冲区不会并发访问
+            var buffer = new byte[4096];
             var requestTimer = Stopwatch.StartNew();
             var idleTimer = Stopwatch.StartNew();
             bool hasReceivedData = false;
@@ -209,15 +211,19 @@ namespace DeviceLink.DataLink
             {
                 ct.ThrowIfCancellationRequested();
 
-                await Task.Delay(_options.ReceivePollIntervalMs, ct);
-
-                // 尝试读取
-                var buffer = new byte[4096];
+                // 先读后等：有数据时立即处理，避免固定的轮询间隔叠加到响应延迟上
                 int read = await _transport.ReadAsync(buffer, 0, buffer.Length, ct);
+                if (read == 0)
+                {
+                    // 仅在无数据时等待，降低 CPU 空转
+                    await Task.Delay(_options.ReceivePollIntervalMs, ct);
+                }
 
                 if (read > 0)
                 {
-                    accumulated.AddRange(buffer.AsSpan(0, read).ToArray());
+                    for (int i = 0; i < read; i++)
+                        accumulated.Add(buffer[i]);
+
                     hasReceivedData = true;
                     idleTimer.Restart();
 

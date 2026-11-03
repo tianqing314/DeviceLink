@@ -48,7 +48,7 @@ public interface ISession : IDisposable
   - `DirectSession(IDataLink dataLink, string name, SessionOptions? options = null, ILogger<DirectSession>? logger = null)` - 可指定会话名称
 - **特点**: 适用于点对点连接场景（串口、TCP、USB 等）
 - **依赖**: `IDataLink` 数据链路层接口
-- **功能**: 内建重试机制，支持会话级别的超时控制；请求失败（非取消）会按 `MaxRetryCount` 重试，最终失败抛 `SessionException` 或 `SessionTimeoutException`
+- **功能**: 单次请求 + 会话级别超时控制；帧级重试由数据链路层（`DataLinkOptions.MaxRetryCount`）统一负责；失败抛 `SessionException` 或 `SessionTimeoutException`
 
 #### `MqttSession`
 
@@ -70,9 +70,7 @@ MQTT 会话实现，基于 MQTT 协议：
 ```csharp
 public class SessionOptions
 {
-    public int RequestTimeoutMs { get; set; } = 1000;  // 请求超时时间
-    public int MaxRetryCount { get; set; } = 0;        // 最大重试次数
-    public int RetryDelayMs { get; set; } = 300;       // 重试延迟时间
+    public int RequestTimeoutMs { get; set; } = 0;     // 会话级超时（0=禁用，由数据链路层超时控制）
 }
 ```
 
@@ -128,8 +126,7 @@ var dataLink = new DirectDataLink(transport, frameStrategy);
 // 创建会话层
 var sessionOptions = new SessionOptions
 {
-    RequestTimeoutMs = 1000,
-    MaxRetryCount = 3
+    RequestTimeoutMs = 1000
 };
 
 using var session = new DirectSession(dataLink, sessionOptions);
@@ -184,9 +181,7 @@ var response = await session.SendAndReceiveAsync(requestData);
 
 | 属性 | 类型 | 默认值 | 描述 |
 |------|------|--------|------|
-| RequestTimeoutMs | int | 1000 | 请求超时时间（毫秒） |
-| MaxRetryCount | int | 0 | 最大重试次数 |
-| RetryDelayMs | int | 300 | 重试延迟时间（毫秒） |
+| RequestTimeoutMs | int | 0 | 会话级超时（毫秒）；0 表示由数据链路层超时控制 |
 
 ## 异常处理
 
@@ -200,14 +195,14 @@ var response = await session.SendAndReceiveAsync(requestData);
 
 1. **会话抽象** - 通过 `ISession` 接口统一不同会话实现
 2. **依赖倒置** - 会话层依赖数据链路层接口，不依赖具体实现
-3. **重试机制** - 支持可配置的重试策略
+3. **超时控制** - 会话层只负责请求超时，重试由数据链路层统一负责
 4. **线程安全** - 保证会话操作的串行化
 5. **资源管理** - 实现 `IDisposable`，确保资源正确释放
 
 ## 注意事项
 
 1. 会话层建立在数据链路层之上，必须先设置数据链路层
-2. 重试机制在会话层实现，数据链路层可能也有自己的重试逻辑（两层重试次数会叠加）
+2. 重试只在数据链路层实现（`DataLinkOptions.MaxRetryCount`），会话层不重试
 3. 超时参数需要根据实际通信环境调整
 4. 会话层保证线程安全，可以安全地在多线程环境中使用
 5. 使用完毕后应及时释放会话资源
