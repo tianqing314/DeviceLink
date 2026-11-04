@@ -15,8 +15,7 @@ namespace DeviceLink.Protocol
 
         /// <summary>
         /// 载荷是否已包含帧终止符 —— 即 Encode 的返回值是否自带帧结束符。
-        /// 该能力位只描述事实，供链路层按 FrameTerminationPolicy 去重时参考；
-        /// 默认 AppendAlways 策略下仍会追加，因此不会改变既有线上字节。
+        /// 默认 SkipIfAlreadyTerminated 策略会据此去重，避免重复追加终止符。
         /// </summary>
         bool PayloadIncludesTerminator { get; }
 

@@ -19,13 +19,13 @@ namespace DeviceLink.DataLink
         /// <param name="delimiter">帧结束分隔符，如 new byte[]{0} 或 Encoding.ASCII.GetBytes("\r\n")</param>
         /// <param name="minDelimiterCount">最少需匹配的分隔符次数（广播场景等，默认1，即遇第一个分隔符即分帧）</param>
         /// <param name="terminationPolicy">
-        /// 终止符追加策略。默认 AppendAlways，保持既有线上字节不变；
-        /// 设为 SkipIfAlreadyTerminated 时，载荷已以分隔符结尾则不再追加（单终止符）。
+        /// 终止符追加策略。默认 SkipIfAlreadyTerminated：载荷已以分隔符结尾则不再追加（单终止符）；
+        /// 设为 AppendAlways 可恢复历史双终止符行为。
         /// </param>
         public DelimiterFrameStrategy(
             byte[] delimiter,
             int minDelimiterCount = 1,
-            FrameTerminationPolicy terminationPolicy = FrameTerminationPolicy.AppendAlways)
+            FrameTerminationPolicy terminationPolicy = FrameTerminationPolicy.SkipIfAlreadyTerminated)
         {
             _delimiter = delimiter ?? throw new ArgumentNullException(nameof(delimiter));
             _minDelimiterCount = minDelimiterCount > 0 ? minDelimiterCount : 1;
@@ -37,11 +37,11 @@ namespace DeviceLink.DataLink
         /// </summary>
         /// <param name="delimiter">分隔符字符串</param>
         /// <param name="minDelimiterCount">最少需匹配的分隔符次数</param>
-        /// <param name="terminationPolicy">终止符追加策略（默认 AppendAlways）</param>
+        /// <param name="terminationPolicy">终止符追加策略（默认 SkipIfAlreadyTerminated）</param>
         public DelimiterFrameStrategy(
             string delimiter,
             int minDelimiterCount = 1,
-            FrameTerminationPolicy terminationPolicy = FrameTerminationPolicy.AppendAlways)
+            FrameTerminationPolicy terminationPolicy = FrameTerminationPolicy.SkipIfAlreadyTerminated)
             : this(Encoding.UTF8.GetBytes(delimiter), minDelimiterCount, terminationPolicy)
         { }
 
@@ -63,7 +63,7 @@ namespace DeviceLink.DataLink
             if (_terminationPolicy == FrameTerminationPolicy.SkipIfAlreadyTerminated && EndsWithDelimiter(data))
                 return (byte[])data.Clone();
 
-            // 默认模式：无条件追加分隔符（保持既有线上字节）
+            // 兼容模式：无条件追加分隔符（历史双终止符行为）
             var frame = new byte[data.Length + _delimiter.Length];
             Array.Copy(data, 0, frame, 0, data.Length);
             Array.Copy(_delimiter, 0, frame, data.Length, _delimiter.Length);

@@ -7,12 +7,12 @@ namespace DeviceLink.Tests
 {
     /// <summary>
     /// 线上帧格式回归测试 —— 锁定设备侧实际收到的字节序列。
-    /// 重构/优化时这些断言必须保持通过；任何差异都意味着交互帧格式被改变。
+    /// 默认策略为 SkipIfAlreadyTerminated：编解码器已自带终止符时不再重复追加。
     /// </summary>
     public class WireFormatRegressionTests
     {
         [Fact]
-        public void ConST_CurrentWireBytes_Unchanged()
+        public void ConST_DefaultWireBytes_SingleTerminator()
         {
             var codec = new ConSTCodec();                 // 默认地址 255，终止符 \0
             var strategy = new DelimiterFrameStrategy(new byte[] { 0 });
@@ -20,12 +20,12 @@ namespace DeviceLink.Tests
             var payload = codec.Encode(Command.Read("PRES"));
             var frame = strategy.BuildFrame(payload);
 
-            // 现状：编解码器已拼接收尾符，链路层再追加一次 -> "255:R:PRES:\0\0"
-            Assert.Equal(Encoding.ASCII.GetBytes("255:R:PRES:\0\0"), frame);
+            // 编码器已含终止符，链路层去重 -> "255:R:PRES:\0"
+            Assert.Equal(Encoding.ASCII.GetBytes("255:R:PRES:\0"), frame);
         }
 
         [Fact]
-        public void Scpi_CurrentWireBytes_Unchanged()
+        public void Scpi_DefaultWireBytes_SingleTerminator()
         {
             var codec = new ScpiCodec();                  // 默认终止符 \n
             var strategy = new DelimiterFrameStrategy("\n");
@@ -33,8 +33,8 @@ namespace DeviceLink.Tests
             var payload = codec.Encode(Command.NonQuery("*IDN?"));
             var frame = strategy.BuildFrame(payload);
 
-            // 现状："*IDN?\n" + "\n" -> "*IDN?\n\n"
-            Assert.Equal(Encoding.ASCII.GetBytes("*IDN?\n\n"), frame);
+            // 编码器已含终止符，链路层去重 -> "*IDN?\n"
+            Assert.Equal(Encoding.ASCII.GetBytes("*IDN?\n"), frame);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace DeviceLink.Tests
         [Fact]
         public void Codec_PayloadIncludesTerminator_DeclaredPerProtocol()
         {
-            // 协议层声明“载荷是否自带终止符”，供链路层按策略去重时参考
+            // 协议层声明“载荷是否自带终止符”，链路层据此在默认策略下去重
             Assert.True(new ConSTCodec().PayloadIncludesTerminator);
             Assert.True(new ScpiCodec().PayloadIncludesTerminator);
             Assert.False(new ModbusRtuCodec(1).PayloadIncludesTerminator);
@@ -62,29 +62,26 @@ namespace DeviceLink.Tests
         }
 
         [Fact]
-        public void ConST_SkipPolicy_EmitsSingleTerminator()
+        public void AppendAlwaysPolicy_EmitsDoubleTerminator()
         {
             var codec = new ConSTCodec();
             var strategy = new DelimiterFrameStrategy(
-                new byte[] { 0 }, 1, FrameTerminationPolicy.SkipIfAlreadyTerminated);
+                new byte[] { 0 }, 1, FrameTerminationPolicy.AppendAlways);
 
             var frame = strategy.BuildFrame(codec.Encode(Command.Read("PRES")));
 
-            // 显式选择去重后：设备收到 "255:R:PRES:\0"（单终止符）
-            Assert.Equal(Encoding.ASCII.GetBytes("255:R:PRES:\0"), frame);
+            // 兼容逃逸口：仍可按历史行为发送双终止符 "255:R:PRES:\0\0"
+            Assert.Equal(Encoding.ASCII.GetBytes("255:R:PRES:\0\0"), frame);
         }
 
         [Fact]
-        public void Scpi_SkipPolicy_EmitsSingleTerminator()
+        public void PayloadWithoutTerminator_StillGetsOneAppended()
         {
-            var codec = new ScpiCodec();
-            var strategy = new DelimiterFrameStrategy(
-                "\n", 1, FrameTerminationPolicy.SkipIfAlreadyTerminated);
+            var strategy = new DelimiterFrameStrategy("\r\n");
+            var frame = strategy.BuildFrame(Encoding.ASCII.GetBytes("AT"));
 
-            var frame = strategy.BuildFrame(codec.Encode(Command.NonQuery("*IDN?")));
-
-            // 显式选择去重后："*IDN?\n"（单终止符）
-            Assert.Equal(Encoding.ASCII.GetBytes("*IDN?\n"), frame);
+            // 载荷不带终止符时，默认策略仍会补一个，不会漏加
+            Assert.Equal(Encoding.ASCII.GetBytes("AT\r\n"), frame);
         }
     }
 }
