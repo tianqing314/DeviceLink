@@ -32,9 +32,8 @@
 | `SendAsync(command, ct)`（protected virtual） | 发送命令并返回原始响应字节 |
 | `SendForResultAsync<T>(command, decoder, ct)`（protected） | 发送命令并返回解析后的业务数据 |
 | `SendNonQueryAsync(command, ct)`（protected virtual） | 单向发送命令（不等待响应） |
-| `GetDefaultFrameStrategy(codec)`（protected static） | 根据协议类型自动选择推荐帧策略 |
 | `ConstructDefaultInfo()`（protected virtual） | 配置构造函数默认信息（子类可重写） |
-| `Dispose()` | 释放资源 |
+| `Dispose()` / `DisposeAsync()` | 释放资源（异步版本会先关闭连接） |
 
 > **注意**: `DeviceBase` 没有 `Logger` 属性，日志通过静态类 `CommunicationLogger` 记录。
 
@@ -56,7 +55,13 @@
 | 10 | `DeviceBase(DeviceCommSettings settings, IProtocolCodec codec)` | 通信配置实例（未指定帧策略时按协议自动选择） |
 | 11 | `DeviceBase(DeviceCommSettings settings, IProtocolCodec codec, IFrameStrategy frameStrategy)` | 通信配置实例 + 自定义帧策略 |
 
-> 串口/TCP 构造中，当未显式指定帧策略时，框架会通过 `GetDefaultFrameStrategy` 根据协议自动选择（`ModbusRTU` → `ModbusRtuFrameStrategy`，`ZQWL` → `ZqwlFrameStrategy`），其他协议默认使用 `DelimiterFrameStrategy(\0)`。
+> 串口/TCP 构造中，当未显式指定帧策略时，框架通过 `ProtocolBindings` 按协议类型自动选择：
+> `ModbusTcpCodec` → `LengthPrefixedFrameStrategy`（MBAP 长度前缀）、`ModbusRtuCodec` → `ModbusRtuFrameStrategy`、
+> `ZqwlCodec` → `ZqwlFrameStrategy`、`ScpiCodec`/`ConSTCodec` → 按编解码器自身的帧终止符。
+>
+> **未登记的协议不再静默退回 `DelimiterFrameStrategy(\0)`**，而是抛出 `InvalidOperationException` ——
+> 用错帧策略的代价是协议层悄悄收到错帧，比启动失败严重得多。
+> （历史教训：SCPI 与 Modbus TCP 都因为"漏映射就走默认分隔符"而长期工作在错误的帧策略上。）
 
 ### 通信配置类
 
@@ -81,8 +86,10 @@
 | RtsEnable | bool | false | 启用 RTS 信号 |
 | ReceiveTimeoutMs | int | 10000 | 接收超时时间（毫秒） |
 | ReceiveIdleTimeoutMs | int | 100 | 接收空闲超时（毫秒） |
-| MaxRetryCount | int | 2 | 最大重试次数 |
-| RetryDelayMs | int | 300 | 重试延迟（毫秒） |
+| MaxConnectRetries | int | 0 | 连接失败/断开时的重连重发次数（**只在请求确定未送达时重发**） |
+| ReconnectDelayMs | int | 300 | 重连间隔（毫秒） |
+| SessionOptions | SessionOptions | 新建 | 会话层配置（重连、会话超时等），`MaxConnectRetries` 即其代理属性 |
+| LoggerFactory | ILoggerFactory? | null | 日志工厂，设置后 L2/L5 收发日志才会真正输出 |
 
 **静态方法**: `SerialPortSettings.CreateDefault(string portName)` - 创建默认串口配置（9600,8,1,None）。
 
@@ -126,8 +133,8 @@ MQTT 通信配置：
 | FrameStrategy | IFrameStrategy? | null | 自定义帧策略 |
 | ReceiveTimeoutMs | int | 5000 | 接收超时（毫秒，蓝牙建议 ≥10000） |
 | ReceiveIdleTimeoutMs | int | 50 | 接收空闲超时（毫秒） |
-| MaxRetryCount | int | 0 | 最大重试次数（蓝牙建议 2-3） |
-| RetryDelayMs | int | 300 | 重试延迟（毫秒） |
+| MaxConnectRetries | int | 0 | 连接失败/断开时的重连重发次数（蓝牙建议 2-3） |
+| ReconnectDelayMs | int | 300 | 重连间隔（毫秒） |
 
 ### `DeviceException`
 
@@ -196,7 +203,7 @@ await device.SetUnitAsync("bar");
 // 串口配置
 var settings = new SerialPortSettings("COM3", 9600, 8, StopBits.One, Parity.None)
 {
-    MaxRetryCount = 3
+    MaxConnectRetries = 3   // 只在"请求确定未送达"时重连重发
 };
 public class MyDevice : DeviceBase
 {

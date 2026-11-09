@@ -63,7 +63,7 @@ namespace DeviceLink.Tests
                 await device.OpenAsync();
 
                 // 如果连接成功，尝试获取版本
-                var version = await device.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
+                var version = await device.GetVersionAsync(Device.ConST326EX.Enums.VersionType.APPLication);
 
                 // Assert
                 Assert.NotNull(version);
@@ -102,7 +102,7 @@ namespace DeviceLink.Tests
                 await device.OpenAsync();
 
                 // Act
-                var version = await device.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
+                var version = await device.GetVersionAsync(Device.ConST326EX.Enums.VersionType.APPLication);
 
                 // Assert
                 Assert.NotNull(version);
@@ -143,7 +143,7 @@ namespace DeviceLink.Tests
                 await device.OpenAsync();
 
                 // Act
-                var version = await device.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
+                var version = await device.GetVersionAsync(Device.ConST326EX.Enums.VersionType.APPLication);
 
                 // Assert
                 Assert.NotNull(version);
@@ -183,7 +183,7 @@ namespace DeviceLink.Tests
                 await device.OpenAsync();
 
                 // Act
-                var version = await device.GetVersion(Device.ConST326EX.Enums.VersionType.HARDware);
+                var version = await device.GetVersionAsync(Device.ConST326EX.Enums.VersionType.HARDware);
 
                 // Assert
                 Assert.NotNull(version);

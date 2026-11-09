@@ -52,8 +52,13 @@
 | `OpenAsync(ct)` | 打开管道 |
 | `CloseAsync()` | 关闭管道 |
 | `SendAndReceiveAsync(request, ct)` | 发送原始字节并接收响应 |
-| `SendCommandAsync(command, ct)` | 发送逻辑命令并接收响应（编码 → 发送 → 自动错误检查，错误时抛 `ProtocolException`） |
-| `Dispose()` | 释放资源（释放 Session 和 Transport） |
+| `OsiReport` | 构建时生成的 OSI 层次校验报告（无画像时为 `null`） |
+| `Dispose()` / `DisposeAsync()` | 释放资源。所有权链：Session → DataLink → Transport；仅当没有 DataLink 时 Pipeline 才直接释放 Transport |
+
+> **协议编码不在这里做。** 管道只处理字节；"逻辑命令 → 字节"与"错误码判定"属于设备层
+> （`DeviceBase.SendAsync` 会调用 `IProtocolCodec` 并抛 `DeviceException`）。
+> 历史上这里还有一个 `SendCommandAsync`，它与 `DeviceBase.SendAsync` 重复实现了错误检查、
+> 抛的却是另一种异常，且全仓库无人调用 —— 已删除。
 
 > **注意**: `CommunicationPipeline` 的构造函数是 `internal`，只能通过 `CommunicationPipelineBuilder.Build()` 创建，不能直接 `new`。
 
@@ -92,7 +97,7 @@ var pipeline = new CommunicationPipelineBuilder()
     .Build();
 
 await pipeline.OpenAsync();
-var response = await pipeline.SendCommandAsync(Command.Read("PRES"));
+var response = await pipeline.SendAndReceiveAsync(Encoding.ASCII.GetBytes("PRES?"));
 await pipeline.CloseAsync();
 ```
 
@@ -102,7 +107,7 @@ await pipeline.CloseAsync();
 // 一行代码创建完整管道
 using var pipeline = PipelinePresets.CreateSerialPortPipeline("COM3", 9600, 255);
 await pipeline.OpenAsync();
-var response = await pipeline.SendCommandAsync(Command.Read("PRES"));
+var response = await pipeline.SendAndReceiveAsync(Encoding.ASCII.GetBytes("PRES?"));
 ```
 
 ### Modbus RTU 管道
@@ -110,7 +115,9 @@ var response = await pipeline.SendCommandAsync(Command.Read("PRES"));
 ```csharp
 using var pipeline = PipelinePresets.CreateModbusRtuPipeline("COM3", 9600, 1);
 await pipeline.OpenAsync();
-var response = await pipeline.SendCommandAsync(Command.Read("3.0", "10"));
+// Modbus RTU 读保持寄存器：从站 1 / 功能码 03 / 起始 0x000A / 数量 1 / CRC16
+var response = await pipeline.SendAndReceiveAsync(
+    new byte[] { 0x01, 0x03, 0x00, 0x0A, 0x00, 0x01, 0x65, 0xC9 });
 ```
 
 ### MQTT 管道
@@ -120,7 +127,7 @@ var response = await pipeline.SendCommandAsync(Command.Read("3.0", "10"));
 using var pipeline = PipelinePresets.CreateMqttPipeline(
     "192.168.1.50", 1883, "devicelink/request", "devicelink/response");
 await pipeline.OpenAsync();
-var response = await pipeline.SendCommandAsync(Command.Read("PRES"));
+var response = await pipeline.SendAndReceiveAsync(Encoding.ASCII.GetBytes("PRES?"));
 ```
 
 ## 设计原则

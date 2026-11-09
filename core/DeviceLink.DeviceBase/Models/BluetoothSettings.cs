@@ -39,15 +39,23 @@ namespace DeviceLink.DeviceBase
         public int ReceiveIdleTimeoutMs { get; set; } = 50;
 
         /// <summary>
-        /// 最大重试次数，默认 0（不重试）
-        /// 蓝牙设备建议设置为 2-3 次
+        /// 连接失败/断开时的最大重连重发次数，默认 0（不重连）。
+        /// 蓝牙链路容易断，建议设为 2-3 次 —— 但只在"请求确定未送达"时才真正重发。
         /// </summary>
-        public int MaxRetryCount { get; set; } = 0;
+        public int MaxConnectRetries
+        {
+            get => SessionOptions.MaxConnectRetries;
+            set => SessionOptions.MaxConnectRetries = value;
+        }
 
         /// <summary>
-        /// 重试延迟时间（毫秒），默认 300ms
+        /// 重连间隔（毫秒），默认 300ms
         /// </summary>
-        public int RetryDelayMs { get; set; } = 300;
+        public int ReconnectDelayMs
+        {
+            get => SessionOptions.ReconnectDelayMs;
+            set => SessionOptions.ReconnectDelayMs = value;
+        }
 
         /// <summary>
         /// 初始化蓝牙通讯配置
@@ -81,22 +89,15 @@ namespace DeviceLink.DeviceBase
         /// <returns>通讯管道</returns>
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
-            var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
-            
-            // 创建数据链路选项
             var dataLinkOptions = new DataLinkOptions
             {
                 ReceiveTimeoutMs = ReceiveTimeoutMs,
-                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs,
-                MaxRetryCount = MaxRetryCount,
-                RetryDelayMs = RetryDelayMs
+                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs
             };
-            
-            return new CommunicationPipelineBuilder()
-                .UseTransport(new BluetoothTransport(BluetoothOptions))
-                .UseDataLink(dataLink, dataLinkOptions)
-                .UseProtocol(codec)
-                .Build();
+
+            return BuildPipeline(
+                new BluetoothTransport(BluetoothOptions),
+                codec, FrameStrategy, Delimiter, dataLinkOptions);
         }
     }
 }

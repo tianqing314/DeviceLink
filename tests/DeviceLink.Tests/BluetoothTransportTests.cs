@@ -59,7 +59,7 @@ namespace DeviceLink.Tests
         public void BluetoothTransport_Constructor_ShouldThrowOnNullOptions()
         {
             // Arrange & Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new BluetoothTransport(null));
+            Assert.Throws<ArgumentNullException>(() => new BluetoothTransport(null!));
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace DeviceLink.Tests
         public void BluetoothSettings_WithNullOptions_ShouldThrow()
         {
             // Arrange & Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new BluetoothSettings((BluetoothOptions)null));
+            Assert.Throws<ArgumentNullException>(() => new BluetoothSettings((BluetoothOptions)null!));
         }
 
         [Fact]

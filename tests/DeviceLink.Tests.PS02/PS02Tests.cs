@@ -180,8 +180,7 @@ namespace DeviceLink.Tests.PS02
         // 固件版本读取测试
         // ═══════════════════════════════════════════════════════════
 
-        // TODO: F40 多寄存器字符串读取需要调试
-        // [Fact]
+        [Fact(Skip = "F40 多寄存器字符串读取待调试：见 GetFirmwareVersionAsync 实现")]
         public async Task GetFirmwareVersionAsync_ShouldReturnVersion()
         {
             var (ps02, settings) = CreateTestDevice();
@@ -206,8 +205,7 @@ namespace DeviceLink.Tests.PS02
         // 硬件版本读取测试
         // ═══════════════════════════════════════════════════════════
 
-        // TODO: F40 多寄存器字符串读取需要调试
-        // [Fact]
+        [Fact(Skip = "F40 多寄存器字符串读取待调试：见 GetHardwareVersionAsync 实现")]
         public async Task GetHardwareVersionAsync_ShouldReturnVersion()
         {
             var (ps02, settings) = CreateTestDevice();

@@ -72,15 +72,33 @@ namespace DeviceLink.Transport
                     TimeSpan.FromMilliseconds(_options.ConnectTimeoutMs));
                 using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeoutCts.Token);
 
-                try
+                // 注意：TcpClient.ConnectAsync(host, port) 不接受取消令牌（netstandard2.0 无三参重载），
+                // 因此超时必须靠"和取消任务赛跑"来实现。
+                // 旧实现只创建了 linkedCts 却从未使用，ConnectTimeoutMs 实际上被静默忽略 ——
+                // 连接失败时只能等操作系统的默认超时（约 21 秒），产线上表现为"点连接卡住"。
+                var connectTask = _client.ConnectAsync(_options.Host, _options.Port);
+                var cancelTask = Task.Delay(Timeout.Infinite, linkedCts.Token);
+
+                if (await Task.WhenAny(connectTask, cancelTask).ConfigureAwait(false) != connectTask)
                 {
-                    await _client.ConnectAsync(_options.Host, _options.Port);
-                }
-                catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
-                {
+                    // 超时后底层连接仍可能在后台完成，必须观察其异常，否则会变成未处理的任务异常
+                    _ = connectTask.ContinueWith(
+                        t => _ = t.Exception,
+                        CancellationToken.None,
+                        TaskContinuationOptions.OnlyOnFaulted,
+                        TaskScheduler.Default);
+
+                    try { _client.Dispose(); } catch { }
+                    _client = null;
+
+                    ct.ThrowIfCancellationRequested();
+
                     throw new TransportTimeoutException(
                         $"TCP 连接超时 ({_options.ConnectTimeoutMs}ms): {Name}");
                 }
+
+                // 连接成功完成：异常在这里原样传播（会被下方 catch 包装成 ConnectionException）
+                await connectTask.ConfigureAwait(false);
 
                 _stream = _client.GetStream();
                 _isConnected = true;
@@ -150,7 +168,7 @@ namespace DeviceLink.Transport
                 }
                 catch (OperationCanceledException)
                 {
-                    // 内部50ms超时或外部取消——让 ReceiveRawFrameAsync 的循环自行处理
+                    // 内部 50ms 等待到期或外部取消 —— 交给上层的接收循环处理
                 }
 
                 return 0;
@@ -222,7 +240,14 @@ namespace DeviceLink.Transport
         /// <inheritdoc/>
         public void Dispose()
         {
-            CloseAsync().Wait();
+            try
+            {
+                CloseAsync().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // 释放阶段的失败不应向上传播
+            }
         }
     }
 

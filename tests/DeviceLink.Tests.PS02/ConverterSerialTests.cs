@@ -87,8 +87,8 @@ namespace DeviceLink.Tests.PS02
                 RtsEnable = false,
                 ReceiveTimeoutMs = 15000,      // 15秒超时
                 ReceiveIdleTimeoutMs = 100,    // 100ms空闲超时
-                MaxRetryCount = 2,             // 重试2次
-                RetryDelayMs = 500             // 重试延迟500ms
+                MaxConnectRetries = 2,         // 连接断开时重连 2 次（读超时不重发）
+                ReconnectDelayMs = 500         // 重连延迟 500ms
             };
 
             return new PS02Base(settings, _slaveAddress);

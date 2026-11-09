@@ -18,7 +18,7 @@ namespace DeviceLink.Protocol
     ///   接收: "1:F:PUNIT:\0"          → 设置成功
     ///   接收: "1:E:ERR_OVER\0"       → 设备错误
     /// </summary>
-    public class ConSTCodec : IProtocolCodec
+    public class ConSTCodec : IProtocolCodec, IFramedProtocol
     {
         private readonly byte _address;
         private readonly char _separator;
@@ -44,6 +44,9 @@ namespace DeviceLink.Protocol
 
         /// <inheritdoc/>
         public bool PayloadIncludesTerminator => true;
+
+        /// <inheritdoc/>
+        public byte[] FrameTerminator => (byte[])_terminator.Clone();
 
         /// <inheritdoc/>
         public byte[] Encode(Command command)

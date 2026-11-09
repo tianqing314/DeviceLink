@@ -62,8 +62,8 @@ namespace DeviceLink.Tests.ConST171A
                 BluetoothOptions = bluetoothOptions,
                 ReceiveTimeoutMs = 10000,      // 接收超时 10秒
                 ReceiveIdleTimeoutMs = 100,    // 空闲超时 100ms
-                MaxRetryCount = 2,             // 重试2次
-                RetryDelayMs = 500,            // 重试延迟 500ms
+                MaxConnectRetries = 2,         // 连接断开时重连 2 次（超时不重发）
+                ReconnectDelayMs = 500,        // 重连延迟 500ms
             };
 
             return new ConST171ADevice(settings);

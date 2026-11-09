@@ -1223,6 +1223,21 @@ namespace DeviceLink.Device.ConST685
         }
 
         /// <summary>
+        /// 相等判定 —— 以 <see cref="ID"/> 为唯一标识。
+        ///
+        /// 必须同时重写 <see cref="Equals(object)"/> 与 <see cref="GetHashCode"/>：
+        /// 只重载 ==/!= 会让 `List.Contains`、`Dictionary`、`HashSet` 与 == 给出互相矛盾的结果。
+        /// </summary>
+        /// <param name="obj">比较对象</param>
+        /// <returns>true 表示编号相同</returns>
+        public override bool Equals(object obj)
+            => obj is CalChannelMode other && other._ID == _ID;
+
+        /// <summary>以 <see cref="ID"/> 生成哈希码，与 <see cref="Equals(object)"/> 保持一致。</summary>
+        /// <returns>哈希码</returns>
+        public override int GetHashCode() => _ID.GetHashCode();
+
+        /// <summary>
         /// 重写判等方法
         /// </summary>
         /// <param name="c1"></param>

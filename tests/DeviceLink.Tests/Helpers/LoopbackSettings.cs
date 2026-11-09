@@ -24,7 +24,7 @@ namespace DeviceLink.Tests.Helpers
         public LoopbackTransport Transport { get; }
 
         /// <summary>
-        /// 帧分隔符
+        /// 帧分隔符（仅在协议未登记且未实现 IFramedProtocol 时作为兜底）
         /// </summary>
         public byte[] Delimiter { get; set; } = new byte[] { 0 };
 
@@ -43,11 +43,16 @@ namespace DeviceLink.Tests.Helpers
         /// <returns>通信管道</returns>
         protected override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
-            return new CommunicationPipelineBuilder()
+            // 帧策略交给框架按协议推导 —— 过去这里硬编码 DelimiterFrameStrategy({0})，
+            // 会让 SCPI 用例靠"空闲超时返回半帧"侥幸通过，等于把分帧错误掩盖掉了。
+            var builder = new CommunicationPipelineBuilder()
                 .UseTransport(Transport)
-                .UseDataLink(new DelimiterFrameStrategy(Delimiter))
-                .UseProtocol(codec)
-                .Build();
+                .UseProtocol(codec);
+
+            if (!ProtocolBindings.IsRegistered(codec) && codec is not IFramedProtocol)
+                builder.UseDataLink(new DelimiterFrameStrategy(Delimiter));
+
+            return builder.Build();
         }
     }
 }

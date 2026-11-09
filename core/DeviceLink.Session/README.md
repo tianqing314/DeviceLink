@@ -48,7 +48,9 @@ public interface ISession : IDisposable
   - `DirectSession(IDataLink dataLink, string name, SessionOptions? options = null, ILogger<DirectSession>? logger = null)` - 可指定会话名称
 - **特点**: 适用于点对点连接场景（串口、TCP、USB 等）
 - **依赖**: `IDataLink` 数据链路层接口
-- **功能**: 单次请求 + 会话级别超时控制；帧级重试由数据链路层（`DataLinkOptions.MaxRetryCount`）统一负责；失败抛 `SessionException` 或 `SessionTimeoutException`
+- **功能**: 请求串行化 + 会话级超时 + **安全重连重发**。框架内**只有这一层重试**：
+  仅当数据链路层抛出 `RequestNotSentException`（请求确定未送达）时才重连重发；读超时一律不重发。
+  失败抛 `SessionException` 的子类（`SessionTimeoutException` / `SessionConnectionException`）
 
 #### `MqttSession`
 
@@ -202,10 +204,11 @@ var response = await session.SendAndReceiveAsync(requestData);
 ## 注意事项
 
 1. 会话层建立在数据链路层之上，必须先设置数据链路层
-2. 重试只在数据链路层实现（`DataLinkOptions.MaxRetryCount`），会话层不重试
+2. 重试**只在会话层**实现（`SessionOptions.MaxConnectRetries`），且只针对"确定未送达"的请求；
+   数据链路层已不提供任何重试入口（`DataLinkOptions.MaxRetryCount` 已删除）
 3. 超时参数需要根据实际通信环境调整
-4. 会话层保证线程安全，可以安全地在多线程环境中使用
-5. 使用完毕后应及时释放会话资源
+4. 会话层保证线程安全（`DirectSession` 内部用信号量串行化），可以安全地在多线程环境中使用
+5. 使用完毕后应及时释放会话资源；异步场景请用 `DisposeAsync()`，避免同步 `Dispose` 阻塞
 6. MQTT 会话依赖 `MQTTnet` 包，且不经过数据链路层（无帧策略），协议编码结果直接作为 MQTT 消息载荷发布
 
 ## 与其他层的关系

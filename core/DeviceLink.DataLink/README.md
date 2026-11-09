@@ -225,10 +225,12 @@ public class DataLinkOptions
 {
     public int ReceiveTimeoutMs { get; set; } = 5000;      // 接收超时时间（首次响应等待）
     public int ReceiveIdleTimeoutMs { get; set; } = 50;    // 接收空闲超时（连续无数据视为帧结束）
-    public int MaxRetryCount { get; set; } = 0;            // 最大重试次数
-    public int RetryDelayMs { get; set; } = 300;           // 重试延迟时间
     public int ReceivePollIntervalMs { get; set; } = 10;   // 接收轮询间隔
+    public int MaxAccumulatedBytes { get; set; } = 65536;  // 累积缓冲区上限（超过判坏帧）
 }
+
+// 注意：本层没有重试选项。重试属于会话层（SessionOptions.MaxConnectRetries）——
+// 只有会话层知道"请求是否已送达"，而这决定了重发是否安全。
 ```
 
 ### 异常类
@@ -261,7 +263,7 @@ var frameStrategy = new DelimiterFrameStrategy(new byte[] { 0 });
 var options = new DataLinkOptions
 {
     ReceiveTimeoutMs = 1000,
-    MaxRetryCount = 3
+    ReceiveIdleTimeoutMs = 50
 };
 
 using var dataLink = new DirectDataLink(transport, frameStrategy, options);
@@ -324,9 +326,8 @@ public class CustomFrameStrategy : IFrameStrategy
 |------|------|--------|------|
 | ReceiveTimeoutMs | int | 5000 | 接收超时时间（毫秒），未收到任何数据时的等待上限 |
 | ReceiveIdleTimeoutMs | int | 50 | 接收空闲超时（毫秒），连续无数据到达视为帧结束 |
-| MaxRetryCount | int | 0 | 最大重试次数 |
-| RetryDelayMs | int | 300 | 重试延迟时间（毫秒） |
 | ReceivePollIntervalMs | int | 10 | 接收轮询间隔（毫秒） |
+| MaxAccumulatedBytes | int | 65536 | 累积缓冲区上限，超过即判坏帧并清空（防 OOM） |
 
 ## 异常处理
 

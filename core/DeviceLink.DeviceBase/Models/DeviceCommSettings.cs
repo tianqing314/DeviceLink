@@ -3,6 +3,7 @@ using DeviceLink.Pipeline;
 using DeviceLink.Protocol;
 using DeviceLink.Session;
 using DeviceLink.Transport;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO.Ports;
 using System.Net;
@@ -16,11 +17,57 @@ namespace DeviceLink.DeviceBase
     public abstract class DeviceCommSettings
     {
         /// <summary>
+        /// 会话层配置（重连次数、重连间隔、会话超时等）。
+        /// 这是框架内唯一的重试入口 —— 数据链路层不再重试。
+        /// </summary>
+        public SessionOptions SessionOptions { get; set; } = new SessionOptions();
+
+        /// <summary>
+        /// 日志工厂（可选）。设置后 L2/L5 的收发日志才会真正输出。
+        /// </summary>
+        public ILoggerFactory? LoggerFactory { get; set; }
+
+        /// <summary>
         /// 创建通信管道（完整 OSI 链路）
         /// </summary>
         /// <param name="codec">协议编解码器</param>
         /// <returns>通信管道</returns>
         protected internal abstract CommunicationPipeline CreatePipeline(IProtocolCodec codec);
+
+        /// <summary>
+        /// 统一的管道组装逻辑：帧策略优先用显式的，其次按协议推导，最后才用配置里的分隔符兜底。
+        /// </summary>
+        protected CommunicationPipeline BuildPipeline(
+            IPhysicalTransport transport,
+            IProtocolCodec codec,
+            IFrameStrategy? frameStrategy,
+            byte[]? fallbackDelimiter,
+            DataLinkOptions dataLinkOptions)
+        {
+            var builder = new CommunicationPipelineBuilder()
+                .UseTransport(transport)
+                .UseProtocol(codec)
+                .UseDataLinkOptions(dataLinkOptions)
+                .UseSessionOptions(SessionOptions);
+
+            if (frameStrategy != null)
+            {
+                builder.UseDataLink(frameStrategy);
+            }
+            else if (fallbackDelimiter != null &&
+                     !ProtocolBindings.IsRegistered(codec) &&
+                     codec is not IFramedProtocol)
+            {
+                // 未登记协议又没自带终止符：尊重配置里的 Delimiter，
+                // 否则由构建器抛出"未登记帧策略"，不做静默兜底。
+                builder.UseDataLink(new DelimiterFrameStrategy(fallbackDelimiter));
+            }
+
+            if (LoggerFactory != null)
+                builder.UseLoggerFactory(LoggerFactory);
+
+            return builder.Build();
+        }
     }
 
     /// <summary>
@@ -54,12 +101,12 @@ namespace DeviceLink.DeviceBase
         public Parity Parity { get; set; } = Parity.None;
 
         /// <summary>
-        /// 帧分隔符（当 FrameStrategy 为 null 时使用 DelimiterFrameStrategy）
+        /// 帧分隔符（仅在协议未登记且未实现 IFramedProtocol 时作为兜底）
         /// </summary>
         public byte[] Delimiter { get; set; } = new byte[] { 0 };
 
         /// <summary>
-        /// 自定义帧策略（如 ModbusRtuFrameStrategy），为 null 时使用 DelimiterFrameStrategy
+        /// 自定义帧策略（如 ModbusRtuFrameStrategy）；为 null 时按协议自动推导
         /// </summary>
         public IFrameStrategy? FrameStrategy { get; set; }
 
@@ -74,25 +121,56 @@ namespace DeviceLink.DeviceBase
         public bool RtsEnable { get; set; }
 
         /// <summary>
-        /// 接收超时时间（毫秒），默认 5000ms
+        /// 接收超时时间（毫秒），默认 10000ms
         /// </summary>
         public int ReceiveTimeoutMs { get; set; } = 10 * 1000;
 
         /// <summary>
-        /// 接收空闲超时时间（毫秒），默认 50ms
+        /// 接收空闲超时时间（毫秒），默认 100ms
         /// 连续无数据到达视为帧结束
         /// </summary>
         public int ReceiveIdleTimeoutMs { get; set; } = 100;
 
         /// <summary>
-        /// 最大重试次数，默认 0（不重试）
+        /// 连接失败/断开时的最大重连重发次数，默认 0（不重连）。
+        ///
+        /// 注意语义：只有"请求确定未送达"时才会重发。
+        /// 超时（请求已发出但没有响应）<b>不会</b>重发，避免写类命令被执行两次。
         /// </summary>
-        public int MaxRetryCount { get; set; } = 2;
+        public int MaxConnectRetries
+        {
+            get => SessionOptions.MaxConnectRetries;
+            set => SessionOptions.MaxConnectRetries = value;
+        }
 
         /// <summary>
-        /// 重试延迟时间（毫秒），默认 300ms
+        /// 重连间隔（毫秒），默认 300ms
         /// </summary>
-        public int RetryDelayMs { get; set; } = 300;
+        public int ReconnectDelayMs
+        {
+            get => SessionOptions.ReconnectDelayMs;
+            set => SessionOptions.ReconnectDelayMs = value;
+        }
+
+        /// <summary>
+        /// 已废弃：帧级重试会把写命令重复执行。请改用 <see cref="MaxConnectRetries"/>。
+        /// </summary>
+        [Obsolete("帧级重试会让写命令被执行两次，已移除。请改用 MaxConnectRetries（仅重连未送达的请求）。")]
+        public int MaxRetryCount
+        {
+            get => MaxConnectRetries;
+            set => MaxConnectRetries = value;
+        }
+
+        /// <summary>
+        /// 已废弃：请改用 <see cref="ReconnectDelayMs"/>。
+        /// </summary>
+        [Obsolete("帧级重试已移除，请改用 ReconnectDelayMs。")]
+        public int RetryDelayMs
+        {
+            get => ReconnectDelayMs;
+            set => ReconnectDelayMs = value;
+        }
 
         /// <summary>
         /// 初始化串口通信配置
@@ -119,7 +197,7 @@ namespace DeviceLink.DeviceBase
         }
 
         /// <summary>
-        /// 创建默认串口配置（4800,8,2,None）
+        /// 创建默认串口配置（9600,8,1,None）
         /// </summary>
         /// <param name="portName">串口名称</param>
         /// <returns>默认串口配置</returns>
@@ -142,20 +220,15 @@ namespace DeviceLink.DeviceBase
         /// <returns>通信管道</returns>
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
-            var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
-            var options = new DataLinkOptions
+            var dataLinkOptions = new DataLinkOptions
             {
                 ReceiveTimeoutMs = ReceiveTimeoutMs,
-                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs,
-                MaxRetryCount = MaxRetryCount,
-                RetryDelayMs = RetryDelayMs
+                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs
             };
 
-            return new CommunicationPipelineBuilder()
-                .UseTransport(new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity, DtrEnable, RtsEnable))
-                .UseDataLink(dataLink, options)
-                .UseProtocol(codec)
-                .Build();
+            return BuildPipeline(
+                new SerialPortTransport(PortName, BaudRate, DataBits, StopBits, Parity, DtrEnable, RtsEnable),
+                codec, FrameStrategy, Delimiter, dataLinkOptions);
         }
     }
 
@@ -180,12 +253,22 @@ namespace DeviceLink.DeviceBase
         public int ConnectTimeoutMs { get; set; } = 5000;
 
         /// <summary>
-        /// 帧分隔符（当 FrameStrategy 为 null 时使用 DelimiterFrameStrategy）
+        /// 接收超时时间（毫秒）
+        /// </summary>
+        public int ReceiveTimeoutMs { get; set; } = 5000;
+
+        /// <summary>
+        /// 接收空闲超时时间（毫秒）
+        /// </summary>
+        public int ReceiveIdleTimeoutMs { get; set; } = 50;
+
+        /// <summary>
+        /// 帧分隔符（仅在协议未登记且未实现 IFramedProtocol 时作为兜底）
         /// </summary>
         public byte[] Delimiter { get; set; } = new byte[] { 0 };
 
         /// <summary>
-        /// 自定义帧策略（如 ModbusRtuFrameStrategy），为 null 时使用 DelimiterFrameStrategy
+        /// 自定义帧策略；为 null 时按协议自动推导
         /// </summary>
         public IFrameStrategy? FrameStrategy { get; set; }
 
@@ -226,13 +309,15 @@ namespace DeviceLink.DeviceBase
         /// <returns>通信管道</returns>
         protected internal override CommunicationPipeline CreatePipeline(IProtocolCodec codec)
         {
-            var dataLink = FrameStrategy ?? new DelimiterFrameStrategy(Delimiter);
+            var dataLinkOptions = new DataLinkOptions
+            {
+                ReceiveTimeoutMs = ReceiveTimeoutMs,
+                ReceiveIdleTimeoutMs = ReceiveIdleTimeoutMs
+            };
 
-            return new CommunicationPipelineBuilder()
-                .UseTransport(new TcpTransport(IpAddress.ToString(), Port, ConnectTimeoutMs))
-                .UseDataLink(dataLink)
-                .UseProtocol(codec)
-                .Build();
+            return BuildPipeline(
+                new TcpTransport(IpAddress.ToString(), Port, ConnectTimeoutMs),
+                codec, FrameStrategy, Delimiter, dataLinkOptions);
         }
     }
 
@@ -340,10 +425,14 @@ namespace DeviceLink.DeviceBase
                 KeepAliveSeconds = KeepAliveSeconds
             });
 
-            return new CommunicationPipelineBuilder()
+            var builder = new CommunicationPipelineBuilder()
                 .UseSession(session)
-                .UseProtocol(codec)
-                .Build();
+                .UseProtocol(codec);
+
+            if (LoggerFactory != null)
+                builder.UseLoggerFactory(LoggerFactory);
+
+            return builder.Build();
         }
     }
 }

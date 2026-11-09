@@ -161,7 +161,14 @@ namespace DeviceLink.Transport
         /// <inheritdoc/>
         public void Dispose()
         {
-            CloseAsync().Wait();
+            try
+            {
+                CloseAsync().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // 释放阶段的失败不应向上传播
+            }
         }
     }
 

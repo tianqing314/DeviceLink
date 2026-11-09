@@ -223,8 +223,8 @@ private XXXDevice CreateDevice()
     {
         ReceiveTimeoutMs = 15000,
         ReceiveIdleTimeoutMs = 100,
-        MaxRetryCount = 2,
-        RetryDelayMs = 500
+        MaxConnectRetries = 2,   // 仅在"请求确定未送达"时重连重发；读超时不重发
+        ReconnectDelayMs = 500
     };
     return new XXXDevice(settings);
 }

@@ -1155,6 +1155,7 @@ public class DPSEX : DeviceLink.DeviceBase.DeviceBase
     /// </summary>
     /// <param name="pressureValue">压力值</param>
     /// <param name="unit">单位（默认 kPa）</param>
+    /// <param name="ct">取消令牌</param>
     public async Task AbsolutePressureZeroAsync(double pressureValue, string unit = "KPA", CancellationToken ct = default)
     {
         await SendNonQueryAsync(Command.Write("ABSZ", $"{pressureValue}:{unit}"), ct);
@@ -1190,6 +1191,7 @@ public class DPSEX : DeviceLink.DeviceBase.DeviceBase
     /// </summary>
     /// <param name="item">校准项（Z=零点, M=中间, F=满度）</param>
     /// <param name="pressureValue">压力值</param>
+    /// <param name="ct">取消令牌</param>
     public async Task ExecuteCalibrationAsync(PressureCalItem item, double pressureValue, CancellationToken ct = default)
     {
         await SendNonQueryAsync(Command.Write("OCF", ((int)item).ToString(), pressureValue.ToString(CultureInfo.InvariantCulture)), ct);
@@ -1200,6 +1202,7 @@ public class DPSEX : DeviceLink.DeviceBase.DeviceBase
     /// 对应 Xmas11 PCal_Stop()
     /// </summary>
     /// <param name="isSave">是否保存结果</param>
+    /// <param name="ct">取消令牌</param>
     public async Task StopCalibrationAsync(bool isSave, CancellationToken ct = default)
     {
         await SendNonQueryAsync(Command.Write("OCFOK", isSave ? "1" : "0"), ct);
@@ -1230,44 +1233,44 @@ public class DPSEX : DeviceLink.DeviceBase.DeviceBase
     /// 压力校准——校准下限压力
     /// 对应 Xmas11 PCal_CalLower()
     /// </summary>
-    public async Task CalibrateLowerAsync(double pressureValue, CancellationToken ct = default)
-    {
-        await StopCalibrationAsync(false, ct);
-        await Task.Delay(300, ct);
-        await StartCalibrationAsync(ct);
-        await Task.Delay(300, ct);
-        await ExecuteCalibrationAsync(PressureCalItem.Z, pressureValue, ct);
-        await Task.Delay(300, ct);
-        await SafeStopAndSaveCalibrationAsync(ct);
-    }
+    public Task CalibrateLowerAsync(double pressureValue, CancellationToken ct = default)
+        => CalibrateStepAsync(PressureCalItem.Z, pressureValue, ct);
 
     /// <summary>
     /// 压力校准——校准中间点
     /// 对应 Xmas11 PCal_CalMiddle()
     /// </summary>
-    public async Task CalibrateMiddleAsync(double pressureValue, CancellationToken ct = default)
-    {
-        await StopCalibrationAsync(false, ct);
-        await Task.Delay(300, ct);
-        await StartCalibrationAsync(ct);
-        await Task.Delay(300, ct);
-        await ExecuteCalibrationAsync(PressureCalItem.M, pressureValue, ct);
-        await Task.Delay(300, ct);
-        await SafeStopAndSaveCalibrationAsync(ct);
-    }
+    public Task CalibrateMiddleAsync(double pressureValue, CancellationToken ct = default)
+        => CalibrateStepAsync(PressureCalItem.M, pressureValue, ct);
 
     /// <summary>
     /// 压力校准——校准上限压力（满度）
     /// 对应 Xmas11 PCal_CalUpper()
     /// </summary>
-    public async Task CalibrateUpperAsync(double pressureValue, CancellationToken ct = default)
+    public Task CalibrateUpperAsync(double pressureValue, CancellationToken ct = default)
+        => CalibrateStepAsync(PressureCalItem.F, pressureValue, ct);
+
+    /// <summary>校准步骤之间的稳定延时（毫秒）。</summary>
+    private const int CalibrationSettleDelayMs = 300;
+
+    /// <summary>
+    /// 单点校准流程 —— 三个校准点（下限/中间/上限）只有 <see cref="PressureCalItem"/> 不同，
+    /// 过去把同一段 6 步流程复制了三遍，任何一步的顺序调整都要改三处。
+    /// </summary>
+    /// <param name="item">校准点（Z=下限, M=中间, F=满度）</param>
+    /// <param name="pressureValue">目标压力值</param>
+    /// <param name="ct">取消令牌</param>
+    private async Task CalibrateStepAsync(PressureCalItem item, double pressureValue, CancellationToken ct)
     {
         await StopCalibrationAsync(false, ct);
-        await Task.Delay(300, ct);
+        await Task.Delay(CalibrationSettleDelayMs, ct);
+
         await StartCalibrationAsync(ct);
-        await Task.Delay(300, ct);
-        await ExecuteCalibrationAsync(PressureCalItem.F, pressureValue, ct);
-        await Task.Delay(300, ct);
+        await Task.Delay(CalibrationSettleDelayMs, ct);
+
+        await ExecuteCalibrationAsync(item, pressureValue, ct);
+        await Task.Delay(CalibrationSettleDelayMs, ct);
+
         await SafeStopAndSaveCalibrationAsync(ct);
     }
 
@@ -1291,6 +1294,7 @@ public class DPSEX : DeviceLink.DeviceBase.DeviceBase
     /// 对应 Xmas11 SetPattern()
     /// </summary>
     /// <param name="enable">true=启动, false=退出</param>
+    /// <param name="ct">取消令牌</param>
     public async Task SetPatternAsync(bool enable, CancellationToken ct = default)
     {
         await SendNonQueryAsync(Command.Write("OSCK", enable ? "1" : "0"), ct);

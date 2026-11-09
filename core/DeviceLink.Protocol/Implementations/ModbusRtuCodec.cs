@@ -210,6 +210,11 @@ namespace DeviceLink.Protocol
             if (funcCode == 0x03 || funcCode == 0x28) // F03 读保持寄存器 / F40 读寄存器
             {
                 int byteCount = raw[2];
+
+                // 防御：字节数字段来自链路，不可信。缓冲区不足时直接返回空，
+                // 绝不能带着越界风险去读 raw[3 + i * 2]。
+                if (raw.Length < 3 + byteCount) return Array.Empty<ushort>();
+
                 int registerCount = byteCount / 2;
                 var registers = new ushort[registerCount];
 
@@ -224,35 +229,5 @@ namespace DeviceLink.Protocol
             return Array.Empty<ushort>();
         }
 
-        /// <summary>
-        /// 计算Modbus CRC16校验
-        /// </summary>
-        /// <param name="data">数据</param>
-        /// <param name="length">数据长度</param>
-        /// <returns>CRC16值</returns>
-        private static ushort CalculateCrc16(byte[] data, int length)
-        {
-            ushort crc = 0xFFFF;
-
-            for (int i = 0; i < length; i++)
-            {
-                crc ^= data[i];
-
-                for (int j = 0; j < 8; j++)
-                {
-                    if ((crc & 0x0001) != 0)
-                    {
-                        crc >>= 1;
-                        crc ^= 0xA001;
-                    }
-                    else
-                    {
-                        crc >>= 1;
-                    }
-                }
-            }
-
-            return crc;
-        }
     }
 }

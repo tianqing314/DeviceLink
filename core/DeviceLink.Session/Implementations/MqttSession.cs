@@ -276,8 +276,34 @@ namespace DeviceLink.Session
             if (_disposed) return;
             _disposed = true;
 
+            try
+            {
+                CloseAsync().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                // 关闭失败不影响释放
+            }
+
             _sendLock?.Dispose();
-            CloseAsync().Wait();
+        }
+
+        /// <inheritdoc/>
+        public async ValueTask DisposeAsync()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            try
+            {
+                await CloseAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                // 关闭失败不影响释放
+            }
+
+            _sendLock?.Dispose();
         }
 
         #region 事件处理

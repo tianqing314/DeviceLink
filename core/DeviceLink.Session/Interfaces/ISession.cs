@@ -7,8 +7,18 @@ namespace DeviceLink.Session
     /// <summary>
     /// 会话层接口 —— 管理请求-响应会话。
     /// 会话层可以基于数据链路层（直连）或网络层（MQTT）实现。
+    ///
+    /// <b>线程安全契约（实现方必须满足）</b>：
+    /// 同一个会话实例被多个线程并发调用时，实现必须自行串行化请求，
+    /// 保证"一个请求对应一个响应"不会错配。调用方不需要自己加锁。
+    ///
+    /// <b>异常契约</b>：
+    /// · 超时抛 <see cref="SessionTimeoutException"/>；
+    /// · 连接无法建立抛 <see cref="SessionConnectionException"/>；
+    /// · 其余失败抛 <see cref="SessionException"/>。
+    /// 所有异常都继承 <see cref="SessionException"/>，调用方可只捕获基类。
     /// </summary>
-    public interface ISession : IDisposable
+    public interface ISession : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// 会话名称（用于日志）

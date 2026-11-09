@@ -63,8 +63,9 @@ public class ConST171Base : DeviceLink.DeviceBase.DeviceBase
         {
             ReceiveTimeoutMs = 15000,
             ReceiveIdleTimeoutMs = 100,
-            MaxRetryCount = 2,
-            RetryDelayMs = 500
+            // 只在"请求确定未送达"时重连重发；读超时不重发，避免 SET 命令被执行两次
+            MaxConnectRetries = 2,
+            ReconnectDelayMs = 500
         }, new ScpiCodec("\r\n"))
     { _codec = (ScpiCodec)Codec; }
 
@@ -797,15 +798,9 @@ public class ConST171Base : DeviceLink.DeviceBase.DeviceBase
 
     // ---- 私有解析方法 ------------------------------------------------------
 
-    private static double ParseDouble(string text)
-    {
-        return double.TryParse(text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : double.NaN;
-    }
-
-    private static int ParseInt(string text)
-    {
-        return int.TryParse(text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : -1;
-    }
+    // 数值格式解释属 L6 表示层，统一走 NumericText，避免各设备各写一份区域性规则。
+    private static double ParseDouble(string text) => NumericText.ParseDouble(text);
+    private static int ParseInt(string text) => NumericText.ParseInt(text, -1);
 
     private static bool IsOne(string text)
     {

@@ -1470,15 +1470,9 @@ public class ConST685Base : DeviceLink.DeviceBase.DeviceBase
 
     #region 私有解析方法
 
-    private static double ParseDouble(string text)
-    {
-        return double.TryParse(text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : double.NaN;
-    }
-
-    private static int ParseInt(string text)
-    {
-        return int.TryParse(text.Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : -1;
-    }
+    // 数值格式解释属 L6 表示层，统一走 NumericText，避免各设备各写一份区域性规则。
+    private static double ParseDouble(string text) => NumericText.ParseDouble(text);
+    private static int ParseInt(string text) => NumericText.ParseInt(text, -1);
 
     private static bool IsOne(string text)
     {

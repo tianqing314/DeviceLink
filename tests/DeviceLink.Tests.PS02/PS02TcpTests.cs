@@ -589,7 +589,7 @@ namespace DeviceLink.Tests.PS02
 
                 //var pressure = await _device.GetPressureAsync();
                 //c
-                await _device.EnableOwiViaConverterAsync();
+                await _device!.EnableOwiViaConverterAsync();
                 await Task.Delay(3000);
                 await _device.SetDebugModeViaConverterAsync(true);
                 await _device.SetCurrentOutputViaConverterAsync(DebugCurrentOutput.Current20mA);
@@ -885,7 +885,7 @@ namespace DeviceLink.Tests.PS02
             try
             {
                 Assert.True(await OpenDeviceAsync(), "应该能够打开设备");
-                await _device.EnableOwiViaConverterAsync();
+                await _device!.EnableOwiViaConverterAsync();
                 // 先读取当前迁移量程
                 var originalRange = await _device!.GetMigrationRangeAsync();
                 _output.WriteLine($"原始迁移量程: {originalRange}");

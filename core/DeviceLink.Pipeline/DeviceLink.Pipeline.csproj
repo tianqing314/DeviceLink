@@ -9,11 +9,17 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!-- netstandard2.0 没有 IAsyncDisposable / ValueTask，CommunicationPipeline 的异步释放需要它 -->
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DeviceLink.Osi\DeviceLink.Osi.csproj" />
     <ProjectReference Include="..\DeviceLink.Transport\DeviceLink.Transport.csproj" />
     <ProjectReference Include="..\DeviceLink.DataLink\DeviceLink.DataLink.csproj" />
     <ProjectReference Include="..\DeviceLink.Session\DeviceLink.Session.csproj" />

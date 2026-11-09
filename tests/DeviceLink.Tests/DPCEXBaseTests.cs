@@ -15,7 +15,9 @@ namespace DeviceLink.Tests
         private (DPCEXBase dpsex, LoopbackSettings settings) CreateTestDevice()
         {
             var settings = new LoopbackSettings();
-            var dPCEX = new DPCEXBase(new BluetoothOptions() { DeviceAddress = "68:0a:e2:de:a5:2e" });
+            // 必须把 settings 交给设备 —— 原来这里建了 LoopbackSettings 却用蓝牙构造，
+            // 用例实际在连真实硬件，无蓝牙适配器的机器上必然失败。
+            var dPCEX = new DPCEXBase(settings);
             return (dPCEX, settings);
         }
         [Fact]
@@ -35,7 +37,7 @@ namespace DeviceLink.Tests
             await dPCEX.OpenAsync();
 
             // Act
-            var version = await dPCEX.GetVersion(Device.ConST326EX.Enums.VersionType.APPLication);
+            var version = await dPCEX.GetVersionAsync(Device.ConST326EX.Enums.VersionType.APPLication);
 
             // Assert
             Assert.NotNull(version);

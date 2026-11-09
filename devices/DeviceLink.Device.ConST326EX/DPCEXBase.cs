@@ -139,18 +139,18 @@ public class DPCEXBase : DeviceLink.DeviceBase.DeviceBase
     #endregion 构造函数
 
     /// <summary>
-    /// 读 TAG 标签（TAG 指令，参数为长度）
+    /// 读取设备版本信息（SYSTem:VERSion 指令）
     /// </summary>
-    /// <param name="length">
-    /// 标签长度（默认48）
+    /// <param name="versionType">
+    /// 版本类型（应用/硬件/…），枚举名中的下划线会转成 SCPI 的冒号层级
     /// </param>
     /// <param name="ct">
     /// 取消令牌
     /// </param>
     /// <returns>
-    /// TAG标签
+    /// 版本信息文本
     /// </returns>
-    public async Task<string> GetVersion(VersionType versionType, CancellationToken ct = default)
+    public async Task<string> GetVersionAsync(VersionType versionType, CancellationToken ct = default)
     {
         return await SendForResultAsync(
             Command.Read("SYSTem:VERSion", versionType.ToString().Replace('_', ':')),

@@ -39,8 +39,8 @@ namespace DeviceLink.Tests.ConST171A
             {
                 ReceiveTimeoutMs = 15000,
                 ReceiveIdleTimeoutMs = 100,
-                MaxRetryCount = 2,
-                RetryDelayMs = 500
+                MaxConnectRetries = 2,
+                ReconnectDelayMs = 500
             };
             return new ConST171ADevice(settings);
         }

@@ -39,6 +39,60 @@ public class PS02Base : DeviceBase.DeviceBase
     /// </summary>
     private readonly CpplV3FrameStrategy _converterFrameStrategy;
 
+    /// <summary>
+    /// 转接板响应首次字节超时（毫秒）。
+    /// 转接板内部要转发一趟 Modbus，比直连从站慢，故比普通请求宽松。
+    /// </summary>
+    private const int ConverterResponseTimeoutMs = 15000;
+
+    /// <summary>
+    /// 转接板响应接收空闲超时（毫秒）—— 连续无新数据视为一帧收完。
+    /// </summary>
+    private const int ConverterIdleTimeoutMs = 100;
+
+    /// <summary>设备级读重试的最大尝试次数。</summary>
+    private const int DeviceReadMaxAttempts = 3;
+
+    /// <summary>设备级读重试的间隔（毫秒）。</summary>
+    private const int DeviceRetryDelayMs = 500;
+
+    /// <summary>
+    /// 幂等读操作的设备级重试。
+    ///
+    /// <b>只允许用于读</b>：读命令重发不会改变设备状态；写命令重发可能被执行两次，
+    /// 那属于会话层的"安全重试"范畴（仅连接未建立时重发），不能在这里兜。
+    ///
+    /// 与"手写 for 循环 + 最后一次再抄一遍方法体"相比，这里用 <c>when (attempt &lt; max)</c>
+    /// 让最后一次尝试的异常自然抛出，不需要重复解码逻辑。
+    /// </summary>
+    /// <typeparam name="T">结果类型</typeparam>
+    /// <param name="operation">操作名（仅用于日志）</param>
+    /// <param name="action">单次尝试</param>
+    /// <param name="ct">取消令牌</param>
+    private async Task<T> RetryReadAsync<T>(string operation, Func<Task<T>> action, CancellationToken ct)
+    {
+        for (int attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex) when (ex is DeviceException || ex is DeviceLink.Session.SessionException)
+            {
+                if (attempt >= DeviceReadMaxAttempts)
+                    throw;
+
+                CommunicationLogger.LogInfo(Name,
+                    $"{operation} 第 {attempt}/{DeviceReadMaxAttempts} 次失败（{ex.Message}），{DeviceRetryDelayMs}ms 后重试");
+                await Task.Delay(DeviceRetryDelayMs, ct);
+            }
+        }
+    }
+
     #region 构造函数
 
     /// <summary>
@@ -495,81 +549,49 @@ public class PS02Base : DeviceBase.DeviceBase
     /// <returns>
     /// 量程信息
     /// </returns>
-    public async Task<PressureRange> GetMigrationRangeAsync(CancellationToken ct = default)
+    public Task<PressureRange> GetMigrationRangeAsync(CancellationToken ct = default)
     {
-        const int maxRetries = 3;
-        const int retryDelayMs = 500;
+        // 读操作幂等，可以安全重发；写操作一律不在此重试
+        return RetryReadAsync(nameof(GetMigrationRangeAsync),
+            () => SendForResultAsync(
+                Command.Read("40.20798.4"),
+                ParseMigrationRangeResponse,
+                ct),
+            ct);
+    }
 
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
+    /// <summary>
+    /// 解析 F40 迁移量程响应：地址(0) + 功能码(1) + 字节数(2) + 下限(3..6) + 上限(7..10)。
+    /// </summary>
+    /// <param name="raw">原始响应</param>
+    /// <returns>量程信息</returns>
+    private PressureRange ParseMigrationRangeResponse(byte[] raw)
+    {
+        // 移除转接板添加的 0x00 前缀（CPPI 错误码）
+        var normalized = NormalizeF40Response(raw);
+
+        // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(8) = 11 字节
+        if (normalized == null || normalized.Length < 11)
         {
-            try
-            {
-                return await SendForResultAsync(
-                    Command.Read("40.20798.4"),
-                    raw =>
-                    {
-                        // 移除转接板添加的 0x00 前缀（CPPI 错误码）
-                        var normalized = NormalizeF40Response(raw);
-
-                        // 最小长度：地址(1) + 功能码(1) + 字节数(1) + 数据(8) = 11字节
-                        if (normalized == null || normalized.Length < 11)
-                        {
-                            var actualLen = normalized?.Length ?? 0;
-                            CommunicationLogger.LogInfo(Name,
-                                $"GetMigrationRangeAsync 响应无效: 长度={actualLen}（期望≥11），原始数据={BitConverter.ToString(raw)}");
-                            throw new DeviceException($"F40响应无效: 长度={actualLen}，期望≥11");
-                        }
-
-                        // 验证功能码：F40 响应功能码应为 0x28
-                        if (normalized[1] != 0x28)
-                        {
-                            CommunicationLogger.LogInfo(Name,
-                                $"GetMigrationRangeAsync 功能码错误: 0x{normalized[1]:X2}（期望0x28），原始数据={BitConverter.ToString(raw)}");
-                            throw new DeviceException($"F40功能码错误: 0x{normalized[1]:X2}，期望0x28");
-                        }
-
-                        // 偏移量：地址(0) + 功能码(1) + 字节数(2) = 数据从偏移3开始
-                        return new PressureRange
-                        {
-                            Lower = ParseFloat32LittleEndian(normalized, 3),
-                            Upper = ParseFloat32LittleEndian(normalized, 7)
-                        };
-                    },
-                    ct);
-            }
-            catch (FrameTimeoutException) when (attempt < maxRetries)
-            {
-                CommunicationLogger.LogInfo(Name, $"GetMigrationRangeAsync 超时，第 {attempt}/{maxRetries} 次重试...");
-                await Task.Delay(retryDelayMs, ct);
-            }
-            catch (DeviceException) when (attempt < maxRetries)
-            {
-                CommunicationLogger.LogInfo(Name, $"GetMigrationRangeAsync 响应异常，第 {attempt}/{maxRetries} 次重试...");
-                await Task.Delay(retryDelayMs, ct);
-            }
+            var actualLen = normalized?.Length ?? 0;
+            CommunicationLogger.LogInfo(Name,
+                $"GetMigrationRangeAsync 响应无效: 长度={actualLen}（期望≥11），原始数据={BitConverter.ToString(raw)}");
+            throw new DeviceException($"F40响应无效: 长度={actualLen}，期望≥11");
         }
 
-        // 最后一次尝试，让异常自然抛出
-        return await SendForResultAsync(
-            Command.Read("40.20798.4"),
-            raw =>
-            {
-                var normalized = NormalizeF40Response(raw);
-                if (normalized == null || normalized.Length < 11)
-                {
-                    throw new DeviceException($"F40响应无效: 长度={normalized?.Length ?? 0}，期望≥11");
-                }
-                if (normalized[1] != 0x28)
-                {
-                    throw new DeviceException($"F40功能码错误: 0x{normalized[1]:X2}，期望0x28");
-                }
-                return new PressureRange
-                {
-                    Lower = ParseFloat32LittleEndian(normalized, 3),
-                    Upper = ParseFloat32LittleEndian(normalized, 7)
-                };
-            },
-            ct);
+        // 验证功能码：F40 响应功能码应为 0x28
+        if (normalized[1] != 0x28)
+        {
+            CommunicationLogger.LogInfo(Name,
+                $"GetMigrationRangeAsync 功能码错误: 0x{normalized[1]:X2}（期望0x28），原始数据={BitConverter.ToString(raw)}");
+            throw new DeviceException($"F40功能码错误: 0x{normalized[1]:X2}，期望0x28");
+        }
+
+        return new PressureRange
+        {
+            Lower = ParseFloat32LittleEndian(normalized, 3),
+            Upper = ParseFloat32LittleEndian(normalized, 7)
+        };
     }
 
     /// <summary>
@@ -1188,21 +1210,22 @@ public class PS02Base : DeviceBase.DeviceBase
     /// </summary>
     private async Task<byte[]> SendRawFrameAsync(byte[] frame, CancellationToken ct)
     {
-        // 直接使用传输层发送和接收（绕过 BuildFrame 的 Modbus CRC 添加）
-        var transport = Pipeline.Transport;
-        if (transport == null || !transport.IsOpen)
+        // 通过链路层的原始帧通道收发：本设备只负责"帧长什么样"，
+        // 读循环、超时、累积、串行化都归 L2 —— 不再越级碰 IPhysicalTransport。
+        var channel = RawChannel;
+
+        var options = new RawFrameOptions
         {
-            throw new DeviceException("传输层未打开");
-        }
+            FirstByteTimeoutMs = ConverterResponseTimeoutMs,
+            IdleTimeoutMs = ConverterIdleTimeoutMs,
+            PollIntervalMs = 5,
+            TryParse = accumulated =>
+                _converterFrameStrategy.TryParseRawFrame(accumulated, out int frameLen, out _)
+                    ? frameLen
+                    : -1
+        };
 
-        // 清空接收缓冲区
-        await transport.ClearReceiveBufferAsync(ct);
-
-        // 发送原始帧
-        await transport.WriteAsync(frame, 0, frame.Length, ct);
-
-        // 接收响应（使用转接板帧策略解析）
-        var response = await ReceiveRawFrameAsync(transport, ct);
+        var response = await channel.ExchangeRawAsync(frame, options, ct);
 
         // 记录接收日志
         CommunicationLogger.LogRaw(Name, "<<< 转接板响应", response);
@@ -1211,62 +1234,10 @@ public class PS02Base : DeviceBase.DeviceBase
     }
 
     /// <summary>
-    /// 接收原始 CPPI V3 帧响应
+    /// 链路层的原始帧通道（已拼好的帧直发、按调用方规则定界）。
     /// </summary>
-    private async Task<byte[]> ReceiveRawFrameAsync(IPhysicalTransport transport, CancellationToken ct)
-    {
-        var accumulated = new List<byte>();
-        var sw = System.Diagnostics.Stopwatch.StartNew();
-        var idleSw = System.Diagnostics.Stopwatch.StartNew();
-        bool hasReceivedData = false;
-
-        while (true)
-        {
-            ct.ThrowIfCancellationRequested();
-
-            // 等待一小段时间
-            await Task.Delay(10, ct);
-
-            // 尝试读取数据
-            var buffer = new byte[4096];
-            int read = await transport.ReadAsync(buffer, 0, buffer.Length, ct);
-
-            if (read > 0)
-            {
-                accumulated.AddRange(buffer.AsSpan(0, read).ToArray());
-                hasReceivedData = true;
-                idleSw.Restart();
-
-                // 尝试解析帧
-                var accArray = accumulated.ToArray();
-                if (_converterFrameStrategy.TryParseRawFrame(accArray, out int frameLen, out byte[] frameData))
-                {
-                    // 返回完整帧（包括帧头和 CRC）
-                    return accArray.AsSpan(0, frameLen).ToArray();
-                }
-            }
-
-            // 首次响应超时检查（15秒）
-            if (!hasReceivedData && sw.ElapsedMilliseconds > 15000)
-            {
-                throw new DeviceException("转接板响应超时");
-            }
-
-            // 接收空闲超时检查（100ms 无新数据）
-            if (hasReceivedData && idleSw.ElapsedMilliseconds > 100)
-            {
-                // 返回累积的数据（可能不是完整帧）
-                if (accumulated.Count > 0)
-                {
-                    return accumulated.ToArray();
-                }
-
-                break;
-            }
-        }
-
-        throw new DeviceException("未收到转接板响应");
-    }
+    private IRawFrameChannel RawChannel => RawFrameChannel
+        ?? throw new DeviceException("当前链路不支持原始帧通道（需要 DirectDataLink）");
 
     /// <summary>
     /// 解析转接板响应帧
@@ -1760,15 +1731,8 @@ public class PS02Base : DeviceBase.DeviceBase
         var frame = _cppiV3FrameStrategy.BuildRawFrame(0x0400, modbusFrame);
         CommunicationLogger.LogRaw(Name, ">>> 转接板 Modbus 转发(单向, 无返回)", frame);
 
-        var transport = Pipeline.Transport;
-        if (transport == null || !transport.IsOpen)
-        {
-            throw new DeviceException("传输层未打开");
-        }
-
-        // 清空接收缓冲区后单向发送，不等待响应
-        await transport.ClearReceiveBufferAsync(ct);
-        await transport.WriteAsync(frame, 0, frame.Length, ct);
+        // 单向发送：清空接收缓冲区后写出，不等待响应
+        await RawChannel.SendRawAsync(frame, ct);
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -2337,65 +2301,58 @@ public class PS02Base : DeviceBase.DeviceBase
     /// <returns>
     /// 标准板卡校准数据
     /// </returns>
-    public async Task<StandardBoardCalibrationData> ReadStandardBoardCalibrationDataAsync(ushort index, CancellationToken ct = default)
+    public Task<StandardBoardCalibrationData> ReadStandardBoardCalibrationDataAsync(
+        ushort index, CancellationToken ct = default)
     {
-        const int maxRetries = 3;
-        const int retryDelayMs = 500;
+        // 读操作幂等，可以安全重发
+        return RetryReadAsync(nameof(ReadStandardBoardCalibrationDataAsync),
+            () => ReadStandardBoardCalibrationDataOnceAsync(index, ct),
+            ct);
+    }
 
-        for (int attempt = 1; attempt <= maxRetries; attempt++)
+    /// <summary>
+    /// 读取标准板卡校准数据（单次尝试，不含重试）。
+    /// </summary>
+    /// <param name="index">校准数据索引（1=最新）</param>
+    /// <param name="ct">取消令牌</param>
+    /// <returns>标准板卡校准数据</returns>
+    private async Task<StandardBoardCalibrationData> ReadStandardBoardCalibrationDataOnceAsync(
+        ushort index, CancellationToken ct)
+    {
+        // 参数：索引（2 字节大端）
+        var paramData = new byte[] { (byte)(index >> 8), (byte)(index & 0xFF) };
+        var frame = _converterFrameStrategy.BuildRawFrame(0x0281, paramData);
+        CommunicationLogger.LogRaw(Name, $">>> 标准板卡指令: 读取校准数据 (索引:{index})", frame);
+
+        var response = await SendRawFrameAsync(frame, ct);
+
+        if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
+            throw new DeviceException($"标准板卡响应帧解析失败，数据: {BitConverter.ToString(response)}");
+
+        if (frameData.Length < 1)
+            throw new DeviceException("标准板卡响应数据为空");
+
+        CommunicationLogger.LogRaw(Name, $"<<< 标准板卡响应帧数据 ({frameData.Length}字节)", frameData);
+
+        byte errorCode = frameData[0];
+        if (errorCode != 0)
         {
-            try
-            {
-                // 参数：索引（2字节大端）
-                var paramData = new byte[] { (byte)(index >> 8), (byte)(index & 0xFF) };
-                var frame = _converterFrameStrategy.BuildRawFrame(0x0281, paramData);
-                CommunicationLogger.LogRaw(Name, $">>> 标准板卡指令: 读取校准数据 (索引:{index}, 尝试:{attempt}/{maxRetries})", frame);
+            var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
+                ? ((ConverterErrorCode)errorCode).ToString()
+                : $"未知错误(0x{errorCode:X2})";
 
-                var response = await SendRawFrameAsync(frame, ct);
+            CommunicationLogger.LogError(Name,
+                $"标准板卡返回错误码: {errorCode} ({errorName}), 响应数据: {BitConverter.ToString(frameData)}");
 
-                // 解析响应帧
-                if (!_converterFrameStrategy.TryParseRawFrame(response, out _, out byte[] frameData))
-                    throw new DeviceException($"标准板卡响应帧解析失败，数据: {BitConverter.ToString(response)}");
-
-                if (frameData.Length < 1)
-                    throw new DeviceException("标准板卡响应数据为空");
-
-                CommunicationLogger.LogRaw(Name, $"<<< 标准板卡响应帧数据 ({frameData.Length}字节)", frameData);
-
-                byte errorCode = frameData[0];
-                if (errorCode != 0)
-                {
-                    var errorName = Enum.IsDefined(typeof(ConverterErrorCode), errorCode)
-                        ? ((ConverterErrorCode)errorCode).ToString()
-                        : $"未知错误(0x{errorCode:X2})";
-                    CommunicationLogger.LogError(Name, $"标准板卡返回错误码: {errorCode} ({errorName}), 响应数据: {BitConverter.ToString(frameData)}");
-
-                    // 如果是执行错误且还有重试机会，等待后重试
-                    if (errorCode == (byte)ConverterErrorCode.ExecutionError && attempt < maxRetries)
-                    {
-                        CommunicationLogger.LogInfo(Name, $"标准板卡执行错误，{retryDelayMs}ms 后重试...");
-                        await Task.Delay(retryDelayMs, ct);
-                        continue;
-                    }
-
-                    throw new DeviceException($"标准板卡返回错误: {errorName} (0x{errorCode:X2})，响应: {BitConverter.ToString(frameData)}");
-                }
-
-                // 校准数据在错误码之后
-                var data = new byte[frameData.Length - 1];
-                Array.Copy(frameData, 1, data, 0, data.Length);
-
-                return ParseStandardBoardCalibrationData(data);
-            }
-            catch (DeviceException) when (attempt < maxRetries)
-            {
-                CommunicationLogger.LogInfo(Name, $"读取标准板卡校准数据失败，第 {attempt}/{maxRetries} 次重试...");
-                await Task.Delay(retryDelayMs, ct);
-            }
+            throw new DeviceException(
+                $"标准板卡返回错误: {errorName} (0x{errorCode:X2})，响应: {BitConverter.ToString(frameData)}");
         }
 
-        // 不应该到达这里，但为了编译通过
-        throw new DeviceException("读取标准板卡校准数据失败，已用尽所有重试次数");
+        // 校准数据在错误码之后
+        var data = new byte[frameData.Length - 1];
+        Array.Copy(frameData, 1, data, 0, data.Length);
+
+        return ParseStandardBoardCalibrationData(data);
     }
 
     /// <summary>

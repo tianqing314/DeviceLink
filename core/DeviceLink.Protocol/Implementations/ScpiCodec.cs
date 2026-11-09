@@ -14,7 +14,7 @@ namespace DeviceLink.Protocol
     ///   发送: "MEAS:VOLT?\n"         → 测量电压
     ///   接收: "1.2345\n"             → 电压值
     /// </summary>
-    public class ScpiCodec : IProtocolCodec
+    public class ScpiCodec : IProtocolCodec, IFramedProtocol
     {
         private readonly string _terminator;
         private readonly byte[] _terminatorBytes;
@@ -36,6 +36,9 @@ namespace DeviceLink.Protocol
 
         /// <inheritdoc/>
         public bool PayloadIncludesTerminator => true;
+
+        /// <inheritdoc/>
+        public byte[] FrameTerminator => (byte[])_terminatorBytes.Clone();
 
         /// <inheritdoc/>
         public byte[] Encode(Command command)

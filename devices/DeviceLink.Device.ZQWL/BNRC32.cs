@@ -2,377 +2,115 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using DeviceLink.DeviceBase;
-using DeviceLink.Protocol;
 using DeviceLink.Session;
 
 namespace DeviceLink.Device.ZQWL;
 
 /// <summary>
-/// 智嵌物联 BNRC32 网络继电器控制器（32路）
-/// 
-/// 通信参数：
-///   - 波特率：115200
-///   - 数据位：8
-///   - 停止位：1
-///   - 校验：None
-/// 
+/// 智嵌物联 BNRC32 网络继电器控制器（32 路）。
+///
+/// 通信参数：115200, 8, 1, None
 /// 协议格式：[48 3A] [addr] [func] [data x8] [checksum] [45 44]
-/// 
-/// 数据区编码（BNRC32）：
-///   每字节表示 4 路，由高位到低位分别为第 4,3,2,1 排序位
-///   data[0] = 路1~4（bit3=路4, bit2=路3, bit1=路2, bit0=路1）
-///   data[1] = 路5~8
-///   ...
-///   data[7] = 路29~32
-/// 
-/// 使用示例：
-///   var relay = new BNRC32("COM3");
-///   await relay.OpenAsync();
-///   await relay.SetOutputAsync(1, true);   // 打开第 1 路
-///   var state = await relay.GetInputAsync(1); // 读取第 1 路输入
+///
+/// 数据区编码（BNRC32）：<b>每字节 4 路（quad）</b>，
+/// 数据从 raw[2] 开始，打开全部时每字节为 0x55。
 /// </summary>
-public class BNRC32 : DeviceBase.DeviceBase
+public class BNRC32 : BnrcAnalogRelayBase
 {
-    private readonly ZqwlCodec _codec;
+    private static readonly string[] OpenAll =
+        { "55", "55", "55", "55", "55", "55", "55", "55" };
 
-    #region 构造函数
-
-    /// <summary>
-    /// 构造函数（串口通讯，完整参数）
-    /// </summary>
+    /// <summary>初始化串口通信（完整参数）。</summary>
+    /// <param name="serialPortName">串口号（如 COM3）</param>
+    /// <param name="baudRate">波特率（默认 115200）</param>
+    /// <param name="dataBits">数据位（默认 8）</param>
+    /// <param name="stopBits">停止位（默认 1）</param>
+    /// <param name="parity">校验位（默认 None）</param>
+    /// <param name="address">设备地址（默认 1）</param>
     public BNRC32(string serialPortName, int baudRate = 115200, int dataBits = 8,
         StopBits stopBits = StopBits.One, Parity parity = Parity.None, byte address = 1)
-        : base(serialPortName, baudRate, dataBits, stopBits, parity,
-              new ZqwlCodec(address))
-    {
-        _codec = (ZqwlCodec)Codec;
-    }
+        : base(serialPortName, baudRate, dataBits, stopBits, parity, address)
+    { }
 
-    /// <summary>
-    /// 构造函数（串口通讯，默认配置）
-    /// </summary>
+    /// <summary>初始化串口通信（默认配置 115200,8,1,None）。</summary>
+    /// <param name="serialPortName">串口号</param>
+    /// <param name="address">设备地址（默认 1）</param>
     public BNRC32(string serialPortName, byte address = 1)
-        : base(serialPortName, new ZqwlCodec(address))
-    {
-        _codec = (ZqwlCodec)Codec;
-    }
+        : base(serialPortName, address)
+    { }
 
-    /// <summary>
-    /// 构造函数（TCP 通讯）
-    /// </summary>
+    /// <summary>初始化 TCP 通信。</summary>
+    /// <param name="ipAddress">IP 地址</param>
+    /// <param name="port">端口号</param>
+    /// <param name="address">设备地址（默认 1）</param>
     public BNRC32(IPAddress ipAddress, int port, byte address = 1)
-        : base(ipAddress, port, new ZqwlCodec(address))
-    {
-        _codec = (ZqwlCodec)Codec;
-    }
+        : base(ipAddress, port, address)
+    { }
 
-    /// <summary>
-    /// 构造函数（测试用，直接注入会话层）
-    /// </summary>
+    /// <summary>初始化（测试用，直接注入会话层）。</summary>
+    /// <param name="session">会话层实例</param>
+    /// <param name="address">设备地址（默认 1）</param>
     public BNRC32(ISession session, byte address = 1)
-        : base(session, new ZqwlCodec(address))
+        : base(session, address)
+    { }
+
+    /// <inheritdoc/>
+    protected override string ModelName => "BNRC32";
+
+    /// <inheritdoc/>
+    protected override string[] OpenAllData => OpenAll;
+
+    /// <inheritdoc/>
+    protected override bool DecodeInput(byte[] raw, int channel)
     {
-        _codec = (ZqwlCodec)Codec;
+        // 响应格式：[addr][func][data x8] = 10 字节，数据从 raw[2] 开始
+        if (raw.Length < 10) return false;
+
+        int index = channel - 1;                 // 转成 0-based
+        if (index < 0 || index >= 32) return false;
+
+        return DecodeBit(raw[2 + index / 4], index % 4);
+    }
+
+    /// <inheritdoc/>
+    protected override bool DecodeOutput(byte[] raw, int channel)
+        => raw.Length >= 10 && raw[5] == 0x01;
+
+    /// <inheritdoc/>
+    protected override List<bool> DecodeAllStatuses(byte[] raw)
+    {
+        var result = new List<bool>();
+        if (raw.Length < 10) return result;
+
+        for (int i = 0; i < 32; i++)
+            result.Add(DecodeBit(raw[2 + i / 4], i % 4));
+
+        return result;
     }
 
     /// <summary>
-    /// 配置构造函数默认信息
+    /// 取出一个字节里指定位序的状态。
+    ///
+    /// 位序约定（由 0x55 = 4 路全开、8 字节 × 4 路 = 32 路反推得到）：
+    /// bitIndex 0/1 取低半字节（hex[1]）的第 0、2 位，2/3 取高半字节（hex[0]）的第 0、2 位。
+    ///
+    /// <b>注意</b>：此前 <c>GetInputAsync</c> 用的是另一套映射（channel % 4 决定半字节），
+    /// 与 <c>GetAllStatusesAsync</c> 互相矛盾 —— 同一路在单读与批量读里会落到不同 bit 上。
+    /// 现已统一为本方法，两者不再可能给出不同答案。
     /// </summary>
-    protected override void ConstructDefaultInfo()
+    /// <param name="dataByte">数据区的一个字节</param>
+    /// <param name="bitIndex">字节内的路序（0~3）</param>
+    private static bool DecodeBit(byte dataByte, int bitIndex)
     {
-        base.ConstructDefaultInfo();
-        Name = "BNRC32";
-    }
-
-    #endregion
-
-    // ═══════════════════════════════════════════════════════════
-    // 输入读取
-    // ═══════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// 读取指定路的输入状态（BNRC32 使用 4-bit 编码）
-    /// </summary>
-    /// <param name="channel">
-    /// 通道号（1~32）
-    /// </param>
-    /// <param name="ct">
-    /// 取消令牌
-    /// </param>
-    /// <returns>
-    /// true=开，false=关
-    /// </returns>
-    public async Task<bool> GetInputAsync(int channel, CancellationToken ct = default)
-    {
-        return await SendForResultAsync(
-            Command.Read("GetInput"),
-            raw => ExtractQuadInput(raw, channel),
-            ct);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // 输出控制
-    // ═══════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// 设置指定路的输出状态
-    /// </summary>
-    /// <param name="channel">
-    /// 通道号（1~32）
-    /// </param>
-    /// <param name="state">
-    /// true=开，false=关
-    /// </param>
-    /// <param name="ct">
-    /// 取消令牌
-    /// </param>
-    public async Task SetOutputAsync(int channel, bool state, CancellationToken ct = default)
-    {
-        await SendNonQueryAsync(
-            Command.Write($"SetOutput.{channel}.{(state ? 1 : 0)}"),
-            ct);
-    }
-
-    /// <summary>
-    /// 读取指定路的输出状态
-    /// </summary>
-    /// <param name="channel">
-    /// 通道号（1~32）
-    /// </param>
-    /// <param name="ct">
-    /// 取消令牌
-    /// </param>
-    /// <returns>
-    /// true=开，false=关
-    /// </returns>
-    public async Task<bool> GetOutputAsync(int channel, CancellationToken ct = default)
-    {
-        return await SendForResultAsync(
-            Command.Read($"GetOutput.{channel}"),
-            raw =>
-            {
-                if (raw.Length >= 10)
-                {
-                    return raw[5] == 0x01;
-                }
-                return false;
-            },
-            ct);
-    }
-
-    /// <summary>
-    /// 关闭全部输出
-    /// </summary>
-    public async Task CloseAllAsync(CancellationToken ct = default)
-    {
-        // BNRC32 关闭全部：8 字节全填 0x00
-        await SendNonQueryAsync(
-            Command.Write("CloseAll", "00", "00", "00", "00", "00", "00", "00", "00"),
-            ct);
-    }
-
-    /// <summary>
-    /// 打开全部输出
-    /// </summary>
-    public async Task OpenAllAsync(CancellationToken ct = default)
-    {
-        // BNRC32 打开全部：8 字节全填 0x55（每字节 4 位都为 1，表示 4 路全开）
-        await SendNonQueryAsync(
-            Command.Write("OpenAll", "55", "55", "55", "55", "55", "55", "55", "55"),
-            ct);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // 版本与状态
-    // ═══════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// 读取设备版本号
-    /// </summary>
-    public async Task<string> GetVersionAsync(CancellationToken ct = default)
-    {
-        return await SendForResultAsync(
-            Command.Read("GetVersion"),
-            raw => _codec.ExtractVersion(raw),
-            ct);
-    }
-
-    /// <summary>
-    /// 检查设备是否存在（通过读取版本号判断）
-    /// 版本号示例：1BNRC32、BN-32-V2
-    /// </summary>
-    /// <param name="ct">
-    /// 取消令牌
-    /// </param>
-    /// <returns>
-    /// true 表示设备存在且为 BNRC32 型号
-    /// </returns>
-    public async Task<bool> IsExistAsync(CancellationToken ct = default)
-    {
-        try
-        {
-            var version = await GetVersionAsync(ct);
-            if (string.IsNullOrEmpty(version))
-            {
-                return false;
-            }
-
-            // 检查是否为 BNRC32 型号
-            // 版本号格式：1BNRC32 或包含 BNRC32 的字符串
-            return version.Contains("BNRC32");
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// 读取全部 32 路输出状态
-    /// </summary>
-    public async Task<List<bool>> GetAllStatusesAsync(CancellationToken ct = default)
-    {
-        return await SendForResultAsync(
-            Command.Read("GetAllStatuses"),
-            raw =>
-            {
-                var result = new List<bool>();
-                // TryParseFrame 返回: [addr][func][data x8] = 10 字节
-                // 数据从 raw[2] 开始
-                if (raw.Length >= 10)
-                {
-                    for (int i = 0; i < 32; i++)
-                    {
-                        int byteIndex = 2 + i / 4;
-                        int bitIndex = i % 4;
-                        byte dataByte = raw[byteIndex];
-                        string hex = dataByte.ToString("X2");
-                        if (hex.Length == 1)
-                        {
-                            hex = "0" + hex;
-                        }
-
-                        bool isOn;
-                        switch (bitIndex)
-                        {
-                            case 0:
-                                isOn = hex[1] == '1' || hex[1] == '5';
-                                break;
-                            case 1:
-                                isOn = hex[1] == '4' || hex[1] == '5';
-                                break;
-                            case 2:
-                                isOn = hex[0] == '1' || hex[0] == '5';
-                                break;
-                            case 3:
-                                isOn = hex[0] == '4' || hex[0] == '5';
-                                break;
-                            default:
-                                isOn = false;
-                                break;
-                        }
-                        result.Add(isOn);
-                    }
-                }
-                return result;
-            },
-            ct);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // 模拟量读取
-    // ═══════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// 读取模拟量输入值（20mA 量程）
-    /// </summary>
-    /// <param name="channel">
-    /// 通道号（1-based）
-    /// </param>
-    /// <param name="ct">
-    /// 取消令牌
-    /// </param>
-    /// <returns>
-    /// 模拟量原始值
-    /// </returns>
-    public async Task<int> GetAnalogInputAsync(int channel, CancellationToken ct = default)
-    {
-        int channelIndex = channel <= 1 ? 0 : channel - 1;
-        return await SendForResultAsync(
-            Command.Read($"GetAnalogInput.{channelIndex}"),
-            raw => _codec.ExtractAnalogValue(raw),
-            ct);
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // 私有辅助方法
-    // ═══════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// 从 4-bit 编码的响应中提取输入状态（BNRC32 专用）
-    /// 每字节表示 4 路：由高位到低位分别为第 4,3,2,1 排序位
-    /// </summary>
-    private static bool ExtractQuadInput(byte[] raw, int channel)
-    {
-        // TryParseFrame 返回: [addr][func][data x8] = 10 字节
-        // 数据从 raw[2] 开始
-        if (raw.Length < 10)
-        {
-            return false;
-        }
-
-        int dataIndex = (int)Math.Floor(channel / 4.0);
-        byte dataByte = raw[2 + dataIndex];
         string hex = dataByte.ToString("X2");
-        if (hex.Length == 1)
-        {
-            hex = "0" + hex;
-        }
 
-        switch (channel % 4)
+        return bitIndex switch
         {
-            case 0:
-                return GetBitFromHex(hex[1], HexCharPart.Lower);
-            case 1:
-                return GetBitFromHex(hex[1], HexCharPart.Upper);
-            case 2:
-                return GetBitFromHex(hex[0], HexCharPart.Lower);
-            case 3:
-                return GetBitFromHex(hex[0], HexCharPart.Upper);
-            default:
-                return false;
-        }
-    }
-
-    private enum HexCharPart { Lower, Upper }
-
-    private static bool GetBitFromHex(char hexChar, HexCharPart part)
-    {
-        int val = 0;
-        if (hexChar >= '0' && hexChar <= '9')
-        {
-            val = hexChar - '0';
-        }
-        else if (hexChar >= 'A' && hexChar <= 'F')
-        {
-            val = hexChar - 'A' + 10;
-        }
-        else if (hexChar >= 'a' && hexChar <= 'f')
-        {
-            val = hexChar - 'a' + 10;
-        }
-
-        switch (part)
-        {
-            case HexCharPart.Lower:
-                return val % 4 >= 1;
-            case HexCharPart.Upper:
-                return val / 4 >= 1;
-            default:
-                return false;
-        }
+            0 => hex[1] == '1' || hex[1] == '5',
+            1 => hex[1] == '4' || hex[1] == '5',
+            2 => hex[0] == '1' || hex[0] == '5',
+            3 => hex[0] == '4' || hex[0] == '5',
+            _ => false
+        };
     }
 }

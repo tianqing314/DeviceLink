@@ -5,4 +5,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!--
+    文档警告策略：
+    · core/ 是框架对外契约，XML 注释必须完整 —— 缺失即算缺陷（CS1591 保持开启）；
+    · devices/ 是设备驱动，公共面主要是 DTO 与 ToString() 覆写，逐个补注释只是噪声，
+      会把真正的警告淹没，因此仅对 devices/ 关闭 CS1591。
+      注意：这里只关"缺少注释"，CS1570（注释格式错误）、CS1573（漏参数）仍然保留。
+  -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Replace('\','/').Contains('/devices/'))">
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
 </Project>

@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\core\DeviceLink.DeviceBase\DeviceLink.DeviceBase.csproj" />
     <ProjectReference Include="..\..\devices\DeviceLink.Device.ConST326EX\DeviceLink.Device.ConST326EX.csproj" />
     <ProjectReference Include="..\..\devices\DeviceLink.Device.DPSEX\DeviceLink.Device.DPSEX.csproj" />
+    <ProjectReference Include="..\..\devices\DeviceLink.Device.ZQWL\DeviceLink.Device.ZQWL.csproj" />
   </ItemGroup>
 
 </Project>
